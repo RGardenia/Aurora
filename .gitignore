@@ -21,3 +21,56 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.mvn
+
+## 打包文件
+
+
+/target
+/*.iml
+
+## 忽略 相关 软件 ##
+/Software
+
+## 忽略 相关 文件 ##
+/Datum
+/书籍
+/校招面试
+/随笔记录
+/机器学习
+/考研资料
+/doc
+doc/
+
+## Learning At School ##
+
+## 提交目录 ##
+样式学习 - 痛苦面具/
+/WEB
+/Algorithm
+/Applet
+/DataBase
+/Golang
+/Java
+/Linux
+/Node
+/Python
+/Server
+/Spring
+/SpringBoot
+/SpringCloud
+/Vue
+/ELK
+/分布式
+/杂记
+/研
+/计算机网络
+/设计模式
+/Php
+/云原生
