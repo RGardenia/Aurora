@@ -41,7 +41,6 @@ hs_err_pid*
 ## 忽略 相关 文件 ##
 /Datum
 /doc
-doc/
 
 ## Learning At School ##
 
