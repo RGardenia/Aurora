@@ -1,6 +1,6 @@
 #!/bin/bash
 
-K8S_VERSION=1.23.0
+K8S_VERSION=1.23.0-0
 KUBE_VERSION=v1.20.15
 KUBE_PAUSE_VERSION=3.2
 ETCD_VERSION=3.4.13-0
@@ -52,7 +52,7 @@ EOF
 
 # 安装 kubeadm & kubelet & kubectl
 yum list kubeadm --showduplicates | sort -r
-yum install -y kubeadm-$K8S_VERSION kubelet-$K8S_VERSION kubectl-$K8S_VERSION
+yum install -y kubeadm-${K8S_VERSION} kubelet-${K8S_VERSION} kubectl-${K8S_VERSION}
 
 
 # docker 和 k8s 设置同一个cgroup
