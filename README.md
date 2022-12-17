@@ -18,7 +18,7 @@
 
 因个人能力有限，笔记中可能还有很多错误的地方，还请大家能够多多指出交流，也欢迎各位小伙伴能够提交 **Pull Request** 请求进行完善。
 
-如果您要转载本仓库中的笔记到其它地方，欢迎添加笔记的仓库地址：[LearningNotes](https://gitee.com/CapeJasmine/learning-notes)
+如果您要转载本仓库中的笔记到其它地方，欢迎添加笔记的仓库地址：[LearningNotes](https://gitee.com/CapeJasmine/Aurora)
 
 
 
@@ -26,24 +26,12 @@
 
 本仓库同步托管在Github和Gitee中
 
-- Gitee仓库：https://gitee.com/CapeJasmine/learning-notes
+- Gitee仓库：https://gitee.com/CapeJasmine/Aurora
 
-## 个人博客搭建
-
-如果想搭建个人的博客系统，可以购买优惠服务器。
-
-> 【阿里云】云服务器狂欢特惠，**2核2G5M** 轻量级应用服务器 **60** 元/年【博主目前使用】 [点我传送](https://www.aliyun.com/minisite/goods?userCode=w7aungxw)
->
-> 【腾讯云】云产品限时秒杀，爆款 **2核4G8M** 云服务器，首年**74**元/年【博主强烈推荐】 [点我进入](https://curl.qcloud.com/TYzPgyNC)
->
-> 
 
 ## 公众号文章
 
 > 来源栀的个人公众号：**[栀 - CodeGardenia](https://gitee.com/moxi159753/wx_picture/raw/master/picture/%E5%85%AC%E4%BC%97%E5%8F%B7.jpg)**
-
-- 
-
 
 
 ## 关注&交流
