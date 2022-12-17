@@ -21,7 +21,7 @@
 | 环境变量 | 说明              |
 | -------- | ----------------- |
 | GOROOT   | 指定SDK的安装目录 |
-| Path     | 添加SDK的/binmulu |
+| Path     | 添加SDK的/bin     |
 | GOPATH   | 工作目录          |
 
 首先我们需要打开我们的环境变量，然后添加上GOROOT
@@ -40,9 +40,9 @@ go version
 
 ![image-20200718112254366](images/image-20200718112254366.png)
 
-## 下载Jetbrain下的GoLang
+## 下载 JetBrain下的 GoLang
 
-在我们配置好环境，我们就可以使用Jetbrain公司开发的Goland编辑器了，首先进入官网下载
+在我们配置好环境，我们就可以使用 Jetbrain 公司开发的Goland编辑器了，首先进入官网下载
 
 https://www.jetbrains.com/
 
