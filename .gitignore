@@ -36,10 +36,8 @@ hs_err_pid*
 ## 忽略 相关 软件 ##
 /Software
 
-## 忽略 相关 文件 ##
+## 忽略 资料 文件 ##
 /Datum
 /doc
 
-## Learning At School ##
-
-## 提交目录 ##
+## 提交 ##
