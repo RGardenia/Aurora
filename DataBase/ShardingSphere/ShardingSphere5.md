@@ -235,9 +235,9 @@ slave会从master读取binlog来进行数据同步
 
 ![image-20220807183231101](assets/image-20220807183231101.png)
 
-- 主服务器：容器名`atguigu-mysql-master`，端口`3306`
-- 从服务器：容器名`atguigu-mysql-slave1`，端口`3307`
-- 从服务器：容器名`atguigu-mysql-slave2`，端口`3308`
+- 主服务器：容器名`gardenia-mysql-master`，端口`3306`
+- 从服务器：容器名`gardenia-mysql-slave1`，端口`3307`
+- 从服务器：容器名`gardenia-mysql-slave2`，端口`3308`
 
 **注意：**如果此时防火墙是开启的，`则先关闭防火墙，并重启docker`，否则后续安装的MySQL无法启动
 
@@ -259,10 +259,10 @@ systemctl start docker
 ```shell
 docker run -d \
 -p 3306:3306 \
--v /atguigu/mysql/master/conf:/etc/mysql/conf.d \
--v /atguigu/mysql/master/data:/var/lib/mysql \
+-v /gardenia/mysql/master/conf:/etc/mysql/conf.d \
+-v /gardenia/mysql/master/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
---name atguigu-mysql-master \
+--name gardenia-mysql-master \
 mysql:8.0.29
 ```
 
@@ -273,7 +273,7 @@ mysql:8.0.29
 默认情况下MySQL的binlog日志是自动开启的，可以通过如下配置定义一些可选配置
 
 ```shell
-vim /atguigu/mysql/master/conf/my.cnf
+vim /gardenia/mysql/master/conf/my.cnf
 ```
 
 配置如下内容
@@ -296,7 +296,7 @@ binlog_format=STATEMENT
 重启MySQL容器
 
 ```shell
-docker restart atguigu-mysql-master
+docker restart gardenia-mysql-master
 ```
 
 
@@ -321,7 +321,7 @@ docker restart atguigu-mysql-master
 
 ```shell
 #进入容器：env LANG=C.UTF-8 避免容器中显示中文乱码
-docker exec -it atguigu-mysql-master env LANG=C.UTF-8 /bin/bash
+docker exec -it gardenia-mysql-master env LANG=C.UTF-8 /bin/bash
 #进入容器内的mysql命令行
 mysql -uroot -p
 #修改默认密码校验方式
@@ -334,11 +334,11 @@ ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 
 ```sql
 -- 创建slave用户
-CREATE USER 'atguigu_slave'@'%';
+CREATE USER 'gardenia_slave'@'%';
 -- 设置密码
-ALTER USER 'atguigu_slave'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+ALTER USER 'gardenia_slave'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 -- 授予复制权限
-GRANT REPLICATION SLAVE ON *.* TO 'atguigu_slave'@'%';
+GRANT REPLICATION SLAVE ON *.* TO 'gardenia_slave'@'%';
 -- 刷新权限
 FLUSH PRIVILEGES;
 ```
@@ -368,10 +368,10 @@ SHOW MASTER STATUS;
 ```shell
 docker run -d \
 -p 3307:3306 \
--v /atguigu/mysql/slave1/conf:/etc/mysql/conf.d \
--v /atguigu/mysql/slave1/data:/var/lib/mysql \
+-v /gardenia/mysql/slave1/conf:/etc/mysql/conf.d \
+-v /gardenia/mysql/slave1/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
---name atguigu-mysql-slave1 \
+--name gardenia-mysql-slave1 \
 mysql:8.0.29
 ```
 
@@ -380,7 +380,7 @@ mysql:8.0.29
 - **step2：创建MySQL从服务器配置文件：** 
 
 ```shell
-vim /atguigu/mysql/slave1/conf/my.cnf
+vim /gardenia/mysql/slave1/conf/my.cnf
 ```
 
 配置如下内容：
@@ -396,7 +396,7 @@ server-id=2
 重启MySQL容器
 
 ```shell
-docker restart atguigu-mysql-slave1
+docker restart gardenia-mysql-slave1
 ```
 
 
@@ -405,7 +405,7 @@ docker restart atguigu-mysql-slave1
 
 ```shell
 #进入容器：
-docker exec -it atguigu-mysql-slave1 env LANG=C.UTF-8 /bin/bash
+docker exec -it gardenia-mysql-slave1 env LANG=C.UTF-8 /bin/bash
 #进入容器内的mysql命令行
 mysql -uroot -p
 #修改默认密码校验方式
@@ -420,7 +420,7 @@ ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 
 ```sql
 CHANGE MASTER TO MASTER_HOST='192.168.100.201', 
-MASTER_USER='atguigu_slave',MASTER_PASSWORD='123456', MASTER_PORT=3306,
+MASTER_USER='gardenia_slave',MASTER_PASSWORD='123456', MASTER_PORT=3306,
 MASTER_LOG_FILE='binlog.000003',MASTER_LOG_POS=1357; 
 ```
 
@@ -602,7 +602,7 @@ SpringBoot版本：2.3.7.RELEASE
 ### 1.3、创建实体类
 
 ```java
-package com.atguigu.shardingjdbcdemo.entity;
+package com.gardenia.shardingjdbcdemo.entity;
 
 @TableName("t_user")
 @Data
@@ -618,7 +618,7 @@ public class User {
 ### 1.4、创建Mapper
 
 ```java
-package com.atguigu.shardingjdbcdemo.mapper;
+package com.gardenia.shardingjdbcdemo.mapper;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
@@ -692,7 +692,7 @@ spring.shardingsphere.props.sql-show=true
 ### 2.1、读写分离测试
 
 ```java
-package com.atguigu.shardingjdbcdemo;
+package com.gardenia.shardingjdbcdemo;
 
 @SpringBootTest
 class ReadwriteTest {
@@ -763,7 +763,7 @@ public void testSelectAll(){
 也可以在web请求中测试负载均衡
 
 ```java
-package com.atguigu.shardingjdbcdemo.controller;
+package com.gardenia.shardingjdbcdemo.controller;
 
 @RestController
 @RequestMapping("/userController")
@@ -808,8 +808,8 @@ public class UserController {
 ```shell
 docker run -d \
 -p 3301:3306 \
--v /atguigu/server/user/conf:/etc/mysql/conf.d \
--v /atguigu/server/user/data:/var/lib/mysql \
+-v /gardenia/server/user/conf:/etc/mysql/conf.d \
+-v /gardenia/server/user/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
 --name server-user \
 mysql:8.0.29
@@ -851,8 +851,8 @@ CREATE TABLE t_user (
 ```shell
 docker run -d \
 -p 3302:3306 \
--v /atguigu/server/order/conf:/etc/mysql/conf.d \
--v /atguigu/server/order/data:/var/lib/mysql \
+-v /gardenia/server/order/conf:/etc/mysql/conf.d \
+-v /gardenia/server/order/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
 --name server-order \
 mysql:8.0.29
@@ -894,7 +894,7 @@ CREATE TABLE t_order (
 ### 2.1、创建实体类
 
 ```java
-package com.atguigu.shardingjdbcdemo.entity;
+package com.gardenia.shardingjdbcdemo.entity;
 
 @TableName("t_order")
 @Data
@@ -912,7 +912,7 @@ public class Order {
 ### 2.2、创建Mapper
 
 ```java
-package com.atguigu.shardingjdbcdemo.mapper;
+package com.gardenia.shardingjdbcdemo.mapper;
 
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
@@ -964,7 +964,7 @@ spring.shardingsphere.props.sql-show=true
 ## 3、测试垂直分片
 
 ```java
-package com.atguigu.shardingjdbcdemo;
+package com.gardenia.shardingjdbcdemo;
 
 @SpringBootTest
 public class ShardingTest {
@@ -987,7 +987,7 @@ public class ShardingTest {
         userMapper.insert(user);
 
         Order order = new Order();
-        order.setOrderNo("ATGUIGU001");
+        order.setOrderNo("gardenia001");
         order.setUserId(user.getId());
         order.setAmount(new BigDecimal(100));
         orderMapper.insert(order);
@@ -1044,8 +1044,8 @@ ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
 ```shell
 docker run -d \
 -p 3310:3306 \
--v /atguigu/server/order0/conf:/etc/mysql/conf.d \
--v /atguigu/server/order0/data:/var/lib/mysql \
+-v /gardenia/server/order0/conf:/etc/mysql/conf.d \
+-v /gardenia/server/order0/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
 --name server-order0 \
 mysql:8.0.29
@@ -1098,8 +1098,8 @@ CREATE TABLE t_order1 (
 ```shell
 docker run -d \
 -p 3311:3306 \
--v /atguigu/server/order1/conf:/etc/mysql/conf.d \
--v /atguigu/server/order1/data:/var/lib/mysql \
+-v /gardenia/server/order1/conf:/etc/mysql/conf.d \
+-v /gardenia/server/order1/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
 --name server-order1 \
 mysql:8.0.29
@@ -1226,7 +1226,7 @@ spring.shardingsphere.rules.sharding.tables.t_order.actual-data-nodes=server-ord
 public void testInsertOrder(){
 
     Order order = new Order();
-    order.setOrderNo("ATGUIGU001");
+    order.setOrderNo("gardenia001");
     order.setUserId(1L);
     order.setAmount(new BigDecimal(100));
     orderMapper.insert(order);
@@ -1300,7 +1300,7 @@ public void testInsertOrderDatabaseStrategy(){
 
     for (long i = 0; i < 4; i++) {
         Order order = new Order();
-        order.setOrderNo("ATGUIGU001");
+        order.setOrderNo("gardenia001");
         order.setUserId(i + 1);
         order.setAmount(new BigDecimal(100));
         orderMapper.insert(order);
@@ -1354,7 +1354,7 @@ public void testInsertOrderTableStrategy(){
     for (long i = 1; i < 5; i++) {
 
         Order order = new Order();
-        order.setOrderNo("ATGUIGU" + i);
+        order.setOrderNo("gardenia" + i);
         order.setUserId(1L);
         order.setAmount(new BigDecimal(100));
         orderMapper.insert(order);
@@ -1363,7 +1363,7 @@ public void testInsertOrderTableStrategy(){
     for (long i = 5; i < 9; i++) {
 
         Order order = new Order();
-        order.setOrderNo("ATGUIGU" + i);
+        order.setOrderNo("gardenia" + i);
         order.setUserId(2L);
         order.setAmount(new BigDecimal(100));
         orderMapper.insert(order);
@@ -1377,8 +1377,8 @@ public void testInsertOrderTableStrategy(){
 public void testHash(){
 
     //注意hash取模的结果是整个字符串hash后再取模，和数值后缀是奇数还是偶数无关
-    System.out.println("ATGUIGU001".hashCode() % 2);
-    System.out.println("ATGUIGU0011".hashCode() % 2);
+    System.out.println("gardenia001".hashCode() % 2);
+    System.out.println("gardenia0011".hashCode() % 2);
 }
 ```
 
@@ -1496,7 +1496,7 @@ CREATE TABLE t_order_item1(
 ### 3.2、创建实体类
 
 ```java
-package com.atguigu.shardingjdbcdemo.entity;
+package com.gardenia.shardingjdbcdemo.entity;
 
 @TableName("t_order_item")
 @Data
@@ -1516,7 +1516,7 @@ public class OrderItem {
 ### 3.3、创建Mapper
 
 ```java
-package com.atguigu.shargingjdbcdemo.mapper;
+package com.gardenia.shargingjdbcdemo.mapper;
 
 @Mapper
 public interface OrderItemMapper extends BaseMapper<OrderItem> {
@@ -1569,13 +1569,13 @@ public void testInsertOrderAndOrderItem(){
     for (long i = 1; i < 3; i++) {
 
         Order order = new Order();
-        order.setOrderNo("ATGUIGU" + i);
+        order.setOrderNo("gardenia" + i);
         order.setUserId(1L);
         orderMapper.insert(order);
 
         for (long j = 1; j < 3; j++) {
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrderNo("ATGUIGU" + i);
+            orderItem.setOrderNo("gardenia" + i);
             orderItem.setUserId(1L);
             orderItem.setPrice(new BigDecimal(10));
             orderItem.setCount(2);
@@ -1586,13 +1586,13 @@ public void testInsertOrderAndOrderItem(){
     for (long i = 5; i < 7; i++) {
 
         Order order = new Order();
-        order.setOrderNo("ATGUIGU" + i);
+        order.setOrderNo("gardenia" + i);
         order.setUserId(2L);
         orderMapper.insert(order);
 
         for (long j = 1; j < 3; j++) {
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrderNo("ATGUIGU" + i);
+            orderItem.setOrderNo("gardenia" + i);
             orderItem.setUserId(2L);
             orderItem.setPrice(new BigDecimal(1));
             orderItem.setCount(3);
@@ -1614,7 +1614,7 @@ public void testInsertOrderAndOrderItem(){
 ### 4.1、创建VO对象
 
 ```java
-package com.atguigu.shardingjdbcdemo.entity;
+package com.gardenia.shardingjdbcdemo.entity;
 
 @Data
 public class OrderVo {
@@ -1628,7 +1628,7 @@ public class OrderVo {
 ### 4.2、添加Mapper方法
 
 ```java
-package com.atguigu.shardingjdbcdemo.mapper;
+package com.gardenia.shardingjdbcdemo.mapper;
 
 @Mapper
 public interface OrderMapper extends BaseMapper<Order> {
@@ -1713,7 +1713,7 @@ CREATE TABLE t_dict(
 #### 4.3.1、创建实体类
 
 ```java
-package com.atguigu.shardingjdbcdemo.entity;
+package com.gardenia.shardingjdbcdemo.entity;
 
 @TableName("t_dict")
 @Data
@@ -1730,7 +1730,7 @@ public class Dict {
 #### 4.3.2、创建Mapper
 
 ```java
-package com.atguigu.shardingjdbcdemo.mapper;
+package com.gardenia.shardingjdbcdemo.mapper;
 
 @Mapper
 public interface DictMapper extends BaseMapper<Dict> {
@@ -1874,8 +1874,8 @@ show databases;
 
 ```shell
 docker run -d \
--v /atguigu/server/proxy-a/conf:/opt/shardingsphere-proxy/conf \
--v /atguigu/server/proxy-a/ext-lib:/opt/shardingsphere-proxy/ext-lib \
+-v /gardenia/server/proxy-a/conf:/opt/shardingsphere-proxy/conf \
+-v /gardenia/server/proxy-a/ext-lib:/opt/shardingsphere-proxy/ext-lib \
 -e ES_JAVA_OPTS="-Xmx256m -Xms256m -Xmn128m" \
 -p 3321:3307 \
 --name server-proxy-a \
@@ -1886,7 +1886,7 @@ apache/shardingsphere-proxy:5.1.1
 
 **step2：上传MySQL驱动**
 
-将MySQl驱动上传至`/atguigu/server/proxy-a/ext-lib`目录
+将MySQl驱动上传至`/gardenia/server/proxy-a/ext-lib`目录
 
 
 
@@ -1904,7 +1904,7 @@ props:
   sql-show: true
 ```
 
-将配置文件上传至`/atguigu/server/proxy-a/conf`目录
+将配置文件上传至`/gardenia/server/proxy-a/conf`目录
 
 
 
@@ -2008,7 +2008,7 @@ rules:
         read-data-source-names: read_ds_0,read_ds_1
 ```
 
-将配置文件上传至`/atguigu/server/proxy-a/conf`目录
+将配置文件上传至`/gardenia/server/proxy-a/conf`目录
 
 
 
@@ -2104,7 +2104,7 @@ SpringBoot版本：2.3.7.RELEASE
 ### 4.3、创建实体类
 
 ```java
-package com.atguigu.shardingproxydemo.entity;
+package com.gardenia.shardingproxydemo.entity;
 
 @TableName("t_user")
 @Data
@@ -2121,7 +2121,7 @@ public class User {
 ### 4.4、创建Mapper
 
 ```java
-package com.atguigu.shardingproxydemo.mapper;
+package com.gardenia.shardingproxydemo.mapper;
 
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
@@ -2153,7 +2153,7 @@ mybatis-plus.configuration.log-impl=org.apache.ibatis.logging.stdout.StdOutImpl
 ### 4.6、测试
 
 ```java
-package com.atguigu.shardingproxydemo;
+package com.gardenia.shardingproxydemo;
 
 @SpringBootTest
 class ShardingProxyDemoApplicationTests {
