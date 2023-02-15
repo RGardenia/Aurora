@@ -39,5 +39,6 @@ hs_err_pid*
 ## 忽略 资料 文件 ##
 /Datum
 /doc
+*.pdf
 
 ## 提交 ##
