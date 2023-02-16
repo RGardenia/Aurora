@@ -1,9 +1,5 @@
 # SpringSecurity在分布式环境下的使用
 
-## 参考
-
-来源于黑马程序员： [手把手教你精通新版SpringSecurity](https://www.bilibili.com/video/BV1EE411u7YV?p=43)
-
 ## 分布式认证概念说明
 
 分布式认证，即我们常说的单点登录，简称SSO，指的是在多应用系统的项目中，用户只需要登录一次，就可以访
