@@ -1,38 +1,31 @@
-尚硅谷大数据技术之Hadoop（入门）
-
-（作者：尚硅谷大数据研发部）
-
-版本：V3.3
-
 # 第1章 Hadoop概述
 
 ## 1.1 Hadoop是什么
 
-![](media/image1.emf)
+1）Hadoop是一个由Apache基金会所开发的<span style="color:red">分布式系统基础架构</span>
+
+2）主要解决，海量数据的<span style="color:red">存储</span>和<span style="color:red">海量数据</span>的分析计算问题
+3）广义上来说，Hadoop通常是指一个更广泛的概念——<span style="color:red">Hadoop生态圈</span>
+
+![image-20230220180035958](images/image-20230220180035958.png)
 
 ## 1.2 Hadoop发展历史（了解）
 
-![](media/image2.emf)
-
-![](media/image3.emf)
+![image-20230220180100015](images/image-20230220180100015.png)![image-20230220180112895](images/image-20230220180112895.png)
 
 ## 1.3 Hadoop三大发行版本（了解）
 
 Hadoop三大发行版本：Apache、Cloudera、Hortonworks。
 
-Apache版本最原始（最基础）的版本，对于入门学习最好。2006
+Apache版本最原始（最基础）的版本，对于入门学习最好。`2006`
 
-> Cloudera内部集成了很多大数据框架，对应产品CDH。2008
+> Cloudera内部集成了很多大数据框架，对应产品CDH。`2008`
 >
-> Hortonworks文档较好，对应产品HDP。2011
+> Hortonworks文档较好，对应产品HDP。`2011`
 >
 > Hortonworks现在已经被Cloudera公司收购，推出新的品牌CDP。
 >
-> ![](media/image4.png){width="5.519802055993001in"
-> height="2.527306430446194in"}
->
-> ![](media/image5.png){width="5.574645669291338in"
-> height="1.194663167104112in"}
+> ![image-20230220180152024](images/image-20230220180152024.png)
 
 **1）Apache Hadoop**
 
@@ -46,74 +39,69 @@ Apache版本最原始（最基础）的版本，对于入门学习最好。2006
 >
 > 下载地址：https://docs.cloudera.com/documentation/enterprise/6/release-notes/topics/rg_cdh_6\_download.html
 
-（1）2008年成立的Cloudera是最早将Hadoop商用的公司，为合作伙伴提供Hadoop的商用解决方案，主要是包括支持、咨询服务、培训。
+（1）2008年成立的Cloudera是最早将Hadoop商用的公司，为合作伙伴提供Hadoop的商用解决方案，主要是包括支持、咨询服务、培训
 
-**（2）2009年Hadoop的创始人Doug
-Cutting也加盟Cloudera公司**。Cloudera产品主要为CDH，Cloudera
+**（2）2009年Hadoop的创始人Doug Cutting也加盟Cloudera公司**。Cloudera产品主要为CDH，Cloudera
 Manager，Cloudera Support
 
-（3）CDH是Cloudera的Hadoop发行版，完全开源，比Apache
-Hadoop在兼容性，安全性，稳定性上有所增强。Cloudera的标价为每年每个节点**10000美元**。
+（3）CDH是Cloudera的Hadoop发行版，完全开源，比Apache Hadoop在兼容性，安全性，稳定性上有所增强。Cloudera的标价为每年每个节点**10000美元**
 
 （4）Cloudera
-Manager是集群的软件分发及管理监控平台，可以在几个小时内部署好一个Hadoop集群，并对集群的节点及服务进行实时监控。
+Manager是集群的软件分发及管理监控平台，可以在几个小时内部署好一个Hadoop集群，并对集群的节点及服务进行实时监控
 
 **3）Hortonworks Hadoop**
 
 > 官网地址：https://hortonworks.com/products/data-center/hdp/
 >
 > 下载地址：https://hortonworks.com/downloads/#data-platform
->
-> （1）2011年成立的Hortonworks是雅虎与硅谷风投公司Benchmark
-> Capital合资组建。
+
+（1）2011年成立的Hortonworks是雅虎与硅谷风投公司Benchmark Capital合资组建。
 
 **（2）公司成立之初就吸纳了大约25名至30名专门研究Hadoop的雅虎工程师，上述工程师均在2005年开始协助雅虎开发Hadoop，贡献了Hadoop80%的代码。**
 
-（3）Hortonworks的主打产品是Hortonworks Data
-Platform（HDP），也同样是100%开源的产品，HDP除常见的项目外还包括了**Ambari**，一款开源的安装和管理系统。
+（3）Hortonworks的主打产品是Hortonworks Data Platform（HDP），也同样是100%开源的产品，HDP除常见的项目外还包括了**Ambari**，一款开源的安装和管理系统。
 
 （4）2018年Hortonworks目前**已经被Cloudera公司收购**。
 
 ## 1.4 Hadoop优势（4高）
 
-![](media/image6.emf)
-
-![](media/image7.emf)
+![image-20230220180359268](images/image-20230220180359268.png)![image-20230220180416128](images/image-20230220180416128.png)
 
 ## 1.5 Hadoop组成（面试重点）
 
-![](media/image8.emf)
+![image-20230220180428838](images/image-20230220180428838.png)
 
 ### 1.5.1 HDFS架构概述
 
-Hadoop Distributed File System，简称HDFS，是一个分布式文件系统。
+Hadoop Distributed File System，简称<span style="color:red">HDFS</span>，是一个分布式文件系统。
 
-![](media/image9.emf)
+1) NameNode (nn)︰存储文件的<span style="color:red">元数据</span>，如文件名，文件目录结构，文件属性（生成时间、副本数、文件权限)，以及每个文件的块列表和块所在的<span style="color:red">DataNode</span>等。
+2) DataNode(dn)：在本地文件系统<span style="color:red">存储文件块数据</span>，以及<span style="color:red">块数据</span>的校验和。
+3) Secondary NameNode(2nn)：每隔一段时间对<span style="color:red">NameNodle</span>元数据备份。
 
 ### 1.5.2 YARN架构概述
 
-Yet Another Resource
-Negotiator简称YARN ，另一种资源协调者，是Hadoop的资源管理器。
+Yet Another Resource Negotiator简称<span style="color:red">YARN</span> ，另一种资源协调者，是Hadoop的资源管理器。
 
-![](media/image10.emf)
+![image-20230220180755229](images/image-20230220180755229.png)
 
 ### 1.5.3 MapReduce架构概述
 
-MapReduce将计算过程分为两个阶段：Map和Reduce
+MapReduce将计算过程分为两个阶段：<span style="color:red">Map和Reduce</span>
 
 1）Map阶段并行处理输入数据
 
 2）Reduce阶段对Map结果进行汇总
 
-![](media/image11.emf)
+![image-20230220180822526](images/image-20230220180822526.png)
 
 ### 1.5.4 HDFS、YARN、MapReduce三者关系
 
-![](media/image12.emf)
+![image-20230220180858285](images/image-20230220180858285.png)
 
 ## 1.6 大数据技术生态体系
 
-![](media/image13.emf)
+![image-20230220180911587](images/image-20230220180911587.png)
 
 图中涉及的技术名词解释如下：
 
@@ -139,29 +127,19 @@ MapReduce将计算过程分为两个阶段：Map和Reduce
 
 ## 1.7 推荐系统框架图
 
-![](media/image14.emf)
+![image-20230220180936285](images/image-20230220180936285.png)
 
 # 第2章 Hadoop运行环境搭建（开发重点）
 
 ## 2.1 模板虚拟机环境准备
 
-**0）安装模板虚拟机，IP地址**192.168.10.100**、主机名称**hadoop100**、内存**4G**、**硬盘50G
+**0）安装模板虚拟机，IP地址`192.168.9.101`**、主机名称`hadoop101`、内存**4G**、硬盘50G
 
-![](media/image15.emf)
-
-**1）hadoop100虚拟机配置要求如下（本文Linux系统全部以CentOS-7.5-x86-1804为例）**
+**1）hadoop101虚拟机配置要求如下（本文Linux系统全部以CentOS-7.5-x86-1804为例）**
 
 （1）使用yum安装需要虚拟机可以正常上网，yum安装前可以先测试下虚拟机联网情况
 
-\[root@hadoop100 \~\]# ping www.baidu.com
-
-PING www.baidu.com (14.215.177.39) 56(84) bytes of data.
-
-64 bytes from 14.215.177.39 (14.215.177.39): icmp_seq=1 ttl=128
-time=8.60 ms
-
-64 bytes from 14.215.177.39 (14.215.177.39): icmp_seq=2 ttl=128
-time=7.72 ms
+<span style="text-align:center">`ping www.baidu.com`</span>
 
 （2）安装epel-release
 
@@ -169,38 +147,39 @@ time=7.72 ms
 Linux是为"红帽系"的操作系统提供额外的软件包，适用于RHEL、CentOS和Scientific
 Linux。相当于是一个软件仓库，大多数rpm包在官方 repository 中是找不到的）
 
-\[root@hadoop100 \~\]# yum install -y epel-release
+`yum install -y epel-release`
 
 （3）注意：如果Linux安装的是最小系统版，还需要安装如下工具；如果安装的是Linux桌面标准版，不需要执行如下操作
 
 -   net-tool：工具包集合，包含ifconfig等命令
 
-\[root@hadoop100 \~\]# yum install -y net-tools
+`yum install -y net-tools`
 
 -   vim：编辑器
 
-\[root@hadoop100 \~\]# yum install -y vim
+` yum install -y vim`
 
 **2）关闭防火墙，关闭防火墙开机自启**
 
-\[root@hadoop100 \~\]# systemctl stop firewalld
+`systemctl stop firewalld`
 
-\[root@hadoop100 \~\]# systemctl disable firewalld.service
+`systemctl disable firewalld.service`
 
 注意：在企业开发时，通常单个服务器的防火墙时关闭的。公司整体对外会设置非常安全的防火墙
 
-**3）创建atguigu用户，并修改atguigu用户的密码**
+**3）创建gardenia用户，并修改gardenia用户的密码**
 
-\[root@hadoop100 \~\]# useradd atguigu
+`useradd gardenia`
 
-\[root@hadoop100 \~\]# passwd atguigu
+`passwd gardenia`
 
-**4）配置atguigu用户具有root权限，方便后期加sudo执行root权限的命令**
+**4）配置gardenia用户具有root权限，方便后期加sudo执行root权限的命令**
 
-\[root@hadoop100 \~\]# vim /etc/sudoers
+`vim /etc/sudoers`
 
-> 修改/etc/sudoers文件，在%wheel这行下面添加一行，如下所示：
+> 修改/etc/sudoers文件，在 %wheel 这行下面添加一行，如下所示：
 
+```bash
 \## Allow root to run any commands anywhere
 
 root ALL=(ALL) ALL
@@ -209,44 +188,37 @@ root ALL=(ALL) ALL
 
 %wheel ALL=(ALL) ALL
 
-atguigu ALL=(ALL) NOPASSWD:ALL
+gardenia ALL=(ALL) NOPASSWD:ALL
+```
 
-> 注意：atguigu这一行不要直接放到root行下面，因为所有用户都属于wheel组，你先配置了atguigu具有免密功能，但是程序执行到%wheel行时，该功能又被覆盖回需要密码。所以atguigu要放到%wheel这行下面。
+> 注意：gardenia 这一行不要直接放到 root 行下面，因为所有用户都属于wheel组，你先配置了gardenia 具有免密功能，但是程序执行到%wheel行时，该功能又被覆盖回需要密码。所以gardenia要放到%wheel这行下面。
 
 **5）在/opt目录下创建文件夹，并修改所属主和所属组**
 
 > （1）在/opt目录下创建module、software文件夹
 
-\[root@hadoop100 \~\]# mkdir /opt/module
+`mkdir /opt/module`
 
-\[root@hadoop100 \~\]# mkdir /opt/software
+`mkdir /opt/software`
 
-（2）修改module、software文件夹的所有者和所属组均为atguigu用户
+（2）修改module、software文件夹的所有者和所属组均为gardenia用户
 
-\[root@hadoop100 \~\]# chown atguigu:atguigu /opt/module
+`chown gardenia:gardenia /opt/module`
 
-\[root@hadoop100 \~\]# chown atguigu:atguigu /opt/software
+`chown gardenia:gardenia /opt/software`
 
 （3）查看module、software文件夹的所有者和所属组
 
-\[root@hadoop100 \~\]# cd /opt/
-
-\[root@hadoop100 opt\]# ll
-
-总用量 12
-
-drwxr-xr-x. 2 atguigu atguigu 4096 5月 28 17:18 module
-
-drwxr-xr-x. 2 root root 4096 9月 7 2017 rh
-
-drwxr-xr-x. 2 atguigu atguigu 4096 5月 28 17:18 software
+```bash
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 module
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
+```
 
 **6）卸载虚拟机自带的JDK**
 
 注意：如果你的虚拟机是最小化安装不需要执行这一步。
 
-> \[root@hadoop100 \~\]# rpm -qa \| grep -i java \| xargs -n1 rpm -e
-> \--nodeps
+> rpm -qa \| grep -i java \| xargs -n1 rpm -e \--nodeps
 
 -   rpm -qa：查询所安装的所有rpm软件包
 
@@ -258,52 +230,47 @@ drwxr-xr-x. 2 atguigu atguigu 4096 5月 28 17:18 software
 
 **7）重启虚拟机**
 
-\[root@hadoop100 \~\]# reboot
+`reboot`
 
 ## 2.2 克隆虚拟机
 
-**1）利用模板机hadoop100，克隆三台虚拟机：hadoop102 hadoop103
-hadoop104**
+**1）利用模板机`hadoop101`，克隆三台虚拟机：`hadoop102` `hadoop103` `hadoop104`**
 
-注意：克隆时，要先关闭hadoop100
+注意：克隆时，要先关闭`hadoop101`
 
-**2）修改克隆机IP，以下以hadoop102举例说明**
+**2）修改克隆机IP，以下以`hadoop102`举例说明**
 
 （1）修改克隆虚拟机的静态IP
 
-\[root@hadoop100 \~\]# vim /etc/sysconfig/network-scripts/ifcfg-ens33
+`vim /etc/sysconfig/network-scripts/ifcfg-ens33`
 
-> 改成
->
 > DEVICE=ens33
 >
 > TYPE=Ethernet
 >
 > ONBOOT=yes
 >
-> BOOTPROTO=static
+> <span style="color:red">BOOTPROTO=static</span>
 >
 > NAME=\"ens33\"
 >
-> IPADDR=192.168.10.102
+> <span style="color:red">IPADDR=192.168.9.102</span>
 >
 > PREFIX=24
 >
-> GATEWAY=192.168.10.2
+> <span style="color:red">GATEWAY=192.168.9.3</span>
 >
-> DNS1=192.168.10.2
+> <span style="color:red">DNS1=192.168.9.3</span>
 
 （2）查看Linux虚拟机的虚拟网络编辑器，编辑-\>虚拟网络编辑器-\>VMnet8
 
-![](media/image16.png){width="5.501202974628171in"
-height="4.783914041994751in"}
+![image-20230220181743937](images/image-20230220181743937.png)
 
-![](media/image17.png){width="4.752573272090989in"
-height="5.044141513560805in"}
+![image-20230220181759092](images/image-20230220181759092.png)
 
-（3）查看Windows系统适配器VMware Network Adapter VMnet8的IP地址
+（3）查看Windows系统适配器`VMware Network Adapter VMnet8`的IP地址
 
-![](media/image18.png){width="4.78125in" height="6.03125in"}
+![image-20230220181814808](images/image-20230220181814808.png)
 
 （4）保证Linux系统ifcfg-ens33文件中IP地址、虚拟网络编辑器地址和Windows系统VM8网络IP地址相同。
 
@@ -311,37 +278,35 @@ height="5.044141513560805in"}
 
 （1）修改主机名称
 
-\[root@hadoop100 \~\]# vim /etc/hostname
-
-hadoop102
+`vim /etc/hostname hadoop102`
 
 > （2）配置Linux克隆机主机名称映射hosts文件，打开/etc/hosts
 
-\[root@hadoop100 \~\]# vim /etc/hosts
+`vim /etc/hosts`
 
-添加如下内容
+```bash
+192.168.9.100 hadoop100
 
-192.168.10.100 hadoop100
+192.168.9.101 hadoop101
 
-192.168.10.101 hadoop101
+192.168.9.102 hadoop102
 
-192.168.10.102 hadoop102
+192.168.9.103 hadoop103
 
-192.168.10.103 hadoop103
+192.168.9.104 hadoop104
 
-192.168.10.104 hadoop104
+192.168.9.105 hadoop105
 
-192.168.10.105 hadoop105
+192.168.9.106 hadoop106
 
-192.168.10.106 hadoop106
+192.168.9.107 hadoop107
 
-192.168.10.107 hadoop107
-
-192.168.10.108 hadoop108
+192.168.9.108 hadoop108
+```
 
 **4）重启克隆机hadoop102**
 
-\[root@hadoop100 \~\]# reboot
+`reboot`
 
 **5）修改windows的主机映射文件（hosts文件）**
 
@@ -351,199 +316,91 @@ hadoop102
 
 （b）打开hosts文件并添加如下内容，然后保存
 
-192.168.10.100 hadoop100
+```bahs
+192.168.9.100 hadoop100
 
-192.168.10.101 hadoop101
+192.168.9.101 hadoop101
 
-192.168.10.102 hadoop102
+192.168.9.102 hadoop102
 
-192.168.10.103 hadoop103
+192.168.9.103 hadoop103
 
-192.168.10.104 hadoop104
+192.168.9.104 hadoop104
 
-192.168.10.105 hadoop105
+192.168.9.105 hadoop105
 
-192.168.10.106 hadoop106
+192.168.9.106 hadoop106
 
-192.168.10.107 hadoop107
+192.168.9.107 hadoop107
 
-192.168.10.108 hadoop108
+192.168.9.108 hadoop108
+```
 
 （2）如果操作系统是window10，先拷贝出来，修改保存以后，再覆盖即可
 
-（a）进入C:\\Windows\\System32\\drivers\\etc路径
+​	（a）进入C:\\Windows\\System32\\drivers\\etc路径
 
-（b）拷贝hosts文件到桌面
+​	（b）拷贝hosts文件到桌面
 
-> （c）打开桌面hosts文件并添加如下内容
+​	（c）打开桌面hosts文件并添加如下内容
 
-192.168.10.100 hadoop100
+```bash
+192.168.9.100 hadoop100
 
-192.168.10.101 hadoop101
+192.168.9.101 hadoop101
 
-192.168.10.102 hadoop102
+192.168.9.102 hadoop102
 
-192.168.10.103 hadoop103
+192.168.9.103 hadoop103
 
-192.168.10.104 hadoop104
+192.168.9.104 hadoop104
 
-192.168.10.105 hadoop105
+192.168.9.105 hadoop105
 
-192.168.10.106 hadoop106
+192.168.9.106 hadoop106
 
-192.168.10.107 hadoop107
+192.168.9.107 hadoop107
 
-192.168.10.108 hadoop108
+192.168.9.108 hadoop108
+```
 
-（d）将桌面hosts文件覆盖C:\\Windows\\System32\\drivers\\etc路径hosts文件
+​	（d）将桌面hosts文件覆盖C:\\Windows\\System32\\drivers\\etc路径hosts文件
 
 ## 2.3 在hadoop102安装JDK
 
-**1）卸载现有JDK**
-
-注意：安装JDK前，一定确保提前删除了虚拟机自带的JDK。详细步骤见问文档3.1节中卸载JDK步骤。
-
-**2）用XShell传输工具将JDK导入到opt目录下面的software文件夹下面**
-
-![](media/image19.png){width="5.768055555555556in"
-height="3.9402777777777778in"}
-
-**3）在Linux系统下的opt目录中查看软件包是否导入成功**
-
-\[atguigu@hadoop102 \~\]\$ ls /opt/software/
-
-> 看到如下结果：
-
-jdk-8u212-linux-x64.tar.gz
-
-**4）解压JDK到/opt/module目录下**
-
-> \[atguigu@hadoop102 software\]\$ tar -zxvf jdk-8u212-linux-x64.tar.gz
-> -C /opt/module/
-
-**5）配置JDK环境变量**
-
-（1）新建/etc/profile.d/my_env.sh文件
-
-> \[atguigu@hadoop102 \~\]\$ sudo vim /etc/profile.d/my_env.sh
-
-添加如下内容
-
-> #JAVA_HOME
->
-> export JAVA_HOME=/opt/module/jdk1.8.0_212
->
-> export PATH=\$PATH:\$JAVA_HOME/bin
-
-（2）保存后退出
-
-> :wq
-
-（3）source一下/etc/profile文件，让新的环境变量PATH生效
-
-> \[atguigu@hadoop102 \~\]\$ source /etc/profile
-
-**6）测试JDK是否安装成功**
-
-> \[atguigu@hadoop102 \~\]\$ java -version
-
-如果能看到以下结果，则代表Java安装成功。
-
-> java version \"1.8.0_212\"
-
-注意：重启（如果java -version可以用就不用重启）
-
-> \[atguigu@hadoop102 \~\]\$ sudo reboot
+安装 大家都会 ，最后记得 `source 一下/etc/profile`文件，让新的环境变量PATH生效（或者直接重启）
 
 ## 2.4 在hadoop102安装Hadoop
 
-Hadoop下载地址：[https://archive.apache.org/dist/hadoop/common/hadoop-3.1.3/](https://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/)
+Hadoop下载地址：[https://archive.apache.org/dist/hadoop/common/hadoop-3.3.1/](https://archive.apache.org/dist/hadoop/common/hadoop-2.7.2/)
 
-**1）用XShell文件传输工具将hadoop-3.1.3.tar.gz导入到opt目录下面的software文件夹下面**
-
-![](media/image20.png){width="5.768055555555556in"
-height="3.9402777777777778in"}
-
-**2）进入到Hadoop安装包路径下**
-
-> \[atguigu@hadoop102 \~\]\$ cd /opt/software/
-
-**3）解压安装文件到/opt/module下面**
-
-> \[atguigu@hadoop102 software\]\$ tar -zxvf hadoop-3.1.3.tar.gz -C
-> /opt/module/
-
-**4）查看是否解压成功**
-
-> \[atguigu@hadoop102 software\]\$ ls /opt/module/
->
-> hadoop-3.1.3
-
-**5）将Hadoop添加到环境变量**
-
-（1）获取Hadoop安装路径
-
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ pwd
->
-> /opt/module/hadoop-3.1.3
-
-（2）打开/etc/profile.d/my_env.sh文件
-
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ sudo vim /etc/profile.d/my_env.sh
-
--   在my_env.sh文件末尾添加如下内容：（shift+g）
-
-> #HADOOP_HOME
->
-> export HADOOP_HOME=/opt/module/hadoop-3.1.3
->
-> export PATH=\$PATH:\$HADOOP_HOME/bin
->
-> export PATH=\$PATH:\$HADOOP_HOME/sbin
-
--   保存并退出： :wq
-
-（3）让修改后的文件生效
-
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ source /etc/profile
-
-**6）测试是否安装成功**
-
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ hadoop version
->
-> Hadoop 3.1.3
-
-**7）重启（如果Hadoop命令不能用再重启虚拟机）**
-
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ sudo reboot
+> 安装同上！！！
 
 ## 2.5 Hadoop目录结构
 
 **1）查看Hadoop目录结构**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ ll
->
-> 总用量 52
->
-> drwxr-xr-x. 2 atguigu atguigu 4096 5月 22 2017 **bin**
->
-> drwxr-xr-x. 3 atguigu atguigu 4096 5月 22 2017 **etc**
->
-> drwxr-xr-x. 2 atguigu atguigu 4096 5月 22 2017 include
->
-> drwxr-xr-x. 3 atguigu atguigu 4096 5月 22 2017 **lib**
->
-> drwxr-xr-x. 2 atguigu atguigu 4096 5月 22 2017 libexec
->
-> -rw-r\--r\--. 1 atguigu atguigu 15429 5月 22 2017 LICENSE.txt
->
-> -rw-r\--r\--. 1 atguigu atguigu 101 5月 22 2017 NOTICE.txt
->
-> -rw-r\--r\--. 1 atguigu atguigu 1366 5月 22 2017 README.txt
->
-> drwxr-xr-x. 2 atguigu atguigu 4096 5月 22 2017 **sbin**
->
-> drwxr-xr-x. 4 atguigu atguigu 4096 5月 22 2017 **share**
+```shell
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 22 2017 **bin**
+
+drwxr-xr-x. 3 gardenia gardenia 4096 5月 22 2017 **etc**
+
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 22 2017 include
+
+drwxr-xr-x. 3 gardenia gardenia 4096 5月 22 2017 **lib**
+
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 22 2017 libexec
+
+-rw-r\--r\--. 1 gardenia gardenia 15429 5月 22 2017 LICENSE.txt
+
+-rw-r\--r\--. 1 gardenia gardenia 101 5月 22 2017 NOTICE.txt
+
+-rw-r\--r\--. 1 gardenia gardenia 1366 5月 22 2017 README.txt
+
+drwxr-xr-x. 2 gardenia gardenia 4096 5月 22 2017 **sbin**
+
+drwxr-xr-x. 4 gardenia gardenia 4096 5月 22 2017 **share**
+```
 
 **2）重要目录**
 
@@ -571,17 +428,17 @@ height="3.9402777777777778in"}
 
 ## 3.1 本地运行模式（官方WordCount）
 
-**1）创建在hadoop-3.1.3文件下面创建一个wcinput文件夹**
+**1）创建在hadoop-3.3.1文件下面创建一个wcinput文件夹**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ mkdir wcinput
+> mkdir wcinput
 
 **2）在wcinput文件下创建一个****word.txt文件**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ cd wcinput
+> cd wcinput
 
 **3）编辑word.txt文件**
 
-> \[atguigu@hadoop102 wcinput\]\$ vim word.txt
+>  vim word.txt
 
 -   在文件中输入如下内容
 
@@ -589,27 +446,26 @@ height="3.9402777777777778in"}
 >
 > hadoop mapreduce
 >
-> atguigu
+> gardenia
 >
-> atguigu
+> gardenia
 
 -   保存退出：:wq
 
-**4）回到Hadoop目录/opt/module/hadoop-3.1.3**
+**4）回到Hadoop目录/opt/module/hadoop-3.3.1**
 
 **5）执行程序**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ hadoop jar
-> share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount
-> wcinput wcoutput
+> hadoop jar
+> share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount ./wcinput ./wcoutput
 
 **6）查看结果**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ cat wcoutput/part-r-00000
+> cat wcoutput/part-r-00000
 >
 > 看到如下结果：
 >
-> atguigu 2
+> gardenia 2
 >
 > hadoop 2
 >
@@ -631,19 +487,19 @@ height="3.9402777777777778in"}
 
 5）配置环境变量
 
-**6）配置集群**
+<span style="color:red">**6）配置集群**</span>
 
-**7）单点启动**
+**<span style="color:red">7）单点启动</span>**
 
-**8）配置ssh**
+**<span style="color:red">8）配置ssh</span>**
 
-**9）群起并测试集群**
+<span style="color:red">**9）群起并测试集群**</span>
 
 ### 3.2.1 虚拟机准备
 
-详见2.1、2.2两节。
+> 详见2.1、2.2两节
 
-### 3.2.2 编写集群分发脚本xsync
+### 3.2.2 编写集群分发脚本`xsync`
 
 **1）scp（secure copy）安全拷贝**
 
@@ -653,64 +509,62 @@ height="3.9402777777777778in"}
 
 （2）基本语法
 
-> scp -r \$pdir/\$fname \$user@\$host:\$pdir/\$fname
->
-> 命令 递归 要拷贝的文件路径/名称 目的地用户@主机:目的地路径/名称
+```bash
+scp     -r      $pdir/$fname        $user@$host:$pdir/$fname
+命令    递归   要拷贝的文件路径/名称    目的地用户@主机:目的地路径/名称
+```
 
 （3）案例实操
 
 -   前提：在hadoop102、hadoop103、hadoop104都已经创建好的/opt/module、
-    /opt/software两个目录，并且已经把这两个目录修改为atguigu:atguigu
+    /opt/software两个目录，并且已经把这两个目录修改为`gardenia:gardenia`
 
-> \[atguigu@hadoop102 \~\]\$ sudo chown atguigu:atguigu -R /opt/module
+>  sudo chown gardenia:gardenia -R /opt/module
 >
 > （a）在hadoop102上，将hadoop102中/opt/module/jdk1.8.0_212目录拷贝到hadoop103上。
 >
-> \[atguigu@hadoop102 \~\]\$ scp -r /opt/module/jdk1.8.0_212
-> atguigu@hadoop103:/opt/module
+> <span style="color:red">scp -r /opt/module/jdk1.8.0_212 gardenia@hadoop103:/opt/module</span>
 >
-> （b）在hadoop103上，将hadoop102中/opt/module/hadoop-3.1.3目录拷贝到hadoop103上。
+> （b）在**hadoop103**上，将**hadoop102**中/opt/module/hadoop-3.3.1目录拷贝到**hadoop103**上。
 >
-> \[atguigu@hadoop103 \~\]\$ scp -r
-> atguigu@hadoop102:/opt/module/hadoop-3.1.3 /opt/module/
+> <span style="color:red">scp -r gardenia@hadoop102:/opt/module/hadoop-3.3.1 /opt/module/</span>
 >
-> （c）在hadoop103上操作，将hadoop102中/opt/module目录下所有目录拷贝到hadoop104上。
+> （c）在**hadoop103**上操作，将**hadoop102**中/opt/module目录下所有目录拷贝到**hadoop104**上。
 >
-> \[atguigu@hadoop103 opt\]\$ scp -r atguigu@hadoop102:/opt/module/\*
-> atguigu@hadoop104:/opt/module
+> <span style="color:red">scp -r gardenia@hadoop102:/opt/module/\* gardenia@hadoop104:/opt/module</span>
 
 **2）rsync远程同步工具**
 
 rsync主要用于备份和镜像。具有速度快、避免复制相同内容和支持符号链接的优点。
 
-rsync和scp区别：用rsync做文件的复制要比scp的速度快，rsync只对差异文件做更新。scp是把所有文件都复制过去。
+<span style="color:red">rsync和scp区别</span>：用rsync做文件的复制要比scp的速度快，rsync只对差异文件做更新。scp是把所有文件都复制过去。
 
 （1）基本语法
 
-> rsync -av \$pdir/\$fname \$user@\$host:\$pdir/\$fname
->
-> 命令 选项参数 要拷贝的文件路径/名称 目的地用户@主机:目的地路径/名称
+```bash
+rsync     -av       \$pdir/\$fname      \$user@\$host:\$pdir/\$fname
+命令     选项参数   要拷贝的文件路径/名称      目的地用户@主机:目的地路径/名称
+```
 
 选项参数说明
 
-  --------------------------------- -------------------------------------
+--------------------------------- -------------------------------------
   选项                              功能
 
   -a                                归档拷贝
 
   -v                                显示复制过程
-  --------------------------------- -------------------------------------
+--------------------------------- -------------------------------------
 
 （2）案例实操
 
-（a）删除hadoop103中/opt/module/hadoop-3.1.3/wcinput
+（a）删除hadoop103中/opt/module/hadoop-3.3.1/wcinput
 
-> \[atguigu@hadoop103 hadoop-3.1.3\]\$ rm -rf wcinput/
+> rm -rf wcinput/
 
-（b）同步hadoop102中的/opt/module/hadoop-3.1.3到hadoop103
+（b）同步hadoop102中的/opt/module/hadoop-3.3.1到hadoop103
 
-> \[atguigu@hadoop102 module\]\$ rsync -av hadoop-3.1.3/
-> atguigu@hadoop103:/opt/module/hadoop-3.1.3/
+> rsync -av hadoop-3.3.1/ gardenia@hadoop103:/opt/module/hadoop-3.3.1/
 
 **3）xsync集群分发脚本**
 
@@ -718,113 +572,81 @@ rsync和scp区别：用rsync做文件的复制要比scp的速度快，rsync只�
 
 （2）需求分析：
 
-> （a）rsync命令原始拷贝：
+​		（a）`rsync`命令原始拷贝：
 
-rsync -av /opt/module atguigu@hadoop103:/opt/
+​					rsync -av /opt/module gardenia@hadoop103:/opt/
 
-> （b）期望脚本：
->
-> xsync要同步的文件名称
->
-> （c）期望脚本在任何路径都能使用（脚本放在声明了全局环境变量的路径）
->
-> \[atguigu@hadoop102 \~\]\$ echo \$PATH
->
-> /usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/atguigu/.local/bin:/home/atguigu/bin:/opt/module/jdk1.8.0_212/bin
+​		（b）期望脚本：
+
+​					xsync <要同步的文件名称>
+
+​		（c）期望脚本在任何路径都能使用（脚本放在声明了全局环境变量的路径）
+
+​					echo \$PATH
 
 （3）脚本实现
 
-> （a）在/home/atguigu/bin目录下创建xsync文件
->
-> \[atguigu@hadoop102 opt\]\$ cd /home/atguigu
->
-> \[atguigu@hadoop102 \~\]\$ mkdir bin
->
-> \[atguigu@hadoop102 \~\]\$ cd bin
->
-> \[atguigu@hadoop102 bin\]\$ vim xsync
->
-> 在该文件中编写如下代码
+​		（a）在`/home/gardenia/bin`目录下创建xsync文件
 
+```bash
+mkdir bin
+cd bin
+vim xsync
+```
+
+在该文件中编写如下代码
+
+```bash
 #!/bin/bash
 
 #1. 判断参数个数
-
-if \[ \$# -lt 1 \]
-
+if [ $# -lt 1 ]
 then
-
-echo Not Enough Arguement!
-
-exit;
-
+    echo Not Enough Arguement!
+    exit;
 fi
-
 #2. 遍历集群所有机器
-
 for host in hadoop102 hadoop103 hadoop104
-
 do
-
-echo ==================== \$host ====================
-
-#3. 遍历所有目录，挨个发送
-
-for file in \$@
-
-do
-
-#4. 判断文件是否存在
-
-if \[ -e \$file \]
-
-then
-
-#5. 获取父目录
-
-pdir=\$(cd -P \$(dirname \$file); pwd)
-
-#6. 获取当前文件的名称
-
-fname=\$(basename \$file)
-
-ssh \$host \"mkdir -p \$pdir\"
-
-rsync -av \$pdir/\$fname \$host:\$pdir
-
-else
-
-echo \$file does not exists!
-
-fi
-
+    echo ====================  $host  ====================
+    #3. 遍历所有目录，挨个发送
+    for file in $@
+    do
+        #4. 判断文件是否存在
+        if [ -e $file ]
+            then
+                #5. 获取父目录
+                pdir=$(cd -P $(dirname $file); pwd)
+                #6. 获取当前文件的名称
+                fname=$(basename $file)
+                ssh $host "mkdir -p $pdir"
+                rsync -av $pdir/$fname $host:$pdir
+            else
+                echo $file does not exists!
+        fi
+    done
 done
-
-done
+```
 
 （b）修改脚本 xsync 具有执行权限
 
-> \[atguigu@hadoop102 bin\]\$ chmod +x xsync
+> chmod +x xsync
 
 （c）测试脚本
 
-\[atguigu@hadoop102 \~\]\$ xsync /home/atguigu/bin
+> xsync /home/gardenia/bin
 
 （d）将脚本复制到/bin中，以便全局调用
 
-> \[atguigu@hadoop102 bin\]\$ sudo cp xsync /bin/
+> sudo cp xsync /bin/
 
-（e）同步环境变量配置（root所有者）
+（e）同步环境变量配置（root 所有者）
 
-\[atguigu@hadoop102 \~\]\$ sudo ./bin/xsync /etc/profile.d/my_env.sh
+> sudo ./bin/xsync /etc/profile.d/my_env.sh
 
 > 注意：如果用了sudo，那么xsync一定要给它的路径补全。
 >
-> 让环境变量生效
-
-\[atguigu@hadoop103 bin\]\$ source /etc/profile
-
-\[atguigu@hadoop104 opt\]\$ source /etc/profile
+> 记得： source /etc/profile
 
 ### 3.2.3 SSH无密登录配置
 
@@ -836,7 +658,7 @@ done
 
 （2）ssh连接时出现Host key verification failed的解决方法
 
-> \[atguigu@hadoop102 \~\]\$ ssh hadoop103
+>  ssh hadoop103
 
 -   如果出现如下内容
 
@@ -846,51 +668,45 @@ done
 
 （3）退回到hadoop102
 
-> \[atguigu@hadoop103 \~\]\$ exit
+> exit
 
 **2）无密钥配置**
 
 （1）免密登录原理
 
-![](media/image21.emf)
+![image-20230221140140424](images/image-20230221140140424.png)
 
 （2）生成公钥和私钥
 
-> \[atguigu@hadoop102 .ssh\]\$ pwd
+> cd /home/gardenia/.ssh
 >
-> /home/atguigu/.ssh
->
-> \[atguigu@hadoop102 .ssh\]\$ ssh-keygen -t rsa
+> ssh-keygen -t rsa
 
 然后敲（三个回车），就会生成两个文件id_rsa（私钥）、id_rsa.pub（公钥）
 
 （3）将公钥拷贝到要免密登录的目标机器上
 
-> \[atguigu@hadoop102 .ssh\]\$ ssh-copy-id hadoop102
+> ssh-copy-id hadoop102
 >
-> \[atguigu@hadoop102 .ssh\]\$ ssh-copy-id hadoop103
+> ssh-copy-id hadoop103
 >
-> \[atguigu@hadoop102 .ssh\]\$ ssh-copy-id hadoop104
+> ssh-copy-id hadoop104
 
 注意：
 
-还需要在hadoop103上采用atguigu账号配置一下无密登录到hadoop102、hadoop103、hadoop104服务器上。
-
-还需要在hadoop104上采用atguigu账号配置一下无密登录到hadoop102、hadoop103、hadoop104服务器上。
-
-还需要在hadoop102上采用root账号，配置一下无密登录到hadoop102、hadoop103、hadoop104；
+> 还需要在hadoop103上采用gardenia账号配置一下无密登录到hadoop102、hadoop103、hadoop104服务器上。
+>
+> 还需要在hadoop104上采用gardenia账号配置一下无密登录到hadoop102、hadoop103、hadoop104服务器上。
+>
+> 还需要在hadoop102上采用root账号，配置一下无密登录到hadoop102、hadoop103、hadoop104；
 
 **3）.ssh文件夹下（\~/.ssh）的文件功能解释**
 
-  -----------------------------------------------------------------------
-  known_hosts              记录ssh访问过计算机的公钥（public key）
-  ------------------------ ----------------------------------------------
-  id_rsa                   生成的私钥
-
-  id_rsa.pub               生成的公钥
-
-  authorized_keys          存放授权过的无密登录服务器公钥
-  -----------------------------------------------------------------------
+| known_hosts     | 记录ssh访问过计算机的公钥（public key） |
+| --------------- | --------------------------------------- |
+| id_rsa          | 生成的私钥                              |
+| id_rsa.pub      | 生成的公钥                              |
+| authorized_keys | 存放授权过的无密登录服务器公钥          |
 
 ### 3.2.4 集群配置
 
@@ -900,20 +716,12 @@ done
 
 -   NameNode和SecondaryNameNode不要安装在同一台服务器
 
--   ResourceManager也很消耗内存，不要和NameNode、SecondaryNameNode配置在同一台机器上。
+-   ResourceManager 也很消耗内存，不要和NameNode、SecondaryNameNode配置在同一台机器上。
 
-+---------------+-----------------+-----------------+-----------------+
-|               | hadoop102       | hadoop103       | hadoop104       |
-+---------------+-----------------+-----------------+-----------------+
-| HDFS          | NameNode        | DataNode        | Se              |
-|               |                 |                 | condaryNameNode |
-|               | DataNode        |                 |                 |
-|               |                 |                 | DataNode        |
-+---------------+-----------------+-----------------+-----------------+
-| YARN          | NodeManager     | ResourceManager | NodeManager     |
-|               |                 |                 |                 |
-|               |                 | NodeManager     |                 |
-+---------------+-----------------+-----------------+-----------------+
+|      | hadoop102           | hadoop103                     | hadoop104                    |
+| ---- | ------------------- | ----------------------------- | ---------------------------- |
+| HDFS | NameNode   DataNode | DataNode                      | SecondaryNameNode   DataNode |
+| YARN | NodeManager         | ResourceManager   NodeManager | NodeManager                  |
 
 **2）配置文件说明**
 
@@ -921,17 +729,12 @@ Hadoop配置文件分两类：默认配置文件和自定义配置文件，只�
 
 （1）默认配置文件：
 
-  ------------------------------------------------------------------------------------
-  要获取的默认文件         文件存放在Hadoop的jar包中的位置
-  ------------------------ -----------------------------------------------------------
-  \[core-default.xml\]     hadoop-common-3.1.3.jar/core-default.xml
-
-  \[hdfs-default.xml\]     hadoop-hdfs-3.1.3.jar/hdfs-default.xml
-
-  \[yarn-default.xml\]     hadoop-yarn-common-3.1.3.jar/yarn-default.xml
-
-  \[mapred-default.xml\]   hadoop-mapreduce-client-core-3.1.3.jar/mapred-default.xml
-  ------------------------------------------------------------------------------------
+| 要获取的默认文件       | 文件存放在Hadoop的jar包中的位置                           |
+| ---------------------- | --------------------------------------------------------- |
+| \[core-default.xml\]   | hadoop-common-3.3.1.jar/core-default.xml                  |
+| \[hdfs-default.xml\]   | hadoop-hdfs-3.3.1.jar/hdfs-default.xml                    |
+| \[yarn-default.xml\]   | hadoop-yarn-common-3.3.1.jar/yarn-default.xml             |
+| \[mapred-default.xml\] | hadoop-mapreduce-client-core-3.3.1.jar/mapred-default.xml |
 
 （2）自定义配置文件：
 
@@ -941,179 +744,114 @@ Hadoop配置文件分两类：默认配置文件和自定义配置文件，只�
 
 （1）核心配置文件
 
-配置core-site.xml
+core-site.xml   `cd \$HADOOP_HOME/etc/hadoop`
 
-> \[atguigu@hadoop102 \~\]\$ cd \$HADOOP_HOME/etc/hadoop
->
-> \[atguigu@hadoop102 hadoop\]\$ vim core-site.xml
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
-文件内容如下：
+<configuration>
+    <!-- 指定NameNode的地址 -->
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://hadoop102:8020</value>
+    </property>
 
-> \<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
->
-> \<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?\>
->
-> \<configuration\>
->
-> \<!\-- 指定NameNode的地址 \--\>
->
-> \<property\>
->
-> \<name\>fs.defaultFS\</name\>
->
-> \<value\>hdfs://hadoop102:8020\</value\>
->
-> \</property\>
->
-> \<!\-- 指定hadoop数据的存储目录 \--\>
->
-> \<property\>
->
-> \<name\>hadoop.tmp.dir\</name\>
->
-> \<value\>/opt/module/hadoop-3.1.3/data\</value\>
->
-> \</property\>
->
-> \<!\-- 配置HDFS网页登录使用的静态用户为atguigu \--\>
->
-> \<property\>
->
-> \<name\>hadoop.http.staticuser.user\</name\>
->
-> \<value\>atguigu\</value\>
->
-> \</property\>
->
-> \</configuration\>
->
-> （2）HDFS配置文件
->
-> 配置hdfs-site.xml
->
-> \[atguigu@hadoop102 hadoop\]\$ vim hdfs-site.xml
+    <!-- 指定hadoop数据的存储目录 -->
+    <property>
+        <name>hadoop.tmp.dir</name>
+        <value>/opt/module/hadoop-3.1.3/data</value>
+    </property>
 
-文件内容如下：
+    <!-- 配置HDFS网页登录使用的静态用户为gardenia -->
+    <property>
+        <name>hadoop.http.staticuser.user</name>
+        <value>gardenia</value>
+    </property>
+</configuration>
+```
 
-> \<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
->
-> \<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?\>
->
-> \<configuration\>
->
-> \<!\-- nn web端访问地址\--\>
->
-> \<property\>
->
-> \<name\>dfs.namenode.http-address\</name\>
->
-> \<value\>hadoop102:9870\</value\>
->
-> \</property\>
->
-> \<!\-- 2nn web端访问地址\--\>
->
-> \<property\>
->
-> \<name\>dfs.namenode.secondary.http-address\</name\>
->
-> \<value\>hadoop104:9868\</value\>
->
-> \</property\>
->
-> \</configuration\>
->
-> （3）YARN配置文件
->
-> 配置yarn-site.xml
->
-> \[atguigu@hadoop102 hadoop\]\$ vim yarn-site.xml
+（2）HDFS配置文件
 
-文件内容如下：
+hdfs-site.xml
 
-> \<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
->
-> \<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?\>
->
-> \<configuration\>
->
-> \<!\-- 指定MR走shuffle \--\>
->
-> \<property\>
->
-> \<name\>yarn.nodemanager.aux-services\</name\>
->
-> \<value\>mapreduce_shuffle\</value\>
->
-> \</property\>
->
-> \<!\-- 指定ResourceManager的地址\--\>
->
-> \<property\>
->
-> \<name\>yarn.resourcemanager.hostname\</name\>
->
-> \<value\>hadoop103\</value\>
->
-> \</property\>
->
-> \<!\-- 环境变量的继承 \--\>
->
-> \<property\>
->
-> \<name\>yarn.nodemanager.env-whitelist\</name\>
->
-> \<value\>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME\</value\>
->
-> \</property\>
->
-> \</configuration\>
->
-> （4）MapReduce配置文件
->
-> 配置mapred-site.xml
->
-> \[atguigu@hadoop102 hadoop\]\$ vim mapred-site.xml
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 
-文件内容如下：
+<configuration>
+	<!-- nn web端访问地址-->
+	<property>
+        <name>dfs.namenode.http-address</name>
+        <value>hadoop102:9870</value>
+    </property>
+	<!-- 2nn web端访问地址-->
+    <property>
+        <name>dfs.namenode.secondary.http-address</name>
+        <value>hadoop104:9868</value>
+    </property>
+</configuration>
+```
 
-> \<?xml version=\"1.0\" encoding=\"UTF-8\"?\>
->
-> \<?xml-stylesheet type=\"text/xsl\" href=\"configuration.xsl\"?\>
->
-> \<configuration\>
->
-> \<!\-- 指定MapReduce程序运行在Yarn上 \--\>
->
-> \<property\>
->
-> \<name\>mapreduce.framework.name\</name\>
->
-> \<value\>yarn\</value\>
->
-> \</property\>
->
-> \</configuration\>
+（3）YARN配置文件
+
+yarn-site.xml
+
+```XML
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+    <!-- 指定MR走shuffle -->
+    <property>
+        <name>yarn.nodemanager.aux-services</name>
+        <value>mapreduce_shuffle</value>
+    </property>
+
+    <!-- 指定ResourceManager的地址-->
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>hadoop103</value>
+    </property>
+
+    <!-- 环境变量的继承 -->
+    <property>
+        <name>yarn.nodemanager.env-whitelist</name>
+        <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PREPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+    </property>
+</configuration>
+```
+
+（4）MapReduce配置文件
+
+mapred-site.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+	<!-- 指定MapReduce程序运行在Yarn上 -->
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+</configuration>
+```
 
 **4）在集群上分发配置好的Hadoop配置文件**
 
-> \[atguigu@hadoop102 hadoop\]\$ xsync
-> /opt/module/hadoop-3.1.3/etc/hadoop/
+> xsync /opt/module/hadoop-3.3.1/etc/hadoop/
 
 **5）去103和104上查看文件分发情况**
 
-> \[atguigu@hadoop103 \~\]\$ cat
-> /opt/module/hadoop-3.1.3/etc/hadoop/core-site.xml
->
-> \[atguigu@hadoop104 \~\]\$ cat
-> /opt/module/hadoop-3.1.3/etc/hadoop/core-site.xml
+> cat /opt/module/hadoop-3.3.1/etc/hadoop/core-site.xml
+> 
 
 ### 3.2.5 群起集群
 
 **1）配置workers**
 
-> \[atguigu@hadoop102 hadoop\]\$ vim
-> /opt/module/hadoop-3.1.3/etc/hadoop/workers
+> vim /opt/module/hadoop-3.3.1/etc/hadoop/workers
 
 在该文件中增加如下内容：
 
@@ -1127,33 +865,35 @@ Hadoop配置文件分两类：默认配置文件和自定义配置文件，只�
 
 同步所有节点配置文件
 
-> \[atguigu@hadoop102 hadoop\]\$ xsync /opt/module/hadoop-3.1.3/etc
+> xsync /opt/module/hadoop-3.3.1/etc
 
 **2）启动集群**
 
-（1）**如果集群是第一次启动**，需要在hadoop102节点格式化NameNode（注意：格式化NameNode，会产生新的集群id，导致NameNode和DataNode的集群id不一致，集群找不到已往数据。如果集群在运行过程中报错，需要重新格式化NameNode的话，一定要先停止namenode和datanode进程，并且要删除所有机器的data和logs目录，然后再进行格式化。）
+（1）**如果集群是第一次启动**，需要在hadoop102节点格式化NameNode
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ hdfs namenode -format
+（ 注意：格式化NameNode，会产生新的集群id，导致NameNode和DataNode的集群id不一致，集群找不到已往数据。如果集群在运行过程中报错，需要重新格式化NameNode的话，一定要先停止namenode和datanode进程，并且要删除所有机器的data和logs目录，然后再进行格式化。）
+
+> hdfs namenode -format
 
 （2）启动HDFS
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ sbin/start-dfs.sh
+> sbin/start-dfs.sh
 
 （3）**在配置了ResourceManager的节点（hadoop103）**启动YARN
 
-> \[atguigu@hadoop103 hadoop-3.1.3\]\$ sbin/start-yarn.sh
->
-> （4）Web端查看HDFS的NameNode
->
-> （a）浏览器中输入：http://hadoop102:9870
+> sbin/start-yarn.sh
 
-（b）查看HDFS上存储的数据信息
+（4）Web端查看HDFS的NameNode
 
-> （5）Web端查看YARN的ResourceManager
->
-> （a）浏览器中输入：<http://hadoop103:8088>
+​		（a）浏览器中输入：http://hadoop102:9870
 
-（b）查看YARN上运行的Job信息
+​		（b）查看HDFS上存储的数据信息
+
+（5）Web端查看YARN的ResourceManager
+
+​		（a）浏览器中输入：<http://hadoop103:8088>
+
+​		（b）查看YARN上运行的Job信息
 
 **3）集群基本测试**
 
@@ -1161,66 +901,56 @@ Hadoop配置文件分两类：默认配置文件和自定义配置文件，只�
 
 -   上传小文件
 
-> \[atguigu@hadoop102 \~\]\$ hadoop fs -mkdir /input
+>  hadoop fs -mkdir /input
 >
-> \[atguigu@hadoop102 \~\]\$ hadoop fs -put
-> \$HADOOP_HOME/wcinput/word.txt /input
+>  hadoop fs -put \$HADOOP_HOME/wcinput/word.txt /input
 
 -   上传大文件
 
-> \[atguigu@hadoop102 \~\]\$ hadoop fs -put
-> /opt/software/jdk-8u212-linux-x64.tar.gz /
+>  hadoop fs -put /opt/software/jdk-8u212-linux-x64.tar.gz /
 
 （2）上传文件后查看文件存放在什么位置
 
 -   查看HDFS文件存储路径
 
-> \[atguigu@hadoop102 subdir0\]\$ pwd
->
-> /opt/module/hadoop-3.1.3/data/dfs/data/current/BP-1436128598-192.168.10.102-1610603650062/current/finalized/subdir0/subdir0
+> /opt/module/hadoop-3.3.1/data/dfs/data/current/BP-1436128598-192.168.10.102-1610603650062/current/finalized/subdir0/subdir()
 
 -   查看HDFS在磁盘存储文件内容
 
-> \[atguigu@hadoop102 subdir0\]\$ cat blk_1073741825
+> cat blk_1073741825
 >
 > hadoop yarn
 >
 > hadoop mapreduce
 >
-> atguigu
+> gardenia
 >
-> atguigu
+> gardenia
 
 （3）拼接
 
-> -rw-rw-r\--. 1 atguigu atguigu 134217728 5月 23 16:01
-> **blk_1073741836**
->
-> -rw-rw-r\--. 1 atguigu atguigu 1048583 5月 23 16:01
-> blk_1073741836_1012.meta
->
-> -rw-rw-r\--. 1 atguigu atguigu 63439959 5月 23 16:01
-> **blk_1073741837**
->
-> -rw-rw-r\--. 1 atguigu atguigu 495635 5月 23 16:01
-> blk_1073741837_1013.meta
->
-> \[atguigu@hadoop102 subdir0\]\$ cat blk_1073741836\>\>tmp.tar.gz
->
-> \[atguigu@hadoop102 subdir0\]\$ cat blk_1073741837\>\>tmp.tar.gz
->
-> \[atguigu@hadoop102 subdir0\]\$ tar -zxvf tmp.tar.gz
+```bash
+-rw-rw-r\--. 1 gardenia gardenia 134217728 5月 23 16:01
+**blk_1073741836**
+-rw-rw-r\--. 1 gardenia gardenia 1048583 5月 23 16:01
+blk_1073741836_1012.meta
+-rw-rw-r\--. 1 gardenia gardenia 63439959 5月 23 16:01
+**blk_1073741837**
+-rw-rw-r\--. 1 gardenia gardenia 495635 5月 23 16:01
+blk_1073741837_1013.meta
+
+cat blk_1073741836\>\>tmp.tar.gz
+cat blk_1073741837\>\>tmp.tar.gz
+tar -zxvf tmp.tar.gz
+```
 
 （4）下载
 
-> \[atguigu@hadoop104 software\]\$ hadoop fs -get
-> /jdk-8u212-linux-x64.tar.gz ./
+> hadoop fs -get /jdk-8u212-linux-x64.tar.gz ./
 
 （5）执行wordcount程序
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ hadoop jar
-> share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount
-> /input /output
+> hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount /input /output
 
 ### 3.2.6 配置历史服务器
 
@@ -1228,42 +958,35 @@ Hadoop配置文件分两类：默认配置文件和自定义配置文件，只�
 
 **1）配置mapred-site.xml**
 
-> \[atguigu@hadoop102 hadoop\]\$ vim mapred-site.xml
+> vim mapred-site.xml
 
 在该文件里面增加如下配置。
 
-> \<!\-- 历史服务器端地址 \--\>
->
-> \<property\>
->
-> \<name\>mapreduce.jobhistory.address\</name\>
->
-> \<value\>hadoop102:10020\</value\>
->
-> \</property\>
->
-> \<!\-- 历史服务器web端地址 \--\>
->
-> \<property\>
->
-> \<name\>mapreduce.jobhistory.webapp.address\</name\>
->
-> \<value\>hadoop102:19888\</value\>
->
-> \</property\>
+```xml
+<!-- 历史服务器端地址 -->
+<property>
+    <name>mapreduce.jobhistory.address</name>
+    <value>hadoop102:10020</value>
+</property>
+
+<!-- 历史服务器web端地址 -->
+<property>
+    <name>mapreduce.jobhistory.webapp.address</name>
+    <value>hadoop102:19888</value>
+</property>
+```
 
 **2）分发配置**
 
-> \[atguigu@hadoop102 hadoop\]\$ xsync
-> \$HADOOP_HOME/etc/hadoop/mapred-site.xml
+> xsync \$HADOOP_HOME/etc/hadoop/mapred-site.xml
 
 **3）在hadoop102启动历史服务器**
 
-> \[atguigu@hadoop102 hadoop\]\$ mapred \--daemon start historyserver
+> mapred \--daemon start historyserver
 
 **4）查看历史服务器是否启动**
 
-> \[atguigu@hadoop102 hadoop\]\$ jps
+> jps
 
 **5）查看JobHistory**
 
@@ -1273,79 +996,59 @@ http://hadoop102:19888/jobhistory
 
 日志聚集概念：应用运行完成以后，将程序运行日志信息上传到HDFS系统上。
 
-![](media/image22.png){width="4.017431102362205in"
-height="2.089005905511811in"}
+![image-20230221143933754](images/image-20230221143933754.png)
 
 日志聚集功能好处：可以方便的查看到程序运行详情，方便开发调试。
 
-注意：开启日志聚集功能，需要重新启动NodeManager
-、ResourceManager和HistoryServer。
+注意：开启日志聚集功能，需要重新启动NodeManager、ResourceManager和HistoryServer
 
 开启日志聚集功能具体步骤如下：
 
 **1）配置yarn-site.xml**
 
-> \[atguigu@hadoop102 hadoop\]\$ vim yarn-site.xml
+> vim yarn-site.xml        在该文件里面增加如下配置。
 
-在该文件里面增加如下配置。
-
-> \<!\-- 开启日志聚集功能 \--\>
->
-> \<property\>
->
-> \<name\>yarn.log-aggregation-enable\</name\>
->
-> \<value\>true\</value\>
->
-> \</property\>
->
-> \<!\-- 设置日志聚集服务器地址 \--\>
->
-> \<property\>
->
-> \<name\>yarn.log.server.url\</name\>
->
-> \<value\>http://hadoop102:19888/jobhistory/logs\</value\>
->
-> \</property\>
->
-> \<!\-- 设置日志保留时间为7天 \--\>
->
-> \<property\>
->
-> \<name\>yarn.log-aggregation.retain-seconds\</name\>
->
-> \<value\>604800\</value\>
->
-> \</property\>
+```xml
+<!-- 开启日志聚集功能 -->
+<property>
+    <name>yarn.log-aggregation-enable</name>
+    <value>true</value>
+</property>
+<!-- 设置日志聚集服务器地址 -->
+<property>  
+    <name>yarn.log.server.url</name>  
+    <value>http://hadoop102:19888/jobhistory/logs</value>
+</property>
+<!-- 设置日志保留时间为7天 -->
+<property>
+    <name>yarn.log-aggregation.retain-seconds</name>
+    <value>604800</value>
+</property>
+```
 
 **2）分发配置**
 
-> \[atguigu@hadoop102 hadoop\]\$ xsync
-> \$HADOOP_HOME/etc/hadoop/yarn-site.xml
+> xsync \$HADOOP_HOME/etc/hadoop/yarn-site.xml
 
 **3）关闭NodeManager 、ResourceManager和HistoryServer**
 
-> \[atguigu@hadoop103 hadoop-3.1.3\]\$ sbin/stop-yarn.sh
+> sbin/stop-yarn.sh
 >
-> \[atguigu@hadoop103 hadoop-3.1.3\]\$ mapred \--daemon stop
-> historyserver
+> mapred \--daemon stop historyserver
 
 **4）启动NodeManager 、ResourceManage和HistoryServer**
 
-> \[atguigu@hadoop103 \~\]\$ start-yarn.sh
+> start-yarn.sh
 >
-> \[atguigu@hadoop102 \~\]\$ mapred \--daemon start historyserver
+> mapred \--daemon start historyserver
 
 **5）删除HDFS上已经存在的输出文件**
 
-> \[atguigu@hadoop102 \~\]\$ hadoop fs -rm -r /output
+>  hadoop fs -rm -r /output
 
 **6）执行WordCount程序**
 
-> \[atguigu@hadoop102 hadoop-3.1.3\]\$ hadoop jar
-> share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount
-> /input /output
+> hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.3.1.jar wordcount /input /output
 
 **7）查看日志**
 
@@ -1355,18 +1058,15 @@ height="2.089005905511811in"}
 
 （2）历史任务列表
 
-![](media/image23.png){width="5.768055555555556in"
-height="1.9368055555555554in"}
+![image-20230221144132125](images/image-20230221144132125.png)
 
 （3）查看任务运行日志
 
-![](media/image24.png){width="5.768055555555556in"
-height="2.9854166666666666in"}
+![image-20230221144142481](images/image-20230221144142481.png)
 
 （4）运行日志详情
 
-![](media/image25.png){width="5.768055555555556in"
-height="2.563888888888889in"}
+![image-20230221144156705](images/image-20230221144156705.png)
 
 ### 3.2.8 集群启动/停止方式总结
 
@@ -1394,160 +1094,122 @@ height="2.563888888888889in"}
 
 **1）Hadoop集群启停脚本（包含HDFS，Yarn，Historyserver）：myhadoop.sh**
 
-> \[atguigu@hadoop102 \~\]\$ cd /home/atguigu/bin
+> cd /home/gardenia/bin
 >
-> \[atguigu@hadoop102 bin\]\$ vim myhadoop.sh
+> vim myhadoop.sh
 
 -   输入如下内容
 
-> #!/bin/bash
->
-> if \[ \$# -lt 1 \]
->
-> then
->
-> echo \"No Args Input\...\"
->
-> exit ;
->
-> fi
->
-> case \$1 in
->
-> \"start\")
->
-> echo \" =================== 启动 hadoop集群 ===================\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 启动 hdfs
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop102 \"/opt/module/hadoop-3.1.3/sbin/start-dfs.sh\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 启动 yarn
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop103 \"/opt/module/hadoop-3.1.3/sbin/start-yarn.sh\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 启动 historyserver
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop102 \"/opt/module/hadoop-3.1.3/bin/mapred \--daemon start
-> historyserver\"
->
-> ;;
->
-> \"stop\")
->
-> echo \" =================== 关闭 hadoop集群 ===================\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 关闭 historyserver
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop102 \"/opt/module/hadoop-3.1.3/bin/mapred \--daemon stop
-> historyserver\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 关闭 yarn
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop103 \"/opt/module/hadoop-3.1.3/sbin/stop-yarn.sh\"
->
-> echo \" \-\-\-\-\-\-\-\-\-\-\-\-\-\-- 关闭 hdfs
-> \-\-\-\-\-\-\-\-\-\-\-\-\-\--\"
->
-> ssh hadoop102 \"/opt/module/hadoop-3.1.3/sbin/stop-dfs.sh\"
->
-> ;;
->
-> \*)
->
-> echo \"Input Args Error\...\"
->
-> ;;
->
-> esac
+```shell
+#!/bin/bash
+
+if [ $# -lt 1 ]
+then
+    echo "No Args Input..."
+    exit ;
+fi
+
+case $1 in 
+"start")
+        echo " =================== 启动 hadoop集群 ==================="
+        
+        echo " --------------- 启动 hdfs ---------------"
+        ssh hadoop102 "/opt/module/hadoop-3.1.3/sbin/start-dfs.sh"
+        echo " --------------- 启动 yarn ---------------"
+                ssh hadoop103 "/opt/module/hadoop-3.1.3/sbin/start-yarn.sh"
+        echo " --------------- 启动 historyserver ---------------"
+        ssh hadoop102 "/opt/module/hadoop-3.1.3/bin/mapred --daemon start historyserver"
+;;
+"stop")
+        echo " =================== 关闭 hadoop集群 ==================="
+
+        echo " --------------- 关闭 historyserver ---------------"
+        ssh hadoop102 "/opt/module/hadoop-3.1.3/bin/mapred --daemon stop historyserver"
+        echo " --------------- 关闭 yarn ---------------"
+        ssh hadoop103 "/opt/module/hadoop-3.1.3/sbin/stop-yarn.sh"
+        echo " --------------- 关闭 hdfs ---------------"
+        ssh hadoop102 "/opt/module/hadoop-3.1.3/sbin/stop-dfs.sh"
+;;
+*)
+    echo "Input Args Error..."
+;;
+esac
+```
 
 -   保存后退出，然后赋予脚本执行权限
 
-> \[atguigu@hadoop102 bin\]\$ chmod +x myhadoop.sh
+> chmod +x myhadoop.sh
 
 **2）查看三台服务器Java进程脚本：jpsall**
 
-> \[atguigu@hadoop102 \~\]\$ cd /home/atguigu/bin
+>  cd /home/gardenia/bin
 >
-> \[atguigu@hadoop102 bin\]\$ vim jpsall
+> vim jpsall
 
 -   输入如下内容
 
-> #!/bin/bash
->
-> for host in hadoop102 hadoop103 hadoop104
->
-> do
->
-> echo =============== \$host ===============
->
-> ssh \$host jps
->
-> done
+```shell
+#!/bin/bash
+
+for host in hadoop102 hadoop103 hadoop104
+do
+        echo =============== $host ===============
+        ssh $host jps 
+done
+```
 
 -   保存后退出，然后赋予脚本执行权限
 
-> \[atguigu@hadoop102 bin\]\$ chmod +x jpsall
+> chmod +x jpsall
 
-**3）分发/home/atguigu/bin目录，保证自定义脚本在三台机器上都可以使用**
+**3）分发/home/gardenia/bin目录，保证自定义脚本在三台机器上都可以使用**
 
-> \[atguigu@hadoop102 \~\]\$ xsync /home/atguigu/bin/
+>  xsync /home/gardenia/bin/
 
 ### 3.2.10 常用端口号说明
 
-  -----------------------------------------------------------------------
-  端口名称                      Hadoop2.x            Hadoop3.x
-  ----------------------------- -------------------- --------------------
-  NameNode内部通信端口          8020 / 9000          8020 / 9000/9820
-
-  NameNode HTTP UI              50070                9870
-
-  MapReduce查看执行任务端口     8088                 8088
-
-  历史服务器通信端口            19888                19888
-  -----------------------------------------------------------------------
+| 端口名称                  | Hadoop2.x   | Hadoop3.x        |
+| ------------------------- | ----------- | ---------------- |
+| NameNode内部通信端口      | 8020 / 9000 | 8020 / 9000/9820 |
+| NameNode HTTP UI          | 50070       | 9870             |
+| MapReduce查看执行任务端口 | 8088        | 8088             |
+| 历史服务器通信端口        | 19888       | 19888            |
 
 ### 3.2.11 集群时间同步
 
-如果服务器在公网环境（能连接外网），可以不采用集群时间同步，因为服务器会定期和公网时间进行校准；
+​		如果服务器在公网环境（能连接外网），可以不采用集群时间同步，因为服务器会定期和公网时间进行校准；
 
-如果服务器在内网环境，必须要配置集群时间同步，否则时间久了，会产生时间偏差，导致集群执行任务时间不同步。
+​		如果服务器在内网环境，必须要配置集群时间同步，否则时间久了，会产生时间偏差，导致集群执行任务时间不同步。
 
 **1）需求**
 
 找一个机器，作为时间服务器，所有的机器与这台集群时间进行定时的同步，生产环境根据任务对时间的准确程度要求周期同步。测试环境为了尽快看到效果，采用1分钟同步一次。
 
-![](media/image26.png){width="4.348202099737533in"
-height="1.4338702974628172in"}
+![image-20230221144724643](images/image-20230221144724643.png)
 
 **2）时间服务器配置（必须root用户）**
 
 （1）查看所有节点ntpd服务状态和开机自启动状态
 
-> \[atguigu@hadoop102 \~\]\$ sudo systemctl status ntpd
+>  sudo systemctl status ntpd
 >
-> \[atguigu@hadoop102 \~\]\$ sudo systemctl start ntpd
+>  sudo systemctl start ntpd
 >
-> \[atguigu@hadoop102 \~\]\$ sudo systemctl is-enabled ntpd
+>  sudo systemctl is-enabled ntpd
 
 （2）修改hadoop102的ntp.conf配置文件
 
-> \[atguigu@hadoop102 \~\]\$ sudo vim /etc/ntp.conf
+>  sudo vim /etc/ntp.conf
 
 修改内容如下
 
-（a）修改1（授权192.168.10.0-192.168.10.255网段上的所有机器可以从这台机器上查询和同步时间）
+​	（a）修改1（授权192.168.9.0-192.168.9.255网段上的所有机器可以从这台机器上查询和同步时间）
 
-#restrict 192.168.10.0 mask 255.255.255.0 nomodify notrap
+> #restrict 192.168.9.0 mask 255.255.255.0 nomodify notrap
+>
+> 为restrict 192.168.9.0 mask 255.255.255.0 nomodify notrap
 
-为restrict 192.168.10.0 mask 255.255.255.0 nomodify notrap
-
-（b）修改2（集群在局域网中，不使用其他互联网上的时间）
+​	（b）修改2（集群在局域网中，不使用其他互联网上的时间）
 
 > server 0.centos.pool.ntp.org iburst
 >
@@ -1559,23 +1221,23 @@ height="1.4338702974628172in"}
 
 为
 
-**\#**server 0.centos.pool.ntp.org iburst
-
-**\#**server 1.centos.pool.ntp.org iburst
-
-**\#**server 2.centos.pool.ntp.org iburst
-
-**\#**server 3.centos.pool.ntp.org iburst
-
-> （c）添加3（当该节点丢失网络连接，依然可以采用本地时间作为时间服务器为集群中的其他节点提供时间同步）
+>**\#**server 0.centos.pool.ntp.org iburst
 >
+>**\#**server 1.centos.pool.ntp.org iburst
+>
+>**#**server 2.centos.pool.ntp.org iburst
+>
+>**\#**server 3.centos.pool.ntp.org iburst
+
+​	（c）添加3（当该节点丢失网络连接，依然可以采用本地时间作为时间服务器为集群中的其他节点提供时间同步）
+
 > server 127.127.1.0
 >
 > fudge 127.127.1.0 stratum 10
 
-（3）修改hadoop102的/etc/sysconfig/ntpd 文件
+（3）修改hadoop102的 `/etc/sysconfig/ntpd` 文件
 
-> \[atguigu@hadoop102 \~\]\$ sudo vim /etc/sysconfig/ntpd
+>  sudo vim /etc/sysconfig/ntpd
 >
 > 增加内容如下（让硬件时间与系统时间一起同步）
 >
@@ -1583,27 +1245,27 @@ height="1.4338702974628172in"}
 
 （4）重新启动ntpd服务
 
-> \[atguigu@hadoop102 \~\]\$ sudo systemctl start ntpd
+>  sudo systemctl start ntpd
 
 （5）设置ntpd服务开机启动
 
-> \[atguigu@hadoop102 \~\]\$ sudo systemctl enable ntpd
+>  sudo systemctl enable ntpd
 
 **3）其他机器配置（必须root用户）**
 
 （1）关闭所有节点上ntp服务和自启动
 
-> \[atguigu@hadoop103 \~\]\$ sudo systemctl stop ntpd
+> sudo systemctl stop ntpd
 >
-> \[atguigu@hadoop103 \~\]\$ sudo systemctl disable ntpd
+> sudo systemctl disable ntpd
 >
-> \[atguigu@hadoop104 \~\]\$ sudo systemctl stop ntpd
+> sudo systemctl stop ntpd
 >
-> \[atguigu@hadoop104 \~\]\$ sudo systemctl disable ntpd
+> sudo systemctl disable ntpd
 
 （2）在其他机器配置1分钟与时间服务器同步一次
 
-> \[atguigu@hadoop103 \~\]\$ sudo crontab -e
+> sudo crontab -e
 
 编写定时任务如下：
 
@@ -1611,18 +1273,17 @@ height="1.4338702974628172in"}
 
 （3）修改任意机器时间
 
-> \[atguigu@hadoop103 \~\]\$ sudo date -s \"2021-9-11 11:11:11\"
+> sudo date -s \"2023-9-11 11:11:11\"
 
 （4）1分钟后查看机器是否与时间服务器同步
 
-> \[atguigu@hadoop103 \~\]\$ sudo date
+> sudo date
 
 # 第4章 常见错误及解决方案
 
 1）防火墙没关闭、或者没有启动YARN
 
-*INFO client.RMProxy: Connecting to ResourceManager at
-hadoop108/192.168.10.108:8032*
+*INFO client.RMProxy: Connecting to ResourceManager at hadoop108/192.168.10.108:8032*
 
 2）主机名称配置错误
 
@@ -1630,26 +1291,21 @@ hadoop108/192.168.10.108:8032*
 
 4）ssh没有配置好
 
-5）root用户和atguigu两个用户启动集群不统一
+5）root用户和gardenia两个用户启动集群不统一
 
 6）配置文件修改不细心
 
 7）不识别主机名称
 
-> java.net.UnknownHostException: hadoop102: hadoop102
->
-> at java.net.InetAddress.getLocalHost(InetAddress.java:1475)
->
-> at
-> org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:146)
->
-> at org.apache.hadoop.mapreduce.Job\$10.run(Job.java:1290)
->
-> at org.apache.hadoop.mapreduce.Job\$10.run(Job.java:1287)
->
-> at java.security.AccessController.doPrivileged(Native Method)
->
-> at javax.security.auth.Subject.doAs(Subject.java:415)
+```java
+java.net.UnknownHostException: hadoop102: hadoop102
+    at java.net.InetAddress.getLocalHost(InetAddress.java:1475)
+    at org.apache.hadoop.mapreduce.JobSubmitter.submitJobInternal(JobSubmitter.java:146)
+    at org.apache.hadoop.mapreduce.Job\$10.run(Job.java:1290)
+    at org.apache.hadoop.mapreduce.Job\$10.run(Job.java:1287)
+    at java.security.AccessController.doPrivileged(Native Method)
+    at javax.security.auth.Subject.doAs(Subject.java:415)
+```
 
 解决办法：
 
@@ -1659,7 +1315,7 @@ hadoop108/192.168.10.108:8032*
 
 8）DataNode和NameNode进程同时只能工作一个。
 
-![](media/image27.emf)
+![image-20230221145113770](images/image-20230221145113770.png)
 
 9）执行命令不生效，粘贴Word中命令时，遇到-和长--没区分开。导致命令失效
 
@@ -1671,12 +1327,11 @@ hadoop108/192.168.10.108:8032*
 
 11）jps不生效
 
-原因：全局变量hadoop java没有生效。解决办法：需要source
-/etc/profile文件。
+原因：全局变量hadoop java没有生效。解决办法：需要source  /etc/profile文件
 
 12）8088端口连接不上
 
-> \[atguigu@hadoop102 桌面\]\$ cat /etc/hosts
+> cat /etc/hosts
 >
 > 注释掉如下代码
 >
