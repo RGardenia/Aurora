@@ -42,3 +42,5 @@ hs_err_pid*
 *.pdf
 
 ## 提交 ##
+*.doc
+*.docx
