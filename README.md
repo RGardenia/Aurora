@@ -1,4 +1,21 @@
-📙栀的学习笔记
+<span> 📙栀的学习笔记 </span>
+
+<p style="text-align: center">
+    <!-- <a href="https://github.com/RGardenia"> <img src="https://img.shields.io/github/stars/RGardenia/Gardenia_Admin.svg" height="25px" alt="github follow" /> </a> -->
+    <a href="https://github.com/RGardenia"> <img src="https://img.shields.io/github/stars/RGardenia/Gardenia_Admin.svg?style=social&label=Star&maxAge=2592000" height="25px" alt="github follow" /> </a>
+    <!-- <a href="https://github.com/RGardenia?tab=followers"> <img src="https://img.shields.io/github/followers/RGardenia?label=Followers&style=plastic" height="25px" alt="github follow" /> </a> -->
+    <a href="https://github.com/RGardenia?tab=followers"> <img src="https://img.shields.io/github/followers/RGardenia.svg?style=social&label=Follow&maxAge=2592000" height="25px" alt="github follow" /> </a>
+    <!-- <a href="https://github.com/RGardenia"> <img src="https://img.shields.io/badge/&#8459-homepage-3875B7.svg?labelColor=21438A&style=plastic" height="25px" alt="RGardenia"/> </a> -->
+    <!--  <a href=""><img src="https://img.shields.io/badge/scholar-4385FE.svg?&style=plastic&logo=google-scholar&logoColor=white" alt="Google Scholar" height="25px"/> </a> -->
+    <a href=""> <img src="https://img.shields.io/badge/gmail-%23D14836.svg?&style=plastic&logo=gmail&logoColor=white" height="25px" alt="zy13916045171@163.com"/> </a>
+    <a href="https://www.zhihu.com/people/eudaemonia-15-56"><img src="https://img.shields.io/badge/知乎-0079FF.svg?style=plastic&logo=zhihu&logoColor=white" height="25px" alt="知乎"/> </a>
+    <!-- -->
+    <a href=""> <img src="https://img.shields.io/badge/-CV-black?style=plastic" height="25px"/> </a>
+    <a href=""> <img src="https://badgen.net/badge/icon/docker?icon=docker&label" height="25px"/> </a>
+    <a href="https://gitee.com/CapeJasmine"> <img src="https://img.shields.io/badge/GIT-E44C30?style=for-the-badge&logo=git&logoColor=white" height="25px"/> </a>
+    <a href="https://gitee.com/CapeJasmine"> <img src="https://img.shields.io/badge/--F05032?logo=git&logoColor=ffffff" height="25px"/> </a>
+
+</p>
 
 ## 关于我
 
