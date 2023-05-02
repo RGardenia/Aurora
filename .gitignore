@@ -33,14 +33,13 @@ hs_err_pid*
 /target
 /*.iml
 
-## 忽略 相关 软件 ##
+## 相关 软件 ##
 /Software
 
-## 忽略 资料 文件 ##
+## 资料 文件 ##
 /Datum
 /doc
 *.pdf
-Java
 
 ## 提交 ##
 *.doc
