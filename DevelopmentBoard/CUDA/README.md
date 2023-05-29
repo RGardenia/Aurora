@@ -26,18 +26,24 @@ CUDA 程序一般的执行流程：
 
 > ​		CUDA Kernel 指的是在 Device 线程上并行执行的函数，在程序中利用 `__global__` 符号声明，在调用时需要用 `<<<grid, block>>>` 来指定 Kernel 执行的线程数量，在 CUDA 中每一个线程都要执行 Kernel 函数，并且每个线程会被分配到一个唯一的 Thread ID，这个 ID 值可以通过 Kernel 的内置变量 `threadIdx` 来获得。
 >
+> 主要的三个函数类型限定词如下：
+>
+> - `__global__`：在 device 上执行，从 host 中调用（一些特定的 GPU 也可以从 device 上调用），返回类型必须是`void`，不支持可变参数参数，不能成为类成员函数。注意用 `__global__` 定义的 kernel 是异步的，这意味着 host 不会等待 kernel 执行完就执行下一步。
+> - `__device__`：在 device 上执行，单仅可以从 device 中调用，不可以和`__global__`同时用。
+> - `__host__`：在 host 上执行，仅可以从 host 上调用，一般省略不写，不可以和 `__global__` 同时用，但可和`__device__`，此时函数会在 device 和 host 都编译。
+>
 > **Kernel 的层次结构**
 >
-> ​		Kernel 在 Device 执行的时候实际上是启动很多线程，这些线程都执行 Kernel 这个函数。其中，由这个 Kernel 启动的所有线程称为一个 grid，同一个 grid 中的线程共享相同的 `Global memory`，grid 是线程结构的第一个层次。一个 grid 又可以划分为多个 block，每一个 block 包含多个线程，其中的所有线程又共享 `Per-block shared memory`，block 是线程结构的第二个层次。最后，每一个线程(thread)有着自己的 `Per-thread local memory`。![线程两层组织结构](images/8e326564c507090fae3b9901f28e817f.png)
+> ​		Kernel 在 Device 执行的时候实际上是启动很多线程，这些线程都执行 Kernel 这个函数。其中，由这个 Kernel 启动的所有线程称为一个**网格**（<span style="color:red"> `grid`</span>），同一个 grid 中的线程共享相同的 `Global memory`，grid 是线程结构的第一个层次。一个 grid 又可以划分为多个 **线程块**（<span style="color:red">block</span>），每一个 block 包含多个线程，其中的所有线程又共享 `Per-block shared memory`，block 是线程结构的第二个层次。最后，每一个线程 (thread) 有着自己的 `Per-thread local memory`。![线程两层组织结构](images/8e326564c507090fae3b9901f28e817f.png)
 >
 > <img src="images/209edc7a8ffe54d8591fa753be3a2643.png" alt="内存层次结构" style="zoom: 67%;" />
 
-​		线程两层组织结构的示意图，其中 grid 和 block 均为 2-dim 的线程组织。grid 和 block 都是定义为 `dim3` 类型的变量，`dim3` 可以看成是包含三个无符号整数$(x, y, z)$成员的结构体变量，在定义时，缺省值初始化为$1$。
+​		线程两层组织结构的示意图，其中 grid 和 block 均为 2-dim 的线程组织。grid 和 block 都是定义为 `dim3` 类型的变量，`dim3` 可以看成是包含三个无符号整数 $(x, y, z)$ 成员的结构体变量，在定义时，缺省值初始化为 $1$。
 
 ```c
 dim3 grid(3, 2);
 dim3 block(5, 3);
-kernel<<<grid, block>>>(parameters);
+kernel<<<grid, block>>>(parameters...);
 ```
 
 <img src="images/97aff71da70c9be3327c2f2dd28b53ba.png" alt="img" style="zoom:67%;" />
@@ -51,14 +57,13 @@ blockIdx.x = 1;
 blockIdx.y = 1;
 ```
 
-​		一个 Block 是放在同一个**流式多处理器(SM)**上运行的，但是单个 SM 上的运算核心**(cuda core)**有限，这导致线程块中的线程数是有限制的，因此在设置 grid 和 block 的 **shape** 时需要根据所使用的 Device 来设计。
+​		一个 Block 是放在同一个**流式多处理器(SM)**上运行的，但是单个 SM 上的运算核心 **(cuda core)** 有限，这导致线程块中的线程数是有限制的，因此在设置 grid 和 block 的 **shape** 时需要根据所使用的 Device 来设计
 
 ​		如果要知道一个线程在 Block 中的全局 ID，就必须要根据 Block 的组织结构来计算，对于一个 $2-dim$ 的 $Block(D_x, D_y)$，线程$(x, y)$的 ID 值为 $x + y ∗ D_x$，如果是 $3-dim$ 的 $Block(D_x, D_y, D_z)$，线程$(x, y, z)$ 的 ID 值为 $x + y ∗ D_x + z ∗ D_x ∗ D_y$ 。
 
-🌰栗子：**CUDA 实现向量加法**
+🌰栗子：**CUDA 查看 Device 基本信息**
 
 ```C
-// 查看 Device 基本信息
 #include <stdio.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -84,6 +89,8 @@ int main()
 
 > 其中第 12 行乘 64 的原因是我所使用的设备为 MX250，而 MX250 系列均采用 Pascal 架构，该架构下每个 SM 中的 cuda core 的数量为 64
 >
+> 🌰栗子：**CUDA 实现向量加法**
+>
 > ```C
 > // 实现 Vector Addition
 > #include <stdio.h>
@@ -98,36 +105,36 @@ int main()
 > __global__ void additionKernelVersion(float*, float*, float*, const int);
 > int main()
 > {
->        start = clock();
->        float A[LENGTH], B[LENGTH], C[LENGTH] = {0};
->        for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
->        vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
->        end = clock();
->        printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
+>     start = clock();
+>     float A[LENGTH], B[LENGTH], C[LENGTH] = {0};
+>     for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
+>     vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
+>     end = clock();
+>     printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
 > }
 > void vectorAdditionOnDevice(float* A, float* B, float* C, const int size)
 > {
->        float* device_A = NULL;
->        float* device_B = NULL;
->        float* device_C = NULL;
->        cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
->        cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
->        cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
->        const float perBlockThreads = 192.0;
->        cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->        cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->        additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
->        cudaDeviceSynchronize();
->        cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
->        cudaFree(device_A);  // 释放内存
->        cudaFree(device_B);  // 释放内存
->        cudaFree(device_C);  // 释放内存
+>     float* device_A = NULL;
+>     float* device_B = NULL;
+>     float* device_C = NULL;
+>     cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
+>     cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
+>     cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
+>     const float perBlockThreads = 192.0;
+>     cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>     cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>     additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
+>     cudaDeviceSynchronize();
+>     cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
+>     cudaFree(device_A);  // 释放内存
+>     cudaFree(device_B);  // 释放内存
+>     cudaFree(device_C);  // 释放内存
 > }
 > __global__ void additionKernelVersion(float* A, float* B, float* C, const int size)
 > {
->        // 此处定义用于向量加法的 Kernel
->        int i = blockIdx.x * blockDim.x + threadIdx.x;
->        C[i] = A[i] + B[i];
+>     // 此处定义用于向量加法的 Kernel
+>     int i = blockIdx.x * blockDim.x + threadIdx.x;
+>     C[i] = A[i] + B[i];
 > }
 > ```
 
