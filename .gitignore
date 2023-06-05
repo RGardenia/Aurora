@@ -38,9 +38,10 @@ hs_err_pid*
 
 ## 资料 文件 ##
 /Datum
-/doc
+doc
 *.pdf
 
 ## 提交 ##
 *.doc
 *.docx
+Code
