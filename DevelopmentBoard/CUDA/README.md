@@ -48,7 +48,7 @@ kernel<<<grid, block>>>(parameters...);
 
 <img src="images/97aff71da70c9be3327c2f2dd28b53ba.png" alt="img" style="zoom:67%;" />
 
-​		从线程的组织结构可以得知，一个线程是由$(blockIdx, threadIdx)$来唯一标识的，`blockIdx` 和 `threadIdx` 都是 `dim3` 类型的变量，其中 `blockIdx` 指定线程所在 block 在 grid 中的位置，`threadIdx` 指定线程在 block 中的位置，如图中的 $Thread(2,1)$ 满足：
+​		从线程的组织结构可以得知，一个线程是由 $(blockIdx, threadIdx)$ 来唯一标识的，`blockIdx` 和 `threadIdx` 都是 `dim3` 类型的变量，其中 `blockIdx` 指定线程所在 $block$ 在 $grid$ 中的位置，`threadIdx` 指定线程在 $block$ 中的位置，如图中的 $Thread(2,1)$ 满足：
 
 ```c
 threadIdx.x = 2;
@@ -57,9 +57,9 @@ blockIdx.x = 1;
 blockIdx.y = 1;
 ```
 
-​		一个 Block 是放在同一个**流式多处理器(SM)**上运行的，但是单个 SM 上的运算核心 **(cuda core)** 有限，这导致线程块中的线程数是有限制的，因此在设置 grid 和 block 的 **shape** 时需要根据所使用的 Device 来设计
+​		一个 $Block$ 是放在同一个**流式多处理器(SM)**上运行的，但是单个 SM 上的运算核心 **(cuda core)** 有限，这导致线程块中的线程数是有限制的，因此在设置 grid 和 block 的 **shape** 时需要根据所使用的 Device 来设计
 
-​		如果要知道一个线程在 Block 中的全局 ID，就必须要根据 Block 的组织结构来计算，对于一个 $2-dim$ 的 $Block(D_x, D_y)$，线程$(x, y)$的 ID 值为 $x + y ∗ D_x$，如果是 $3-dim$ 的 $Block(D_x, D_y, D_z)$，线程$(x, y, z)$ 的 ID 值为 $x + y ∗ D_x + z ∗ D_x ∗ D_y$ 。
+​		如果要知道一个线程在 $Block$ 中的全局 $ID$，就必须要根据 Block 的组织结构来计算，对于一个 $2-dim$ 的 $Block(D_x, D_y)$，线程$(x, y)$的 ID 值为 $x + y ∗ D_x$，如果是 $3-dim$ 的 $Block(D_x, D_y, D_z)$，线程$(x, y, z)$ 的 ID 值为 $x + y ∗ D_x + z ∗ D_x ∗ D_y$ 。
 
 🌰栗子：**CUDA 查看 Device 基本信息**
 
@@ -67,6 +67,7 @@ blockIdx.y = 1;
 #include <stdio.h>
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+
 int main()
 {
     cudaDeviceProp deviceProp;
@@ -74,8 +75,12 @@ int main()
     printf("Device 0 information:\n");
     printf("设备名称与型号: %s\n", deviceProp.name);
     printf("显存大小: %d MB\n", (int)(deviceProp.totalGlobalMem / 1024 / 1024));
-    printf("含有的SM数量: %d\n", deviceProp.multiProcessorCount);
+    printf("SM 数量: %d\n", deviceProp.multiProcessorCount);
     printf("CUDA CORE数量: %d\n", deviceProp.multiProcessorCount * 64);
+    std::cout << "每个线程块的共享内存大小：" << devProp.sharedMemPerBlock / 1024.0 << " KB" << std::endl;
+    std::cout << "每个线程块的最大线程数：" << devProp.maxThreadsPerBlock << std::endl;
+    std::cout << "每个EM的最大线程数：" << devProp.maxThreadsPerMultiProcessor << std::endl;
+    std::cout << "每个SM的最大线程束数：" << devProp.maxThreadsPerMultiProcessor / 32 << std::endl;
     printf("计算能力: %d.%d\n", deviceProp.major, deviceProp.minor);
 }
 // 以下是本地电脑执行结果：
@@ -87,6 +92,30 @@ int main()
 // 计算能力: 6.1
 ```
 
+> 🌰栗子：**CUDA 矩阵相乘**
+>
+> ​		kernel 的这种线程组织结构天然适合vector,matrix等运算，如我们将利用上图2-dim结构实现两个矩阵的加法，每个线程负责处理每个位置的两个元素相加，代码如下所示。线程块大小为(16, 16)，然后将N*N大小的矩阵均分为不同的线程块来执行加法运算。
+> ```C
+> // Kernel定义
+> __global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N]) 
+> { 
+>     int i = blockIdx.x * blockDim.x + threadIdx.x; 
+>     int j = blockIdx.y * blockDim.y + threadIdx.y; 
+>     if (i < N && j < N) 
+>         C[i][j] = A[i][j] + B[i][j]; 
+> }
+> int main() 
+> { 
+>     ...
+>     // Kernel 线程配置
+>     dim3 threadsPerBlock(16, 16); 
+>     dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
+>     // kernel调用
+>     MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C); 
+>     ...
+> }
+> ```
+>
 > 其中第 12 行乘 64 的原因是我所使用的设备为 MX250，而 MX250 系列均采用 Pascal 架构，该架构下每个 SM 中的 cuda core 的数量为 64
 >
 > 🌰栗子：**CUDA 实现向量加法**
@@ -105,42 +134,55 @@ int main()
 > __global__ void additionKernelVersion(float*, float*, float*, const int);
 > int main()
 > {
->     start = clock();
->     float A[LENGTH], B[LENGTH], C[LENGTH] = {0};
->     for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
->     vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
->     end = clock();
->     printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
+>  start = clock();
+>  float A[LENGTH], B[LENGTH], C[LENGTH] = {0};
+>  for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
+>  vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
+>  end = clock();
+>  printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
 > }
 > void vectorAdditionOnDevice(float* A, float* B, float* C, const int size)
 > {
->     float* device_A = NULL;
->     float* device_B = NULL;
->     float* device_C = NULL;
->     cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
->     cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
->     cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
->     const float perBlockThreads = 192.0;
->     cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->     cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->     additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
->     cudaDeviceSynchronize();
->     cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
->     cudaFree(device_A);  // 释放内存
->     cudaFree(device_B);  // 释放内存
->     cudaFree(device_C);  // 释放内存
+>  float* device_A = NULL;
+>  float* device_B = NULL;
+>  float* device_C = NULL;
+>  cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
+>  cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
+>  cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
+>  const float perBlockThreads = 192.0;
+>  cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>  cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>  additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
+>  cudaDeviceSynchronize();
+>  cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
+>  cudaFree(device_A);  // 释放内存
+>  cudaFree(device_B);  // 释放内存
+>  cudaFree(device_C);  // 释放内存
 > }
 > __global__ void additionKernelVersion(float* A, float* B, float* C, const int size)
 > {
->     // 此处定义用于向量加法的 Kernel
->     int i = blockIdx.x * blockDim.x + threadIdx.x;
->     C[i] = A[i] + B[i];
+>  // 此处定义用于向量加法的 Kernel
+>  int i = blockIdx.x * blockDim.x + threadIdx.x;
+>  C[i] = A[i] + B[i];
 > }
 > ```
 
+​		每个线程有自己的私有本地内存（Local Memory），而每个线程块有包含共享内存（Shared Memory）,可以被线程块中所有线程共享，其生命周期与线程块一致
+​		此外，所有的线程都可以访问全局内存（Global Memory）。还可以访问一些只读内存块：常量内存（Constant Memory）和纹理内存（Texture Memory）
 
+![img](images/v2-6456af75530956da6bc5bab7418ff9e5_720w.webp)
 
-### 并行线程组织结构
+> ​		一个 $kernel$ 实际上会启动很多线程，这些线程是逻辑上并行的，但是在物理层却并不一定。
+> 多线程如果没有多核支持，在物理层也是无法实现并行的。GPU存在很多CUDA核心，充分利用CUDA核心可以充分发挥GPU的并行计算能力。
+> ​		GPU硬件的一个核心组件是SM，SM的核心组件包括CUDA核心，共享内存，寄存器等，SM可以并发地执行数百个线程，并发能力就取决于SM所拥有的资源数。当一个 $kernel$ 被执行时，它的 $gird$ 中的线程块被分配到SM上，一个线程块只能在一个SM上被调度。SM一般可以调度多个线程块，这要看SM本身的能力。
+> 那么有可能一个 kernel 的各个线程块被分配多个SM，所以$grid$只是逻辑层，而SM才是执行的物理层。SM采用的是[SIMT](https://link.zhihu.com/?target=http%3A//docs.nvidia.com/cuda/cuda-c-programming-guide/index.html%23simt-architecture) ($Single-Instruction, Multiple-Thread$，单指令多线程)架构，基本的执行单元是线程束（warps)，线程束包含32个线程，这些线程同时执行相同的指令，但是每个线程都包含自己的指令地址计数器和寄存器状态，也有自己独立的执行路径。
+> ​		所以尽管线程束中的线程同时从同一程序地址执行，但是可能具有不同的行为，比如遇到了分支结构，一些线程可能进入这个分支，但是另外一些有可能不执行，它们只能死等，因为GPU规定线程束中所有线程在同一周期执行相同的指令，线程束分化会导致性能下降。
+> ​		当线程块被划分到某个SM上时，它将进一步划分为多个线程束，因为这才是SM的基本执行单元，但是一个SM同时并发的线程束数是有限的。这是因为资源限制，SM要为每个线程块分配共享内存，而也要为每个线程束中的线程分配独立的寄存器。所以SM的配置会影响其所支持的线程块和线程束并发数量。
+> ​		总之，就是网格和线程块只是逻辑划分，一个 $kernel$ 的所有线程其实在物理层是不一定同时并发的。所以 $kernel$ 的 $grid$ 和 $block$ 的配置不同，性能会出现差异，这点是要特别注意的。还有，由于SM的基本执行单元是包含32个线程的线程束，所以 $block$ 大小一般要设置为32的倍数。
+>
+> ![img](images/v2-dcc0f678850d5bf1683753c34ca4b308_720w.png)
+
+**并行线程组织结构**
 
 Thread：并行的基本单位
 
@@ -165,11 +207,7 @@ Kernel：在GPU上执行的核心程序
 
 
 
-
-
 ## 编程
-
-
 
 ### CUDA引入的新变量
 
@@ -177,12 +215,10 @@ Kernel：在GPU上执行的核心程序
   - 储存于GPU上的global memory空间
   - 和应用程序具有相同的生命期(lifetime)
   - 可被grid中所有线程存取,CPU代码通过`runtime`函数存取
-  
 - `__constant__`
   - 储存于GPU上的`constant_memory`空间
   - 和应用程序具有相同的生命期(lifetime)
   - 可被grid中所有线程存取,CPU代码通过runtime函数存取
-  
 - `___shared__`
   - 储存于GPU上`thread block`内的共享存储器
   - 和`thread block`具有相同的生命期(lifetime)
@@ -192,7 +228,15 @@ Kernel：在GPU上执行的核心程序
   - 和thread具有相同的生命期(lifetime)
   - Thread私有
 
+### 内存管理 API
 
+- 在device上分配内存的cudaMalloc函数
+
+  ```C
+  cudaError_t cudaMalloc(void** devPtr, size_t size);
+  ```
+
+  
 
 ### 函数定义
 
