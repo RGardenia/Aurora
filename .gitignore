@@ -1,8 +1,30 @@
 # Compiled class file
 *.class
+/target
 
 # Log file
 *.log
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+.mvn
+
+## 相关 软件 ##
+Software
+
+## 资料 文件 ##
+/Datum
+doc
+*.pdf
+*.ttf
+
+## 提交 ##
+*.doc
+*.docx
+static/
 
 # BlueJ files
 *.ctxt
@@ -21,27 +43,3 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-.mvn
-
-## 打包文件
-/target
-/*.iml
-
-## 相关 软件 ##
-/Software
-
-## 资料 文件 ##
-/Datum
-doc
-*.pdf
-
-## 提交 ##
-*.doc
-*.docx
-Code
