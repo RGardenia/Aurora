@@ -202,4 +202,8 @@
 
 ## FAQ
 
-PCIe：https://blog.csdn.net/weixin_40357487/category_11313272.html
+PCIe：https://www.ti.com.cn/product/cn/TDA4VM#tech-docs
+
+​			https://blog.csdn.net/weixin_40357487/category_11313272.html
+
+​			https://blog.csdn.net/yingqiangli/article/details/109161667
