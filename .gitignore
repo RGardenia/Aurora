@@ -25,6 +25,7 @@ doc
 *.doc
 *.docx
 static/
+Spring
 
 # BlueJ files
 *.ctxt
