@@ -51,6 +51,7 @@
 - Windows Terminal   （windows 下命令行工具）
 - Electerm  ( 国人开发 ）
 - [FinalShell](http://www.hostbuf.com/)  （一体化的网络管理软件）
+- WindTerm
 
 ## 抓包工具
 
