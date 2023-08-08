@@ -22,3 +22,38 @@ Milvus专注于存储、索引及管理由深度神经网络和其他机器学�
 
 
 
+## 安装
+
+> 这里 安装模式为 单机安装，集群安装请参考以下链接
+>
+> https://www.milvus-io.com/install_cluster-milvusoperator
+
+### 1、安装 Docker 及 Docker Compose
+
+​		这里参考 [语雀 Docker Compose](https://www.yuque.com/yuzhi-vmblo/yys/nn3wo4) 内容！
+
+### 2、获取 YAML
+
+```bash
+wget https://github.com/milvus-io/milvus/releases/download/v2.2.12/milvus-standalone-docker-compose.yml -O docker-compose.yml
+```
+
+### 3、启动 Milvus
+
+```bash
+sudo docker-compose up -d
+```
+
+
+
+
+
+
+
+### 9、UI 界面
+
+```bash
+docker run -p 8000:3000 -e HOST_URL=http://172.18.0.4:8000 --network=milvus \
+    -e MILVUS_URL=172.18.0.4:19530 zilliz/attu:latest
+```
+
