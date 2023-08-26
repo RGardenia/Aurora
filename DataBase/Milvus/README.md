@@ -44,7 +44,29 @@ wget https://github.com/milvus-io/milvus/releases/download/v2.2.12/milvus-standa
 sudo docker-compose up -d
 ```
 
+### 4、Milvus_CLI
 
+```bash
+pip install milvus-cli
+
+# 链接
+connect -h 127.0.0.1 -p 19530
+# 创 用户
+create user -u (username) -p (password)
+
+# 创建 collection
+create collection -c car -f id:INT64:primary_field -f vector:FLOAT_VECTOR:128 -f color:INT64:color -f brand:INT64:brand -p id -a -d 'car_collection'
+# 查看创建的 collection
+list collections
+describe、delete collection -c <col_name>
+
+# 进行向量计算
+import -c car 'https://raw.githubusercontent.com/zilliztech/milvus_cli/main/examples/import_csv/vectors.csv'
+# 计算两个向量数组之间的距离并提示所需输入
+calc distance
+```
+
+> Reference 文章：https://www.milvus-io.com/cli_commands
 
 
 
