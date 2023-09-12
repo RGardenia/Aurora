@@ -50,7 +50,7 @@ CUDA 程序一般的执行流程：
 >
 > <img src="images/209edc7a8ffe54d8591fa753be3a2643.png" alt="内存层次结构" style="zoom: 67%;" />
 
-​		线程两层组织结构的示意图，其中 grid 和 block 均为 2-dim 的线程组织。grid 和 block 都是定义为 `dim3` 类型的变量，`dim3` 可以看成是包含三个无符号整数 $(x, y, z)$ 成员的结构体变量，在定义时，缺省值初始化为 $1$。
+​		线程两层组织结构的示意图，其中 $grid$ 和 $block$ 均为 2-dim 的线程组织。grid 和 block 都是定义为 `dim3` 类型的变量，`dim3` 可以看成是包含三个无符号整数 $(x, y, z)$ 成员的结构体变量，在定义时，缺省值初始化为 $1$。
 
 ```c
 dim3 grid(3, 2);
@@ -58,9 +58,9 @@ dim3 block(5, 3);
 kernel<<<grid, block>>>(parameters...);
 ```
 
-  CUDA可以组织三维的网格和块。线程层次结构如下图所示，其结构是一个包含二维块的二维网格。网格和块的维度由**blockDim**(线程块的维度，用每个线程块中的线程数来表示)、**gridDim**(线程格的维度，用每个线程格中的线程数来表示)两个内置变量指定，它们是dim3类型的变量，是基于uint3定义的整数型向量，用来表示维度。当定义一个dim3类型的变量时，所有未指定的元素都被初始化为1.dim3类型，变量中的每个组件可以通过它的x、y、z字段获得。
+  CUDA可以组织三维的网格和块。线程层次结构如下图所示，其结构是一个包含二维块的二维网格。网格和块的维度由**blockDim**（线程块的维度，用每个线程块中的线程数来表示）、**gridDim**（线程格的维度，用每个线程格中的线程数来表示）两个内置变量指定，它们是**dim3**类型的变量，是基于**uint3**定义的整数型向量，用来表示维度。当定义一个**dim3**类型的变量时，所有未指定的元素都被初始化为1.dim3类型，变量中的每个组件可以通过它的 $x、y、z$ 字段获得。
 
-​		在CUDA程序中有两组不同的网格和块变量：手动定义的dim3数据类型和预定义的uint3数据类型。在主机端，作为内核调用的一部分，可以使用dim3数据类型定义一个网格和块的维度。当执行核函数时， CUDA运行时会生成相应的内置预初始化的网格、块和线程变量，它们在核函数内均可被访问到且为uint3类型。手动定义的dim3类型的网格和块变量仅在主机端可见，而uint3类型的内置预初始化的网格和块变量仅在设备端可见。
+​		在CUDA程序中有两组不同的网格和块变量：手动定义的**dim3**数据类型和预定义的**uint3**数据类型。在主机端，作为内核调用的一部分，可以使用**dim3**数据类型定义一个网格和块的维度。当执行核函数时， CUDA 运行时会生成相应的内置预初始化的网格、块和线程变量，它们在核函数内均可被访问到且为**uint3**类型。手动定义的**dim3**类型的网格和块变量仅在主机端可见，而**uint3**类型的内置预初始化的网格和块变量仅在设备端可见。
 
 <img src="images/97aff71da70c9be3327c2f2dd28b53ba.png" alt="img" style="zoom:67%;" />
 
@@ -110,38 +110,36 @@ int main()
 
 > 🌰栗子：**CUDA 矩阵相乘**
 >
-> ​		`kernel` 的这种线程组织结构天然适合`vector`，`matrix`等运算，利用 2-dim 结构实现两个矩阵的加法，每个线程负责处理每个位置的两个元素相加，代码如下所示：
+> ​		`kernel` 的这种线程组织结构天然适合`vector`，`matrix`等运算，利用 $2-dim$ 结构实现两个矩阵的加法，每个线程负责处理每个位置的两个元素相加，代码如下所示：
 >
 > 线程块大小为 $(16, 16)$，然后将 $N*N$ 大小的矩阵均分为不同的线程块来执行加法运算
 >
 > ```C
 > // Kernel定义
-> __global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N]) 
-> { 
->  int i = blockIdx.x * blockDim.x + threadIdx.x; 
->  int j = blockIdx.y * blockDim.y + threadIdx.y; 
->  if (i < N && j < N) 
->      C[i][j] = A[i][j] + B[i][j]; 
-> }
+> __global__ void MatAdd(float A[N][N], float B[N][N], float C[N][N]) {
+>     int i = blockIdx.x * blockDim.x + threadIdx.x;
+>      int j = blockIdx.y * blockDim.y + threadIdx.y;
+>      if (i < N && j < N)
+>          C[i][j] = A[i][j] + B[i][j];
+>    }
 > 
-> int main() 
-> { 
->  ...
->  // Kernel 线程配置
->  dim3 threadsPerBlock(16, 16); 
->  dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
->  // kernel调用
->  MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C); 
->  ...
-> }
-> ```
->
+> int main(){
+>     ...
+>         // Kernel 线程配置
+>          dim3 threadsPerBlock(16, 16); 
+>      dim3 numBlocks(N / threadsPerBlock.x, N / threadsPerBlock.y);
+>      // kernel调用
+>      MatAdd<<<numBlocks, threadsPerBlock>>>(A, B, C);
+>      ...
+>  }
+>  ```
+> 
 > 其中第 12 行乘 64 的原因是我所使用的设备为 MX250，而 MX250 系列均采用 Pascal 架构，该架构下每个 SM 中的 cuda core 的数量为 64
 >
 > 🌰栗子：**CUDA 实现向量加法**
 >
 > ```C
-> // 实现 Vector Addition
+>// 实现 Vector Addition
 > #include <stdio.h>
 > #include <time.h>
 > #include <math.h>
@@ -156,36 +154,36 @@ int main()
 > {
 >     start = clock();
 >     float A[LENGTH], B[LENGTH], C[LENGTH] = {0};
->     for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
->     vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
->     end = clock();
->     printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
-> }
-> void vectorAdditionOnDevice(float* A, float* B, float* C, const int size)
+>        for (int i = 0; i < LENGTH; i ++) A[i] = 6, B[i] = 5;
+>        vectorAdditionOnDevice(A, B, C, LENGTH);  //calculation on GPU
+>        end = clock();
+>        printf("Calculation on GPU version1 use %.8f seconds.\n", (float)(end - start) / CLOCKS_PER_SEC);
+>    }
+>    void vectorAdditionOnDevice(float* A, float* B, float* C, const int size)
 > {
 >     float* device_A = NULL;
 >     float* device_B = NULL;
->     float* device_C = NULL;
->     cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
->     cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
->     cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
->     const float perBlockThreads = 192.0;
->     cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->     cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
->     additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
->     cudaDeviceSynchronize();
->     cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
->     cudaFree(device_A);  // 释放内存
->     cudaFree(device_B);  // 释放内存
->     cudaFree(device_C);  // 释放内存
-> }
-> __global__ void additionKernelVersion(float* A, float* B, float* C, const int size)
+>        float* device_C = NULL;
+>        cudaMalloc((void**)&device_A, sizeof(float) * size);  // 分配内存
+>        cudaMalloc((void**)&device_B, sizeof(float) * size);  // 分配内存
+>        cudaMalloc((void**)&device_C, sizeof(float) * size);  // 分配内存
+>        const float perBlockThreads = 192.0;
+>        cudaMemcpy(device_A, A, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>        cudaMemcpy(device_B, B, sizeof(float) * size, cudaMemcpyHostToDevice);  // 将数据从 Host 拷贝到 Device
+>        additionKernelVersion<<<ceil(size / perBlockThreads), perBlockThreads>>>(device_A, device_B, device_C, size);  // 调用 Kernel 进行并行计算
+>        cudaDeviceSynchronize();
+>        cudaMemcpy(device_C, C, sizeof(float) * size, cudaMemcpyDeviceToHost);  // 将数据从 Device 拷贝到 Host
+>        cudaFree(device_A);  // 释放内存
+>        cudaFree(device_B);  // 释放内存
+>        cudaFree(device_C);  // 释放内存
+>    }
+>    __global__ void additionKernelVersion(float* A, float* B, float* C, const int size)
 > {
 >     // 此处定义用于向量加法的 Kernel
 >     int i = blockIdx.x * blockDim.x + threadIdx.x;
->     C[i] = A[i] + B[i];
-> }
-> ```
+>        C[i] = A[i] + B[i];
+>    }
+>    ```
 
 ​		每个线程有自己的私有本地内存（Local Memory），而每个线程块有包含共享内存（Shared Memory）,可以被线程块中所有线程共享，其生命周期与线程块一致。
 ​		此外，所有的线程都可以访问全局内存（Global Memory）。还可以访问一些只读内存块：常量内存（Constant Memory）和纹理内存（Texture Memory）。
@@ -227,8 +225,18 @@ Kernel：在GPU上执行的核心程序
 
 ## 三、CUDA 编程
 
-​		C语言函数调用语句：`function_name(argument list);` 而CUDA内核调用是对C语言函数调用语句的延申，`kernal_name <<<grid,block>>>(argument list);`其中<<<>>>运算符内是核函数的执行配置。执行配置的第一个值是网络维度，也就是启动块的数目，第二个值是块维度，也就是每个块中线程的数目。通过指定网格和块的维度，可以进行内核中线程的数目以及内核中使用的线程布局的配置。
-  由于数据在全局内存中是线性存储的，可以用变量blockIdx.x和threadIdx.x来进行以下操作：在网格中标识一个唯一的线程、建立线程和数据元素之间的映射关系。不同于C语言的函数调用，所有的CUDA核函数的启动都是异步的。CUDA内核调用完成后，控制权立刻返回给CPU。可以通过调用以下函数来强制主机端程序等待所有的核函数执行结束：`cudaError_t cudaMemcpy(void* dst,const void* src,size_t count,cudaMemcpykind kind);`
+### 环境安装
+
+```bash
+vim ~/.bashrc
+export PATH="/usr/local/cuda-10.2/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64:$LD_LIBRARY_PATH"
+
+source ~/.bashrc
+```
+
+> ​		C语言函数调用语句：`function_name(argument list);` 而CUDA内核调用是对C语言函数调用语句的延申，`kernal_name <<<grid,block>>>(argument list);`其中<<<>>>运算符内是核函数的执行配置。执行配置的第一个值是网络维度，也就是启动块的数目，第二个值是块维度，也就是每个块中线程的数目。通过指定网格和块的维度，可以进行内核中线程的数目以及内核中使用的线程布局的配置。
+>   由于数据在全局内存中是线性存储的，可以用变量blockIdx.x和threadIdx.x来进行以下操作：在网格中标识一个唯一的线程、建立线程和数据元素之间的映射关系。不同于C语言的函数调用，所有的CUDA核函数的启动都是异步的。CUDA内核调用完成后，控制权立刻返回给CPU。可以通过调用以下函数来强制主机端程序等待所有的核函数执行结束：`cudaError_t cudaMemcpy(void* dst,const void* src,size_t count,cudaMemcpykind kind);`
 
 ### 函数定义
 
@@ -250,25 +258,24 @@ Kernel：在GPU上执行的核心程序
 > #include<stdio.h>
 > 
 > __global__ void hello_from_gpu(){
-> printf("hello word from the gpu!\n");
+>     printf("hello word from the gpu!\n");
 > }
 > 
 > int main(){
-> 
-> hello_from_gpu<<<1,1>>>();
-> cudaDeviceSynchronize();
-> printf("helloword\n");
-> return 0;
+>     hello_from_gpu<<<1,1>>>();
+>     cudaDeviceSynchronize();
+>     printf("helloword\n");
+>     return 0;
 > }
 > ```
->
-> ​		在核函数的调用格式上与普通C++的调用不同，调用核函数的函数名和（）之间有一对三括号，里面有逗号隔开的两个数字。
->
-> ​		因为一个GPU中有很多计算核心，可以支持很多个线程。主机在调用一个核函数时，必须指明需要在设备中指派多少个线程，否则设备不知道怎么工作。三括号里面的数就是用来指明核函数中的线程数以及排列情况的。核函数中的线程常组织为若干线程块（thread block）。
->
-> ​		三括号中的第一个数是线程块的个数，第二个数可以看作每个线程中的线程数。一个核函数的全部线程块构成一个网格，而线程块的个数记为网格大小，每个线程块中含有同样数目的线程，该数目称为线程块大小。所以核函数中的总的线程就等与网格大小乘以线程块大小，即 <<<网格大小，线程块大小 >>> 核函数中的`printf` 函数的使用方法和 C++ 库中的`printf`函数的使用方法基本上是一样的，而在核函数中使用`printf`函数时也需要包含头文件`<stdio.h>`  ,  核函数中不支持 C++ 的 `iostream` 。
->
-> ​		`cudaDeviceSynchronize();` 这条语句调用了CUDA运行时的API函数，去掉这个函数就打印不出字符了。因为 cuda 调用输出函数时，输出流是先放在缓存区的，而这个缓存区不会自动刷新，只有程序遇到某种同步操作时缓存区才会刷新。这个函数的作用就是同步主机与设备，所以能够促进缓存区刷新。
+> 
+>​		在核函数的调用格式上与普通C++的调用不同，调用核函数的函数名和（）之间有一对三括号，里面有逗号隔开的两个数字。
+> 
+>​		因为一个GPU中有很多计算核心，可以支持很多个线程。主机在调用一个核函数时，必须指明需要在设备中指派多少个线程，否则设备不知道怎么工作。三括号里面的数就是用来指明核函数中的线程数以及排列情况的。核函数中的线程常组织为若干线程块（thread block）。
+> 
+>​		三括号中的第一个数是线程块的个数，第二个数可以看作每个线程中的线程数。一个核函数的全部线程块构成一个网格，而线程块的个数记为网格大小，每个线程块中含有同样数目的线程，该数目称为线程块大小。所以核函数中的总的线程就等与网格大小乘以线程块大小，即 <<<网格大小，线程块大小 >>> 核函数中的`printf` 函数的使用方法和 C++ 库中的`printf`函数的使用方法基本上是一样的，而在核函数中使用`printf`函数时也需要包含头文件`<stdio.h>`  ,  核函数中不支持 C++ 的 `iostream` 。
+> 
+>​		`cudaDeviceSynchronize();` 这条语句调用了CUDA运行时的API函数，去掉这个函数就打印不出字符了。因为 cuda 调用输出函数时，输出流是先放在缓存区的，而这个缓存区不会自动刷新，只有程序遇到某种同步操作时缓存区才会刷新。这个函数的作用就是同步主机与设备，所以能够促进缓存区刷新。
 
 ### **核 函 数**
 
@@ -281,8 +288,20 @@ Kernel：在GPU上执行的核心程序
 | *device* | 在设备端执行 | 仅能从设备端调用                                |                        |
 | *host*   | 在主机端执行 | 仅能从主机端调用                                | 可以省略               |
 
-> __device__和__host__限定符可以一齐使用，这样函数可以同时在主机和设备端进行编译。
-> CUDA核函数的限制：只能访问设备内存、必须具有void返回类型、不支持可变数量的参数、不支持静态变量、显示异步行为。
+> __device __和 __host __限定符可以一齐使用，这样函数可以同时在主机和设备端进行编译。
+> CUDA 核函数 Typical：
+>
+> - 只能访问设备内存、必须具有void返回类型、不支持可变数量的参数、不支持静态变量、显示异步行为。
+> - 可以向核函数传递非指针变量，其内容对每个线程可见。
+> - 核函数不可成为一个类的成员，通常是用一个包装函数调用核函数，而将包装函数定义为类的成员。
+> - 动态并行机制，在核函数内部可以调用其他核函数，甚至可以调用自己（递归）。
+> - 无论是从主机调用，还是从设备调用，核函数都是在设备中执行。调用核函数时必须指定执行配置，即三括号和它里面的参数。
+>
+> CUDA 设备函数 features：
+>
+> - **只能被核函数或者其他设备函数调用**，在设备中执行。
+> - 不能同时用 device 和 global 修饰一个函数，即不能将一个函数同时定义为设备函数和核函数。
+> - 也不能同时用host核global修饰一个函数。
 
 **处 理 错 误**
 
@@ -343,18 +362,39 @@ Kernel：在GPU上执行的核心程序
   cudaError_t cudaMalloc(void** devPtr, size_t size);
   ```
 
+  > - 其中第一个参数address是待分配设备内存的指针。**因为内存（地址）本身就是一个指针，所以待分配设备内存的指针就是指针的指针，即双重指针。**
+  > - 第二个参数size是待分配内存的字节数。
+  > - 返回值是一个错误代码，如果调用成功，返回**cudaSuccess**，否则会返回一个代表错误的代号。
+
 - cudaMemcpy 函数负责主机和设备之间的数据传输，其函数原型为：
 
   <p style="color:red;text-align:center">cudaError_t cudaMemcpy(void* dst,const void* src,size_t count, cudaMemcpyKind kind);</p>
 
-  此函数从 src 指向的源存储区复制一定数量的字节到 dst 指向的目标存储区。复制方向由 kind 指定，其中的kind有以下几种：
+  此函数从 $src$ 指向的源存储区复制一定数量的字节 $count$  到 $dst$  指向的目标存储区。复制方向由 $kind$ 指定，其中的 $kind$ 有以下几种：
 
-  - cudaMemcpyHostToHost
-  - cudaMemcpyHostToDevice
-  - cudaMemcpyDeviceToHost
-  - cudaMemcpyDeviceToDevice
+  - **cudaMemcpyHostToHost**
+  - **cudaMemcpyHostToDevice**
+  - **cudaMemcpyDeviceToHost**
+  - **cudaMemcpyDeviceToDevice**
 
   ​        这个函数以同步方式执行，因为在cudaMemcpy函数返回以及传输操作完成之前主机应用程序是阻塞的。除了内核启动之外的CUDA调用都会返回一个错误的枚举类型`cudaError_t`。如果GPU内存分配成功，函数返回`cudaSuccess`，否则返回`cudaErrorMemoryAllocation`。
+
+- 用 $cudaMalloc()$ 函数分配的设备内存需要用 $cudaFree()$ 函数释放。该函数原型为
+
+  <p style="color:red;text-align:center">cudaError_t cudaFree(void address);</p>
+
+  这里参数address就是待释放的设备内存变量（不是双重指针），返回值是一个错误代号。
+
+<p style="color:red;font-weight:bold">cudaMallocManaged</p>
+
+> CUDA 6.0引入统一内存（[Unified Memory](https://link.zhihu.com/?target=http%3A//docs.nvidia.com/cuda/cuda-c-programming-guide/index.html%23um-unified-memory-programming-hd)）来避免这种麻烦，简单来说就是统一内存使用一个托管内存来共同管理host和device中的内存，并且自动在host和device中进行数据传输。CUDA中使用cudaMallocManaged函数分配托管内存：
+>
+> ```C
+> cudaError_t cudaMallocManaged(void **devPtr, size_t size, unsigned int flag=0);
+> 
+> // 同步 device 保证结果能正确访问
+> cudaDeviceSynchronize();
+> ```
 
 ### 设备管理
 
@@ -729,3 +769,8 @@ Result = PASS
 ### **nvprof**
 
   自CUDA5.0以来，NVIDIA提供了一个名为nvprof的命令行分析工具，可以帮助从应用程序的CPU和GPU活动情况中获取时间线信息，其包括内核执行、内存传输以及CUDA API的调用。
+
+```bash
+nvprof cuda9.exe
+```
+
