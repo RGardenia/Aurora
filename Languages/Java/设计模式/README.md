@@ -465,7 +465,7 @@ foodService.makeChicken();
 
 （4）模板方法：定义了一个方法，其中定义了整个逻辑的基本骨架。
 
-```
+```java
 public abstract class AbstractTemplate {
     // 这就是模板方法
     public void templateMethod() {
