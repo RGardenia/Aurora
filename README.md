@@ -29,7 +29,7 @@
 
 
 
-笔记主要涵盖：**机器学习**，**JVM**、**云原生**、**Spring**，**Hadoop**，**计算机基础**，**HTML Templates**，**Js**，**Java** 等
+笔记主要涵盖：**DeepLearning**，**Embedded**、**云原生**、**Spring**，**BigData**，**Web**，**Js**，Java，计算机基础 etc...
 
 本仓库有来源自己总结、网上收集、视频笔记，如果有侵权之处，可以联系我进行删除
 
