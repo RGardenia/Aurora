@@ -327,7 +327,7 @@ public class SellTicket implements Runnable {
 
 ## 二、多线程的实现方式
 
-### ①. 继承Thread
+### ①. 继承 Thread
 
 ```java
 //注意：打印出来的结果会交替执行
@@ -354,7 +354,7 @@ class MyThread extends Thread{
 }
 ```
 
-### ②. 实现Runnable接口
+### ②. 实现 Runnable 接口
 
 ![image-20220617165359257](pics/image-20220617165359257.png)
 
@@ -409,7 +409,7 @@ class MyRunnale implements Runnable{
 
 ![image-20220617204426408](pics/image-20220617204426408.png)
 
-#### Future接口概述
+#### Future 接口概述
 
 > 1. FutureTask 是 Future 接口的唯一的实现类
 > 2. FutureTask 同时实现了 Runnable、Future接口。它既可以作为 Runnable 被线程执行，又可以作为Futrue得到 Callable 的返回值
@@ -466,7 +466,7 @@ class MyRunnale implements Runnable{
 	}
 ```
 
-#### FutureTask原理解析
+#### FutureTask 原理解析
 
 > 1. 有了Runnable，为什么还要有Callable接口?我们假设一共有四个程序需要执行，第三个程序时间很长 | Runnable接口会按照顺序去执行，会依次从上到下去执行，会等第三个程序执行完毕，才去执行第四个 | Callable接口会把时间长的第三个程序单独开启一个线程去执行，第1、2、4 线程执行不受影响
 > 2. 比如主线程让一个子线程去执行任务，子线程可能比较耗时，启动子线程开始执行任务。子线程就去做其他的事情，过一会儿才去获取子任务的执行结果
@@ -549,13 +549,27 @@ isDone()轮询(后面我们会用CompletableFuture来解决get( )阻塞的问题
 > 1. 线程池做的工作主要是控制运行的线程的数量，处理过程中将任务加入队列，然后在线程创建后启动这些任务，如果显示超过了最大数量，超出的数量的线程排队等候，等其他线程执行完毕，再从队列中取出任务来执行.
 > 2. 它的主要特点为：**线程复用 | 控制最大并发数 | 管理线程**
 
-Java中的线程池是通过Executor框架实现的，该框架中用到了`Executor，Executors，ExecutorService，ThreadPoolExecutor`这几个类
+​	Java 中的线程池是通过 Executor 框架实现的，该框架中用到了`Executor，Executors，ExecutorService，ThreadPoolExecutor`这几个类：
 
 ![image-20220617205054408](pics/image-20220617205054408.png)
 
+​	Executor 是一个基础的接口，其初衷是将任务提交和任务执行细节解耦，这一点可以体会其定义的唯一方法
+
+<p style="color:red;text-align:center">void execute(Runnable command);</p>
+
+​	Executor 的设计是源于 Java 早期线程 API 使用的教训，开发者在实现应用逻辑时，被太多线程创建、调度等不相关细节所打扰。就像我们进行 HTTP 通信，如果还需要自己操作 TCP 握手，开发效率低下，质量也难以保证。
+
+​	ExecutorService 则更加完善，不仅提供 service 的管理功能，比如 shutdown 等方法，也提供了更加全面的提交任务机制，如返回Future 而不是 void 的 submit 方法。注意，这个例子输入的可是 Callable，它解决了 Runnable 无法返回结果的困扰。
+
+<p style="color:red;text-align:center">&lt;T&gt; Future&lt;T&gt; submit(Callable&lt;T&gt; task);</p>
+
+​	Java 标准类库提供了几种基础实现，比如ThreadPoolExecutor、ScheduledThreadPoolExecutor、ForkJoinPool。这些线程池的设计特点在于其高度的可调节性和灵活性，以尽量满足复杂多变的实际应用场景.
+
+
+
 #### ThreadPoolExecutor 
 
-1. Executors.newFixedThreadPool(int) ：  一池定线程
+1. **Executors.newFixedThreadPool(int) ：  一池定线程**
 
 ![image-20220617205403679](pics/image-20220617205403679.png)
 
@@ -563,7 +577,7 @@ Java中的线程池是通过Executor框架实现的，该框架中用到了`Exec
 > 1.创建一个**定长线程池**，可控制线程的最大并发数，超出的线程会在队列中等待.
 > 2.`newFixedThreadPool`创建的线程池`corePoolsize`和`MaxmumPoolsize`是相等的，它使用的是`LinkedBlockingQueue`.
 
-2. Executors.newSingleThreadExecutor( ) ：  一池一线程
+2. **Executors.newSingleThreadExecutor( ) ：  一池一线程**
 
 ![image-20220617205624819](pics/image-20220617205624819.png)
 
@@ -571,7 +585,7 @@ Java中的线程池是通过Executor框架实现的，该框架中用到了`Exec
 > 1.创建一个**单线程化的线程池**，它只会用唯一的工作线程来执行任务，保证所有任务都按照指定顺序执行.
 > 2.`newBingleThreadExecutor`将`corePoolsize`和`MaxmumPoolSize`都设置为1，它使用的是`LinkedBlockingQueue`
 
-3. Executors.newCachedThreadPool( ) ：  一池N线程
+3. **Executors.newCachedThreadPool( ) ：  一池N线程**
 
 ![image-20220617205814896](pics/image-20220617205814896.png)
 
@@ -612,7 +626,23 @@ public class ExecutorTest {
 }
 ```
 
+4. **Executors.newScheduledThreadPool(int corePoolSize) ：  一池一线程**
 
+   继承于 ScheduledExecutorService，区别在于它会保持 corePoolSize 个工作线程
+
+![image-20230925235026858](images/image-20230925235026858.png)
+
+5. **Executors.newWorkStealingPool(int parallelism) ：  一池一线程**
+
+   其内部会构建 ForkJoinPool，利用 Work-Stealing 算法，并行地处理任务，不保证处理顺序。
+
+
+
+> 在大多数应用场景下，使用 Executors 提供的 5 个静态工厂方法就足够了，但是仍然可能需要直接利用 ThreadPoolExecutor 等构造函数创建，这就要求你对线程构造方式有进一步的了解，你需要明白线程池的设计和结构。
+
+​	另外，线程池这个定义就是个容易让人误解的术语，因为 ExecutorService 除了通常意义上“池”的功能，还提供了更全面的线程管理、任务提交等方法。
+
+<hr>
 
 #### 线程池的七大参数
 
@@ -645,7 +675,21 @@ public class ExecutorTest {
 
 ![image-20220617212406137](pics/image-20220617212406137.png)
 
+### ⑤. ForkJoinPool
 
+> 在Java 7中引入了一种新的线程池：ForkJoinPool。
+>
+> ​	它同ThreadPoolExecutor一样，也实现了Executor和ExecutorService接口。它使用了一个无限队列来保存需要执行的任务，而线程的数量则是通过构造函数传入，如果没有向构造函数中传入希望的线程数量，那么当前计算机可用的CPU数量会被设置为线程数量作为默认值。
+>
+> ​	ForkJoinPool主要用来使用分治法(Divide-and-Conquer Algorithm)来解决问题。典型的应用比如快速排序算法。这里的要点在于，ForkJoinPool需要使用相对少的线程来处理大量的任务。比如要对1000万个数据进行排序，那么会将这个任务分割成两个500万的排序任务和一个针对这两组500万数据的合并任务。以此类推，对于500万的数据也会做出同样的分割处理，到最后会设置一个阈值来规定当数据规模到多少时，停止这样的分割处理。比如，当元素的数量小于10时，会停止分割，转而使用插入排序对它们进行排序。
+>
+> ​	那么到最后，所有的任务加起来会有大概2000000+个。问题的关键在于，对于一个任务而言，只有当它所有的子任务完成之后，它才能够被执行。
+>
+> ​	所以当使用ThreadPoolExecutor时，使用分治法会存在问题，因为ThreadPoolExecutor中的线程无法像任务队列中再添加一个任务并且在等待该任务完成之后再继续执行。而使用ForkJoinPool时，就能够让其中的线程创建新的任务，并挂起当前的任务，此时线程就能够从队列中选择子任务执行。
+
+
+
+<hr>
 
 ## 三、CompletableFuture
 
@@ -749,7 +793,7 @@ public class CompletableFutureTest2 {
 > ```
 >
 
-②. 没有指定Executor的方法会使用`ForkJoinPool.commonPool() `作为它的线程池执行异步代码。如果指定线程池,则使用指定的线程池运行。以下所有的方法都类同
+②. 没有指定 Executor 的方法会使用 `ForkJoinPool.commonPool() ` 作为它的线程池执行异步代码。如果指定线程池,则使用指定的线程池运行。
 
 ```java
 public class CompletableFutureTest {
@@ -793,10 +837,10 @@ public class CompletableFutureTest {
 
 #### 3.1 获得结果和触发计算
 
-- ①. public T get( ) 不见不散(会抛出异常) 只要调用了get( )方法,不管是否计算完成都会导致阻塞
-- ②. public T get(long timeout, TimeUnit unit) 过时不候
-- ③. public T getNow(T valuelfAbsent):没有计算完成的情况下,给我一个替代结果计算完,返回计算完成后的结果、没算完,返回设定的valuelfAbsent
-- ④. public T join( ):join方法和get( )方法作用一样,不同的是,join方法不抛出异常
+- ①. public T get( )	不见不散(会抛出异常) 只要调用了get( )方法，不管是否计算完成都会导致阻塞
+- ②. public T get(long timeout, TimeUnit unit)	过时不候
+- ③. public T getNow(T valuelfAbsent)	没有计算完成的情况下,给我一个替代结果计算完，返回计算完成后的结果、没算完，返回设定的 valuelfAbsent
+- ④. public T join( )	join方法和get( )方法作用一样，不同的是，join方法不抛出异常
 
 ![image-20220622150022701](pics/image-20220622150022701.png)
 
@@ -823,12 +867,12 @@ System.out.println(flag+"获取到的值是"+future.get());
 #### 3.2 对计算结果进行处理
 
 - ①. `public <U> CompletableFuture<U> thenApply`
-  计算结果存在依赖关系,这两个线程串行化
-  由于存在依赖关系(当前步错,不走下一步),当前步骤有异常的话就叫停
+  计算结果存在依赖关系，这两个线程串行化
+  由于存在依赖关系(当前步错，不走下一步)，当前步骤有异常的话就叫停
 - ②. `public <U> CompletableFuture<U> handle(BiFunction<? super T, Throwable, ? extends U> fn)`:
   有异常也可以往下一步走,根据带的异常参数可以进一步处理
-- ③. <font color="red"><strong>whenComplete</strong></font>:是执行当前任务的线程执行继续执行whenComplete的任务
-- ④. <font color="red"><strong>whenCompleteAsync</strong></font>:是执行把whenCompleteAsync这个任务继续提交给线程池来进行执行
+- ③. <font color="red"><strong>whenComplete</strong></font>：是执行当前任务的线程执行继续执行whenComplete的任务
+- ④. <font color="red"><strong>whenCompleteAsync</strong></font>：是执行把whenCompleteAsync这个任务继续提交给线程池来进行执行
 
 ![image-20220622150206225](pics/image-20220622150206225.png)
 
@@ -900,11 +944,11 @@ threadPoolExecutor.shutdown();
 #### 3.3 对计算结果进行消费
 
 - ①. thenRun(Runnable runnable)
-  任务A执行完执行B,并且B不需要A的结果
+  任务A执行完执行B，并且B不需要A的结果
 - ②. `CompletableFuture<Void> thenAccept(Consumer<? super T> action)`
-  任务A执行完成执行B,B需要A的结果,但是任务B无返回值
+  任务A执行完成执行B，B需要A的结果，但是任务B无返回值
 - ③. `public <U> CompletableFuture<U> thenApply(Function<? super T,? extends U> fn)`
-  任务A执行完成执行B,B需要A的结果,同时任务B有返回值
+  任务A执行完成执行B,B需要A的结果，同时任务B有返回值
 
 ```java
 public <U> CompletableFuture<U> thenApply(
@@ -932,7 +976,7 @@ System.out.println(CompletableFuture.supplyAsync(() -> "resultA").thenApply(resu
 ```
 
 - ④. 线程串行化方法
-  带了Async的方法表示的是:会重新在线程池中启动一个线程来执行任务
+  带了Async的方法表示的是：会重新在线程池中启动一个线程来执行任务
 
 ```java
 public <U> CompletableFuture<U> thenApply(Function<? super T,? extends U> fn)
@@ -953,7 +997,7 @@ public CompletableFuture<Void> thenRunAsync(Runnable action,Executor executor)
 #### 3.4 对计算速度进行选用
 
 ①. `public <U> CompletableFuture<U> applyToEither(CompletionStage<? extends T> other, Function<? super T, U> fn)`
-这个方法表示的是,谁快就用谁的结果,类似于我们在打跑得快,或者麻将谁赢了就返回给谁
+这个方法表示的是，谁快就用谁的结果，类似于我们在打跑得快，或者麻将谁赢了就返回给谁
 
 ![image-20220622150649928](pics/image-20220622150649928.png)
 
@@ -975,11 +1019,11 @@ System.out.println(CompletableFuture.supplyAsync(() -> {
 try { TimeUnit.SECONDS.sleep(3); } catch (InterruptedException e) { e.printStackTrace(); }
 ```
 
-- ②. 两任务组合,一个完成
+- ②. 两任务组合，一个完成
 
-1. applyToEither:两个任务有一个执行完成,获取它的返回值,处理任务并有新的返回值
-2. acceptEither:两个任务有一个执行完成,获取它的返回值,处理任务,没有新的返回值
-3. runAfterEither:两个任务有一个执行完成,不需要获取 future 的结果,处理任务,也没有返回值
+1. applyToEither：两个任务有一个执行完成，获取它的返回值，处理任务并有新的返回值
+2. acceptEither：两个任务有一个执行完成，获取它的返回值,处理任务，没有新的返回值
+3. runAfterEither：两个任务有一个执行完成，不需要获取 future 的结果，处理任务，也没有返回值
 
 ```java
 public <U> CompletableFuture<U> applyToEither(
@@ -1011,9 +1055,9 @@ public <U> CompletableFuture<U> applyToEither(
 
 - ①. `public <U,V> CompletableFuture<V> thenCombine(CompletionStage<? extends U> other,BiFunction<? super T,? super U,? extends V> fn)`
 
-  两个CompletionStage任务都完成后,最终把两个任务的结果一起交给thenCombine来处理
+  两个CompletionStage任务都完成后，最终把两个任务的结果一起交给 thenCombine 来处理
 
-  先完成的先等着,等待其他分支任务
+  先完成的先等着，等待其他分支任务
 
 ![image-20220622150818455](pics/image-20220622150818455.png)
 
@@ -1042,7 +1086,7 @@ System.out.println(CompletableFuture.supplyAsync(() -> {
 }).join());
 ```
 
-- ②. 两任务组合,都要完成
+- ②. 两任务组合，都要完成
 
 ```java
 public <U,V> CompletableFuture<V> thenCombine(
@@ -1088,9 +1132,9 @@ public <U,V> CompletableFuture<V> thenCombine(
 
 #### 3.6 多任务组合
 
-- ①. allOf:等待所有任务完成
+- ①. allOf：等待所有任务完成
   `(public static CompletableFuture<Void> allOf(CompletableFuture<?>... cfs))`
-- ②. anyOf:只要有一个任务完成
+- ②. anyOf：只要有一个任务完成
   `(public static CompletableFuture<Object> anyOf(CompletableFuture<?>... cfs))`
 
 ```java
