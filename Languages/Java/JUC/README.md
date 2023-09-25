@@ -1,8 +1,15 @@
 # JUC  并发编程
 
-​		编写优质的`并发代码`是一件难度极高的事情。Java语言从第一版本开始内置了对多线程的支持，这一点在当年是非常了不起的，但是当我们对并发编程有了更深刻的认识和更多的实践后，实现并发编程就有了更多的方案和更好的选择。
+​		编写优质的`并发代码`是一件难度极高的事情。Java语言从第一版本开始内置了对多线程的支持，当我们对并发编程有了更深刻的认识和更多的实践后，实现并发编程就有了更多的方案和更好的选择。
 
-​		本文是对并发编程的一点总结和思考，同时也分享了Java 5以后的版本中如何编写并发代码的一点点经验。
+# 概览
+
+> 通常所说的并发包也就是 java.util.concurrent 及其子包，集中了 Java 并发的各种基础工具类，具体主要包括几个方面：
+>
+> - 提供了比 synchronized 更加高级的各种同步结构，包括 CountDownLatch、CyclicBarrier、Semaphore 等，可以实现更加丰富的多线程操作，比如利用 Semaphore 作为资源控制器，限制同时进行工作的线程数量。
+> - 各种线程安全的容器，比如最常见的 ConcurrentHashMap、有序的 ConcunrrentSkipListMap，或者通过类似快照机制，实现线程安全的动态数组 CopyOnWriteArrayList 等。
+> - 各种并发队列实现，如各种 BlockedQueue 实现，比较典型的 ArrayBlockingQueue、 SynchorousQueue 或针对特定场景的 PriorityBlockingQueue 等。
+> - 强大的 Executor 框架，可以创建各种不同类型的线程池，调度任务运行等，绝大部分情况下，不再需要自己从头实现线程池和任务调度器。
 
 
 
