@@ -8,21 +8,11 @@
 
 ## 魔法类 Unsafe
 
-> 很多低级语言中可用的技巧在Java中都是不被允许的。Java是一个安全的开发工具，它阻止开发人员犯很多低级的错误，而大部
+> ​	很多低级语言中可用的技巧在 Java 中都是不被允许的。Java 是一个安全的开发工具，它阻止开发人员犯很多低级的错误，而大部份的错误都是基于内存管理方面的。我们知道 JAVA 作为高级语言的重要创新一点就是在于 `JVM` 的内存管理功能，这完全区别于 C 语言开发过程中需要对变量的内存分配小心控制，JVM 很大程度解放了码农对于内存的调整.
 >
-> 份的错误都是基于内存管理方面的。我们知道JAVA作为高级语言的重要创新一点就是在于[JVM](https://so.csdn.net/so/search?q=JVM&spm=1001.2101.3001.7020)的内存管理功能，这完全区别于C
+> ​	一直以来，JAVA 在大多数人心目中没有办法对内存进行操作的，其实不然，Unsafe 类就是一把操作 `JAVA` 内存的钥匙。如果你想搞破坏，可以使用 Unsafe 这个类。这个类是属于 `sun.* API` 中的类 Unsafe 做操作的是直接内存区，所以该类没有办法通过HotSpot 的 GC 进行回收，需要进行手动回收，因此在使用此类时需要注意内存泄漏（Memory Leak）和内存溢出（Out Of Memory）.
 >
-> 语言开发过程中需要对变量的内存分配小心控制，JVM很大程度解放了码农对于内存的调整。
->
-> 一直以来，JAVA在大多数人心目中没有办法对内存进行操作的，其实不然，Unsafe类就是一把操作JAVA内存的钥匙。如果你想
->
-> 搞破坏，可以使用Unsafe这个类。这个类是属于sun.* API中的类。
->
-> Unsafe做操作的是直接内存区，所以该类没有办法通过HotSpot的GC进行回收，需要进行手动回收，因此在使用此类时需要注意
->
-> 内存泄漏（Memory Leak）和内存溢出（Out Of Memory）。
->
-> 因为这是一个平台相关的类，因此在实际开发中，建议不要使用。但是，为了更好地了解java的生态体系，我们应该去学习它，去了解它，不求深入到底层的C/C++代码，但求能了解它的基本功能。
+> ​	因为这是一个平台相关的类，因此在实际开发中，建议不要使用。但是，为了更好地了解 Java 的生态体系，我们应该去学习它，去了解它，不求深入到底层的 C/C++ 代码，但求能了解它的基本功能。
 
 1. 获取 Unsafe 的实例
 
@@ -79,11 +69,11 @@ public class UnsafeDemo {
 
 > 其中offset是表示的是 i 在内存中的偏移量
 >
-> JVM的实现可以自由选择如何实现Java对象的“布局”，也就是在内存里Java对象的各个部分放在哪里，包括对象的实例字段和一些元数据之类。
+> ​	JVM的实现可以自由选择如何实现Java对象的“布局”，也就是在内存里Java对象的各个部分放在哪里，包括对象的实例字段和一些元数据之类。
 >
-> sun.misc.Unsafe里关于对象字段访问的方法把对象布局抽象出来，它提供了objectFieldOffset()方法用于获取某个字段相对Java对象的“起始地址”的偏移量，也提供了getInt、getLong、getObject之类的方法可以使用前面获取的偏移量来访问某个Java对象的某个字段。
+> ​	sun.misc.Unsafe里关于对象字段访问的方法把对象布局抽象出来，它提供了objectFieldOffset()方法用于获取某个字段相对Java对象的“起始地址”的偏移量，也提供了getInt、getLong、getObject之类的方法可以使用前面获取的偏移量来访问某个Java对象的某个字段。
 >
-> 类似的，Unsafe也提供了putLong、putFloat、putDouble、putChar、putByte、putShort、putBoolean、以及putObject等方法给对应类型的变量赋值。并提供了相应的get方法。
+> ​	类似的，Unsafe也提供了putLong、putFloat、putDouble、putChar、putByte、putShort、putBoolean、以及putObject等方法给对应类型的变量赋值。并提供了相应的get方法。
 
 3. 突破限制创建实例
 
@@ -295,7 +285,7 @@ public class UnsafeCounter {
 }
 ```
 
-7.  park/unpark
+7.   **park/unpark**
 
 JVM在上下文切换的时候使用了Unsafe中的两个非常牛逼的方法park()和unpark()。
 
