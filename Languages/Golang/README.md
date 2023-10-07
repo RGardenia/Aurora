@@ -6,7 +6,15 @@
 
 ## Install
 
-Linux
+**Windows**
+
+```bash
+go env -w GO111MODULE=on
+go env -w GOPROXY=https://goproxy.cn,direct
+
+```
+
+**Linux**
 
 ```bash
 # 下载

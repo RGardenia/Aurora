@@ -1,18 +1,18 @@
-# Go操作消息队列
+# Go 操作消息队列
 
-NSQ是目前比较流行的一个分布式的消息队列，本文主要介绍了NSQ及Go语言如何操作NSQ。
+NSQ 是目前比较流行的一个分布式的消息队列，本文主要介绍了 NSQ 及 Go 语言如何操作 NSQ
 
 使用消息队列的主要目的，异步、解耦、削峰
 
-## NSQ介绍
+## NSQ 介绍
 
-[NSQ](https://nsq.io/)是Go语言编写的一个开源的实时分布式内存消息队列，其性能十分优异。 NSQ的优势有以下优势：
+[NSQ](https://nsq.io/) 是Go语言编写的一个开源的实时分布式内存消息队列，其性能十分优异。 NSQ的优势有以下优势：
 
-1. NSQ提倡分布式和分散的拓扑，没有单点故障，支持容错和高可用性，并提供可靠的消息交付保证
-2. NSQ支持横向扩展，没有任何集中式代理。
-3. NSQ易于配置和部署，并且内置了管理界面。
+1. NSQ 提倡分布式和分散的拓扑，没有单点故障，支持容错和高可用性，并提供可靠的消息交付保证
+2. NSQ 支持横向扩展，没有任何集中式代理
+3. NSQ 易于配置和部署，并且内置了管理界面
 
-## NSQ的应用场景
+## NSQ 的应用场景
 
 通常来说，消息队列都适用以下场景。
 
@@ -30,15 +30,15 @@ NSQ是目前比较流行的一个分布式的消息队列，本文主要介绍�
 
 ## 安装
 
-[官方下载页面](https://nsq.io/deployment/installing.html)根据自己的平台下载并解压即可。
+[官方下载页面](https://nsq.io/deployment/installing.html)根据自己的平台下载并解压即可
 
 ![image-20200901105947668](images/image-20200901105947668.png)
 
-## NSQ组件
+## NSQ 组件
 
 ### nsqd
 
-nsqd是一个守护进程，它接收、排队并向客户端发送消息。
+nsqd 是一个守护进程，它接收、排队并向客户端发送消息。
 
 启动`nsqd`，指定`-broadcast-address=127.0.0.1`来配置广播地址
 
@@ -52,7 +52,7 @@ nsqd是一个守护进程，它接收、排队并向客户端发送消息。
 ./nsqd -broadcast-address=127.0.0.1 -lookupd-tcp-address=127.0.0.1:4160
 ```
 
-最后我们还需要启动图形化的界面 nsqadmin
+最后还需要启动图形化的界面 nsqadmin
 
 ```bash
 nsqadmin -lookupd-http-address=127.0.0.1:4161
@@ -62,7 +62,7 @@ nsqadmin -lookupd-http-address=127.0.0.1:4161
 
 ![image-20200901125118515](images/image-20200901125118515.png)
 
-如果是部署了多个`nsqlookupd`节点的集群，那还可以指定多个`-lookupd-tcp-address`。
+如果是部署了多个`nsqlookupd`节点的集群，那还可以指定多个`-lookupd-tcp-address`
 
 `nsqdq`相关配置项如下：
 
@@ -157,7 +157,7 @@ nsqadmin -lookupd-http-address=127.0.0.1:4161
 
 ### nsqlookupd
 
-nsqlookupd是维护所有nsqd状态、提供服务发现的守护进程。它能为消费者查找特定`topic`下的nsqd提供了运行时的自动发现服务。 它不维持持久状态，也不需要与任何其他nsqlookupd实例协调以满足查询。因此根据你系统的冗余要求尽可能多地部署`nsqlookupd`节点。它们消耗的资源很少，可以与其他服务共存。我们的建议是为每个数据中心运行至少3个集群。
+​	`nsqlookupd` 是维护所有nsqd状态、提供服务发现的守护进程。它能为消费者查找特定`topic`下的nsqd提供了运行时的自动发现服务。 它不维持持久状态，也不需要与任何其他nsqlookupd实例协调以满足查询。因此根据你系统的冗余要求尽可能多地部署`nsqlookupd`节点。它们消耗的资源很少，可以与其他服务共存。建议是为每个数据中心运行至少3个集群。
 
 `nsqlookupd`相关配置项如下：
 
@@ -190,7 +190,7 @@ nsqlookupd是维护所有nsqd状态、提供服务发现的守护进程。它能
 ./nsqadmin -lookupd-http-address=127.0.0.1:4161
 ```
 
-我们可以使用浏览器打开`http://127.0.0.1:4171/`访问如下管理界面。![nsqadmin管理界面](images/nsqadmin0.png)
+可以使用浏览器打开`http://127.0.0.1:4171/`访问如下管理界面。![nsqadmin管理界面](images/nsqadmin0.png)
 
 `nsqadmin`相关的配置项如下：
 
@@ -253,7 +253,9 @@ nsqlookupd是维护所有nsqd状态、提供服务发现的守护进程。它能
 
 `channel`可以并且通常会连接多个客户端。假设所有连接的客户端都处于准备接收消息的状态，则每条消息将被传递到随机客户端。例如：
 
-![nsq架构设计](images/nsq5.gif)总而言之，消息是从`topic -> channel`（每个channel接收该topic的所有消息的副本）多播的，但是从`channel -> consumers`均匀分布（每个消费者接收该channel的一部分消息）。
+![nsq架构设计](images/nsq5.gif)
+
+总而言之，消息是从`topic -> channel`（每个channel接收该topic的所有消息的副本）多播的，但是从`channel -> consumers`均匀分布（每个消费者接收该channel的一部分消息)。
 
 ### NSQ接收和发送消息流程
 
@@ -265,29 +267,29 @@ nsqlookupd是维护所有nsqd状态、提供服务发现的守护进程。它能
 
 ## NSQ特性
 
-- 消息默认不持久化，可以配置成持久化模式。nsq采用的方式时内存+硬盘的模式，当内存到达一定程度时就会将数据持久化到硬盘。
+- 消息默认不持久化，可以配置成持久化模式。nsq采用的方式时内存+硬盘的模式，当内存到达一定程度时就会将数据持久化到硬盘
   - 如果将`--mem-queue-size`设置为0，所有的消息将会存储到磁盘。
-  - 服务器重启时也会将当时在内存中的消息持久化。
-- 每条消息至少传递一次。
-- 消息不保证有序。
+  - 服务器重启时也会将当时在内存中的消息持久化
+- 每条消息至少传递一次
+- 消息不保证有序
 
-## Go操作NSQ
+## Go 操作 NSQ
 
-官方提供了Go语言版的客户端：[go-nsq](https://github.com/nsqio/go-nsq)，更多客户端支持请查看[CLIENT LIBRARIES](https://nsq.io/clients/client_libraries.html)。
+官方提供了Go语言版的客户端：[go-nsq](https://github.com/nsqio/go-nsq)，更多客户端支持请查看 [CLIENT LIBRARIES](https://nsq.io/clients/client_libraries.html)。
 
 ### 启动
 
-首先进入bin目录下，打开cmd，输入
+首先进入 bin 目录下，打开cmd，输入
 
 ```bash
 nsqlookupd
 ```
 
-然后就开启了nsq服务，端口号是4160
+然后就开启了 nsq 服务，端口号是 4160
 
 ![image-20200901110859477](images/image-20200901110859477.png)
 
-然后我们在启动一个cmd界面，输入下面的代码，启动nsqd，nsqd是一个守护进程，它用于接收、排队并向客户端发送消息，启动nsqd，指定 `-broadcast-address=127.0.0.1` 来配置广播地址
+然后在启动一个cmd界面，输入下面的代码，启动nsqd，nsqd是一个守护进程，它用于接收、排队并向客户端发送消息，启动nsqd，指定 `-broadcast-address=127.0.0.1` 来配置广播地址
 
 ```bash
 nsqd -broadcast-address=127.0.0.1
@@ -302,8 +304,6 @@ nsqd -broadcast-address=127.0.0.1 -lookupd-tcp-address=127.0.0.1:4160
 启动成功的图片如下所示
 
 ![image-20200901111133414](images/image-20200901111133414.png)
-
-
 
 ### 安装
 
@@ -383,13 +383,13 @@ $ ./nsq_producer
 
 使用浏览器打开`http://127.0.0.1:4171/`可以查看到类似下面的页面： 在下面这个页面能看到当前的`topic`信息：![nsqadmin界面1](images/nsqadmin1.png)
 
-点击页面上的`topic_demo`就能进入一个展示更多详细信息的页面，在这个页面上我们可以查看和管理`topic`，同时能够看到目前在`LWZMBP:4151 (127.0.01:4151)`这个`nsqd`上有2条message。又因为没有消费者接入所以暂时没有创建`channel`。![nsqadmin界面2](images/nsqadmin2.png)
+点击页面上的`topic_demo`就能进入一个展示更多详细信息的页面，在这个页面上可以查看和管理`topic`，同时能够看到目前在`LWZMBP:4151 (127.0.01:4151)`这个`nsqd`上有2条message。又因为没有消费者接入所以暂时没有创建`channel`。![nsqadmin界面2](images/nsqadmin2.png)
 
-在`/nodes`这个页面我们能够很方便的查看当前接入`lookupd`的`nsqd`节点。![nsqadmin界面3](images/nsqadmin3.png)
+在`/nodes`这个页面能够很方便的查看当前接入`lookupd`的`nsqd`节点。![nsqadmin界面3](images/nsqadmin3.png)
 
-这个`/counter`页面显示了处理的消息数量，因为我们没有接入消费者，所以处理的消息数量为0。![images/nsqadmin4.png)
+这个`/counter`页面显示了处理的消息数量，因为没有接入消费者，所以处理的消息数量为 0
 
-在`/lookup`界面支持创建`topic`和`channel`。![nsqadmin界面5](images/nsqadmin5.png)
+在`/lookup`界面支持创建`topic`和`channel`![nsqadmin界面5](images/nsqadmin5.png)
 
 ### 消费者
 
@@ -456,7 +456,7 @@ func main() {
 }
 ```
 
-将上面的代码保存之后编译执行，就能够获取之前我们publish的两条消息了：
+将上面的代码保存之后编译执行，就能够获取之前publish的两条消息了：
 
 ```bash
 $ ./nsq_consumer 
@@ -466,6 +466,6 @@ $ ./nsq_consumer
 沙河1号 recv from 127.0.0.1:4150, msg:456
 ```
 
-同时在nsqadmin的`/counter`页面查看到处理的数据数量为2。![nsqadmin界面5](images/nsqadmin6.png)
+同时在nsqadmin的`/counter`页面查看到处理的数据数量为 2![nsqadmin界面5](images/nsqadmin6.png)
 
 关于`go-nsq`的更多内容请阅读[go-nsq的官方文档](https://godoc.org/github.com/nsqio/go-nsq)。

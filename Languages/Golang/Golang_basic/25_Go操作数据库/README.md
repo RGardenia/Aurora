@@ -4,8 +4,6 @@
 
 http://moguit.cn/#/info?blogUid=3d1cc9ce434aeaf2187692eb0feea294
 
-https://www.liwenzhou.com/posts/Go/go_mysql/
-
 ## 前言
 
 常见的数据库有
@@ -16,11 +14,9 @@ https://www.liwenzhou.com/posts/Go/go_mysql/
 - postgreSQL
 - Oracle
 
-MySQL主流的关系型数据库，类似的还有postgreSQL
+MySQL主流的关系型数据库，类似的还有 postgreSQL
 
 关系型数据库：用表来存储一类的数据
-
-表结构设计的三大范式：《漫画数据库》
 
 ## MySQL知识点
 
@@ -84,7 +80,7 @@ MySQL读写分离
 
 Go语言中的`database/sql`包提供了保证SQL或类SQL数据库的泛用接口，并不提供具体的数据库驱动。使用`database/sql`包时必须注入（至少）一个数据库驱动。
 
-我们常用的数据库基本上都有完整的第三方实现。例如：[MySQL驱动](https://github.com/go-sql-driver/mysql)
+常用的数据库基本上都有完整的第三方实现。例如：[MySQL驱动](https://github.com/go-sql-driver/mysql)
 
 ### database/sql
 
@@ -94,13 +90,13 @@ Go语言中的`database/sql`包提供了保证SQL或类SQL数据库的泛用接�
 
 ### 下载依赖
 
-首先我们需要使用go mod命令初始化项目
+首先需要使用go mod命令初始化项目
 
 ```bash
 go mod init GoAdvanceCode
 ```
 
-执行完成后，会在项目的根目录下生成一个go.mod的文件，以后我们添加的依赖，就会在这里显示出来
+执行完成后，会在项目的根目录下生成一个go.mod的文件，以后添加的依赖，就会在这里显示出来
 
 然后下载数据库依赖
 
@@ -199,10 +195,10 @@ func (db *DB) SetMaxOpenConns(n int)
 
 `SetMaxOpenConns`设置与数据库建立连接的最大数目。 如果n大于0且小于最大闲置连接数，会将最大闲置连接数减小到匹配最大开启连接数的限制。 如果n<=0，不会限制最大开启连接数，默认为0（无限制）。
 
-> 需要注意的是，我们再查询完成后，需要使用Scan进行连接的释放
+> 需要注意的是，再查询完成后，需要使用Scan进行连接的释放
 >
 > ```go
-> // 调用Scan才会释放我们的连接
+> // 调用Scan才会释放的连接
 > err := rows.Scan(&u.id, &u.name, &u.age)
 > if err != nil {
 >     fmt.Printf("scan failed, err:%v\n", err)
@@ -216,13 +212,13 @@ func (db *DB) SetMaxOpenConns(n int)
 func (db *DB) SetMaxIdleConns(n int)
 ```
 
-SetMaxIdleConns设置连接池中的最大闲置连接数。 如果n大于最大开启连接数，则新的最大闲置连接数会减小到匹配最大开启连接数的限制。 如果n<=0，不会保留闲置连接。
+`SetMaxIdleConns` 设置连接池中的最大闲置连接数。 如果 n 大于最大开启连接数，则新的最大闲置连接数会减小到匹配最大开启连接数的限制。 如果 `n<=0` ，不会保留闲置连接。
 
 ## CRUD
 
 ### 建库建表
 
-我们先在MySQL中创建一个名为`sql_test`的数据库
+先在MySQL中创建一个名为`sql_test`的数据库
 
 ```sql
 CREATE DATABASE sql_test;
@@ -247,7 +243,7 @@ CREATE TABLE `user` (
 
 ### 查询
 
-为了方便查询，我们事先定义好一个结构体来存储user表的数据。
+为了方便查询，事先定义好一个结构体来存储user表的数据
 
 ```go
 type user struct {
@@ -284,7 +280,7 @@ func queryRowDemo() {
 
 #### 多行查询
 
-多行查询`db.Query()`执行一次查询，返回多行结果（即Rows），一般用于执行select命令。参数args表示query中的占位参数。
+多行查询`db.Query()`执行一次查询，返回多行结果（即Rows），一般用于执行select命令。参数 `args` 表示 query 中的占位参数。
 
 ```go
 func (db *DB) Query(query string, args ...interface{}) (*Rows, error)
@@ -325,7 +321,7 @@ func queryMultiRowDemo() {
 func (db *DB) Exec(query string, args ...interface{}) (Result, error)
 ```
 
-Exec执行一次命令（包括查询、删除、更新、插入等），返回的Result是对已执行的SQL命令的总结。参数args表示query中的占位参数。
+Exec 执行一次命令（包括查询、删除、更新、插入等），返回的 `Result` 是对已执行的SQL命令的总结。参数 `args` 表示 query 中的占位参数。
 
 具体插入数据示例代码如下：
 
@@ -482,9 +478,9 @@ func prepareInsertDemo() {
 
 ### SQL注入问题
 
-**我们任何时候都不应该自己拼接SQL语句！**
+**任何时候都不应该自己拼接SQL语句！**
 
-这里我们演示一个自行拼接SQL语句的示例，编写一个根据name字段查询user表的函数如下：
+这里演示一个自行拼接SQL语句的示例，编写一个根据name字段查询user表的函数如下：
 
 ```go
 // sql注入示例
@@ -617,4 +613,4 @@ func transactionDemo() {
 
 ## 练习题
 
-1. 结合`net/http`和`database/sql`实现一个使用MySQL存储用户信息的注册及登陆的简易web程序。
+1. 结合`net/http`和`database/sql`实现一个使用MySQL存储用户信息的注册及登陆的简易web程序
