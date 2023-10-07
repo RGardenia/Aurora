@@ -1,8 +1,4 @@
-# Go操作Redis
-
-## 来源
-
-https://www.liwenzhou.com/posts/Go/go_redis/
+# Go 操作 Redis
 
 - cache缓存
 - 简单的队列
@@ -10,24 +6,24 @@ https://www.liwenzhou.com/posts/Go/go_redis/
 
 ## 介绍
 
-Redis是一个开源的内存数据库，Redis提供了多种不同类型的数据结构，很多业务场景下的问题都可以很自然地映射到这些数据结构上。除此之外，通过复制、持久化和客户端分片等特性，我们可以很方便地将Redis扩展成一个能够包含数百GB数据、每秒处理上百万次请求的系统。
+​	Redis是一个开源的内存数据库，Redis提供了多种不同类型的数据结构，很多业务场景下的问题都可以很自然地映射到这些数据结构上。除此之外，通过复制、持久化和客户端分片等特性，可以很方便地将Redis扩展成一个能够包含数百GB数据、每秒处理上百万次请求的系统。
 
-## Redis支持的数据结构
+## Redis 支持的数据结构
 
-Redis支持诸如字符串（strings）、哈希（hashes）、列表（lists）、集合（sets）、带范围查询的排序集合（sorted sets）、位图（bitmaps）、hyperloglogs、带半径查询和流的地理空间索引等数据结构（geospatial indexes）。
+​	Redis支持诸如字符串（strings）、哈希（hashes）、列表（lists）、集合（sets）、带范围查询的排序集合（sorted sets）、位图（bitmaps）、hyperloglogs、带半径查询和流的地理空间索引等数据结构（geospatial indexes）
 
-## Redis应用场景
+## Redis 应用场景
 
 - 缓存系统，减轻主数据库（MySQL）的压力。
 - 计数场景，比如微博、抖音中的关注数和粉丝数。
 - 热门排行榜，需要排序的场景特别适合使用ZSET。
 - 利用LIST可以实现队列的功能。
 
-## Redis与Memcached比较
+## Redis 与 Memcached 比较
 
-Memcached的值只支持简单的字符串，Redis支持更丰富的数据结构，Redis的性能比Memcached好很多，Redis支持RDB持久化和AOF持久化，Redis支持master/slave模式。
+​	`Memcached` 的值只支持简单的字符串，Redis支持更丰富的数据结构，Redis的性能比Memcached好很多，Redis支持RDB持久化和AOF持久化，Redis支持 `master/slave` 模式。
 
-## 准备Redis环境
+## 准备 Redis 环境
 
 这里直接使用Docker启动一个redis环境，方便学习使用。
 
@@ -45,11 +41,11 @@ docker run --name redis507 -p 6379:6379 -d redis:5.0.7
 docker run -it --network host --rm redis:5.0.7 redis-cli
 ```
 
-## go-redis库 安装
+## go-redis 库 安装
 
-区别于另一个比较常用的Go语言redis client库：[redigo](https://github.com/gomodule/redigo)，我们这里采用https://github.com/go-redis/redis连接Redis数据库并进行操作，因为`go-redis`支持连接哨兵及集群模式的Redis。
+​	区别于另一个比较常用的Go语言redis client库：[redigo](https://github.com/gomodule/redigo)，这里采用https://github.com/go-redis/redis连接Redis数据库并进行操作，`go-redis`支持连接哨兵及集群模式的Redis
 
-使用以下命令下载并安装:
+使用以下命令下载并安装：
 
 ```bash
 go get -u github.com/go-redis/redis
@@ -79,7 +75,7 @@ func initClient() (err error) {
 }
 ```
 
-### 连接Redis哨兵模式
+### 连接 Redis 哨兵模式
 
 ```go
 func initClient()(err error){
@@ -95,7 +91,7 @@ func initClient()(err error){
 }
 ```
 
-### 连接Redis集群
+### 连接 Redis 集群
 
 ```go
 func initClient()(err error){
@@ -112,7 +108,7 @@ func initClient()(err error){
 
 ## 基本使用
 
-### set/get示例
+### set/get 示例
 
 ```go
 func redisExample() {
@@ -141,7 +137,7 @@ func redisExample() {
 }
 ```
 
-### zset示例
+### zset 示例
 
 ```go
 func redisExample2() {
@@ -245,13 +241,13 @@ _, err := rdb.Pipelined(func(pipe redis.Pipeliner) error {
 fmt.Println(incr.Val(), err)
 ```
 
-在某些场景下，当我们有多条命令要执行时，就可以考虑使用pipeline来优化。
+在某些场景下，当有多条命令要执行时，就可以考虑使用pipeline来优化。
 
 ### 事务
 
 Redis是单线程的，因此单个命令始终是原子的，但是来自不同客户端的两个给定命令可以依次执行，例如在它们之间交替执行。但是，`Multi/exec`能够确保在`multi/exec`两个语句之间的命令之间没有其他客户端正在执行命令。
 
-在这种场景我们需要使用`TxPipeline`。`TxPipeline`总体上类似于上面的`Pipeline`，但是它内部会使用`MULTI/EXEC`包裹排队的命令。例如：
+在这种场景需要使用`TxPipeline`。`TxPipeline`总体上类似于上面的`Pipeline`，但是它内部会使用`MULTI/EXEC`包裹排队的命令。例如：
 
 ```go
 pipe := rdb.TxPipeline()
@@ -286,7 +282,7 @@ fmt.Println(incr.Val(), err)
 
 ### Watch
 
-在某些场景下，我们除了要使用`MULTI/EXEC`命令外，还需要配合使用`WATCH`命令。在用户使用`WATCH`命令监视某个键之后，直到该用户执行`EXEC`命令的这段时间里，如果有其他用户抢先对被监视的键进行了替换、更新、删除等操作，那么当用户尝试执行`EXEC`的时候，事务将失败并返回一个错误，用户可以根据这个错误选择重试事务或者放弃事务。
+​	在某些场景下，除了要使用`MULTI/EXEC`命令外，还需要配合使用`WATCH`命令。在用户使用`WATCH`命令监视某个键之后，直到该用户执行`EXEC`命令的这段时间里，如果有其他用户抢先对被监视的键进行了替换、更新、删除等操作，那么当用户尝试执行`EXEC`的时候，事务将失败并返回一个错误，用户可以根据这个错误选择重试事务或者放弃事务。
 
 ```go
 Watch(fn func(*Tx) error, keys ...string) error
