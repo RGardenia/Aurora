@@ -33,7 +33,7 @@ go get github.com/Shopify/sarama
 exec: "gcc":executable file not found in %PATH%
 ```
 
-所以在Windows平台请使用v1.19版本的sarama。
+所以在 Windows 平台使用 `v1.19` 版本的 `sarama` 
 
 ## 连接 kafka 发送消息
 
@@ -126,13 +126,13 @@ LogTransfer的主要功能，就是将kafka中的日志信息取出来，然后�
 
 LogTransfer 首先包含多个模块
 
-- kafka：用于kafka操作相关
-- es：用于es操作相关
+- kafka：用于 `kafka` 操作相关
+- es：用于 `es` 操作相关
 - conf：配置相关
 
 ### Conf 模块
 
-conf 模块是配置模块，用于进行LogTransfer的配置
+conf 模块是配置模块，用于进行 `LogTransfer` 的配置
 
 #### cfg.ini
 

@@ -34,7 +34,7 @@ http://127.0.0.1:9200/
 
 ## ES API
 
-以下示例使用`curl`演示。
+以下示例使用`curl`演示
 
 ### 查看健康状态
 
@@ -49,7 +49,7 @@ epoch      timestamp cluster       status node.total node.data shards pri relo i
 1564726309 06:11:49  elasticsearch yellow          1         1      3   3    0    0        1             0                  -                 75.0%
 ```
 
-### 查询当前es集群中所有的indices
+### 查询当前 `es` 集群中所有的 `indices` 
 
 ```bash
 curl -X GET 127.0.0.1:9200/_cat/indices?v
@@ -137,7 +137,7 @@ curl -H "ContentType:application/json" -X PUT 127.0.0.1:9200/user/person/4 -d '
 
 ### 检索
 
-Elasticsearch的检索语法比较特别，使用GET方法携带JSON格式的查询条件。
+Elasticsearch 的检索语法比较特别，使用GET方法携带JSON格式的查询条件
 
 全检索：
 
@@ -156,7 +156,7 @@ curl -H "ContentType:application/json" -X PUT 127.0.0.1:9200/user/person/4 -d '
 }'
 ```
 
-ElasticSearch默认一次最多返回10条结果，可以像下面的示例通过size字段来设置返回结果的数目。
+ElasticSearch默认一次最多返回10条结果，可以像下面的示例通过size字段来设置返回结果的数目
 
 ```bash
 curl -H "ContentType:application/json" -X PUT 127.0.0.1:9200/user/person/4 -d '
@@ -172,7 +172,7 @@ curl -H "ContentType:application/json" -X PUT 127.0.0.1:9200/user/person/4 -d '
 
 ### elastic client
 
-使用第三方库https://github.com/olivere/elastic来连接ES并进行操作。
+使用第三方库https://github.com/olivere/elastic来连接ES并进行操作
 
 注意下载与 ES相同版本的 client，例如这里使用的ES是7.2.1的版本，那么下载的client也要与之对应为`github.com/olivere/elastic/v7`
 
