@@ -151,7 +151,7 @@ Linux。相当于是一个软件仓库，大多数rpm包在官方 repository 中
 
 （3）注意：如果Linux安装的是最小系统版，还需要安装如下工具；如果安装的是Linux桌面标准版，不需要执行如下操作
 
--   net-tool：工具包集合，包含ifconfig等命令
+-   net-tool：工具包集合，包含 ifconfig 等命令
 
 `yum install -y net-tools`
 
@@ -167,17 +167,17 @@ Linux。相当于是一个软件仓库，大多数rpm包在官方 repository 中
 
 注意：在企业开发时，通常单个服务器的防火墙时关闭的。公司整体对外会设置非常安全的防火墙
 
-**3）创建gardenia用户，并修改gardenia用户的密码**
+**3）创建 gardenia 用户，并修改 gardenia 用户的密码**
 
 `useradd gardenia`
 
 `passwd gardenia`
 
-**4）配置gardenia用户具有root权限，方便后期加sudo执行root权限的命令**
+**4）配置 gardenia 用户具有 root 权限，方便后期加 sudo 执行 root 权限的命令**
 
 `vim /etc/sudoers`
 
-> 修改/etc/sudoers文件，在 %wheel 这行下面添加一行，如下所示：
+> 修改 `/etc/sudoers` 文件，在 %wheel 这行下面添加一行，如下所示：
 
 ```bash
 \## Allow root to run any commands anywhere
@@ -191,23 +191,23 @@ root ALL=(ALL) ALL
 gardenia ALL=(ALL) NOPASSWD:ALL
 ```
 
-> 注意：gardenia 这一行不要直接放到 root 行下面，因为所有用户都属于wheel组，你先配置了gardenia 具有免密功能，但是程序执行到%wheel行时，该功能又被覆盖回需要密码。所以gardenia要放到%wheel这行下面。
+> 注意：gardenia 这一行不要直接放到 root 行下面，因为所有用户都属于 `wheel` 组，你先配置了gardenia 具有免密功能，但是程序执行到 `%wheel` 行时，该功能又被覆盖回需要密码。所以 gardenia 要放到 `%wheel` 这行下面。
 
-**5）在/opt目录下创建文件夹，并修改所属主和所属组**
+**5）在 /opt 目录下创建文件夹，并修改所属主和所属组**
 
-> （1）在/opt目录下创建module、software文件夹
+> （1）在 `/opt` 目录下创建 module、software 文件夹
 
 `mkdir /opt/module`
 
 `mkdir /opt/software`
 
-（2）修改module、software文件夹的所有者和所属组均为gardenia用户
+（2）修改 module、software 文件夹的所有者和所属组均为 `gardenia` 用户
 
 `chown gardenia:gardenia /opt/module`
 
 `chown gardenia:gardenia /opt/software`
 
-（3）查看module、software文件夹的所有者和所属组
+（3）查看 module、software 文件夹的所有者和所属组
 
 ```bash
 drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 module
@@ -216,7 +216,7 @@ drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
 
 **6）卸载虚拟机自带的JDK**
 
-注意：如果你的虚拟机是最小化安装不需要执行这一步。
+注意：如果你的虚拟机是最小化安装不需要执行这一步
 
 > rpm -qa \| grep -i java \| xargs -n1 rpm -e \--nodeps
 
@@ -452,7 +452,7 @@ drwxr-xr-x. 4 gardenia gardenia 4096 5月 22 2017 **share**
 
 -   保存退出：:wq
 
-**4）回到Hadoop目录/opt/module/hadoop-3.3.1**
+**4）回到Hadoop目录 /opt/module/hadoop-3.3.1**
 
 **5）执行程序**
 

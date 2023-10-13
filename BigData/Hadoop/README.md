@@ -23,39 +23,38 @@ RUN yum update -y
 RUN yum install -y openssh-server sudo
 RUN sed -i 's/UsePAM yes/UsePAM no/g' /etc/ssh/sshd_config
 RUN yum install -y openssh-clients
+RUN yum install -y which
+RUN yum -y install net-tools
+RUN yum install -y vim
  
 RUN echo "root:123" | chpasswd
 RUN echo "root   ALL=(ALL)       ALL" >> /etc/sudoers
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
 RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
- 
+
 RUN mkdir /var/run/sshd
 EXPOSE 22
-CMD ["/usr/sbin/sshd", "-D"]
 
+# COPY jdk /usr/local/jdk
+# 拷贝并解压jdk，根据自己的版本修改
+ADD jdk-8u381-linux-x64.tar.gz /usr/local/
+RUN mv /usr/local/jdk1.8.0_381 /usr/local/jdk
+ENV JAVA_HOME /usr/local/jdk1.8
+ENV PATH $JAVA_HOME/bin:$PATH
+
+# COPY hadoop /usr/local/hadoop
+# 拷贝并解压hadoop，根据自己的版本修改
+ADD hadoop-3.3.6.tar.gz /usr/local/
+RUN mv /usr/local/hadoop-3.3.6 /usr/local/hadoop
+ENV HADOOP_HOME /usr/local/hadoop
+ENV PATH $HADOOP_HOME/bin:$PATH
+
+CMD ["/usr/sbin/sshd", "-D"]
 ```
 
 ### 生成基础镜像
 
 ```bash
-docker build -t="hadoop" .
-```
-
-准备 JDK 与 Hadoop 文件
-
-### 生成目标镜像
-
-```bash
-FROM hadoop
- 
-COPY jdk /usr/local/jdk
-ENV JAVA_HOME /usr/local/jdk
-ENV PATH $JAVA_HOME/bin:$PATH
- 
-COPY hadoop /usr/local/hadoop
-ENV HADOOP_HOME /usr/local/hadoop
-ENV PATH $HADOOP_HOME/bin:$PATH
-
 docker build -t="centos-hadoop" .
 ```
 
@@ -63,19 +62,18 @@ docker build -t="centos-hadoop" .
 
 ```bash
 # 创建网桥
-docker network create hadoop
+docker network create --subnet=192.168.9.0/24 hadoop
 
 docker network ls
 
-
 ### 启动三个容器并指定网桥
-docker run -itd --network hadoop --name hadoop1 -p 50070:50070 -p 8088:8088 -p 9001:9001 centos-hadoop
+docker run --privileged=true -d --network hadoop --hostname hadoop1 --ip 192.168.9.3 --name hadoop1 -p 9870:9870 -p 19888:19888 -p 50070:50070 -p 8088:8088 -p 9001:9001 centos-hadoop /usr/sbin/init
 
-docker run -itd --network hadoop --name hadoop2 centos-hadoop
+docker run --privileged=true -d --network hadoop --name hadoop2 --hostname hadoop2 --ip 192.168.9.4 centos-hadoop /usr/sbin/init
 
-docker run -itd --network hadoop --name hadoop3 centos-hadoop
+docker run --privileged=true -d --network hadoop --name hadoop3 --hostname hadoop3 --ip 192.168.9.5 centos-hadoop /usr/sbin/init
 
-# 添加端口
+# 添加端口(都没用，只能重来)
 docker port hadoop1
 # 容器停止时，添加端口
 docker container update --publish 9001:9001 hadoop1
@@ -84,13 +82,13 @@ docker container update --publish 9001:9001 hadoop1
 ### 查看网桥使用情况
 docker network inspect hadoop
 
-hadoop1 172.18.0.2/16
-hadoop2 172.18.0.3/16
-hadoop3 172.18.0.4/16
+hadoop1 192.168.9.3/24
+hadoop2 192.168.9.4/24
+hadoop3 192.168.9.5/24
 
-172.18.0.2 hadoop1
-172.18.0.3 hadoop2
-172.18.0.4 hadoop3
+192.168.9.3 hadoop1
+192.168.9.4 hadoop2
+192.168.9.5 hadoop3
 ```
 
 ### 登录容器，配置信息
@@ -99,6 +97,10 @@ hadoop3 172.18.0.4/16
 docker exec -it hadoop1 bash
 docker exec -it hadoop2 bash
 docker exec -it hadoop3 bash
+
+systemctl stop firewalld
+
+systemctl disable firewalld.service
 
 ## 在每个 hadoop 服务器中配置 ip 地址映射
 vi /etc/hosts
@@ -110,9 +112,9 @@ vi /etc/hosts
 ## 给每台 hadoop 服务器中配置 ssh 免密登录
 ssh-keygen
 
-ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@hadoop1
-ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@hadoop2
-ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@hadoop3
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@hadoop1
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@hadoop2
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@hadoop3
 ```
 
 ```bash
@@ -120,7 +122,7 @@ ssh-copy-id -i /root/.ssh/id_rsa -p 22 root@hadoop3
 mkdir /home/hadoop
 mkdir /home/hadoop/tmp /home/hadoop/hdfs_name /home/hadoop/hdfs_data
 
-vi hadoop_env.sh
+vi hadoop-env.sh
 
 export JAVA_HOME=/usr/local/jdk
 export HADOOP_HOME=/usr/local/hadoop
@@ -144,14 +146,17 @@ vi core-site.xml
 
 vi mapred-site.xml
 <configuration>
+	# 用于执行 MapReduce 作业的运行时框架，可选项是 local、classic、yarn，默认为 local
     <property>
         <name>mapreduce.framework.name</name>
         <value>yarn</value>
     </property>
+    # 日志历史服务器地址，默认为 0.0.0.0:10020，可按需修改
     <property>
         <name>mapreduce.jobhistory.address</name>
         <value>hadoop1:10020</value>
     </property>
+    # 日志历史网页地址，默认为 0.0.0.0:19888，可按需修改
     <property>
         <name>mapreduce.jobhistory.webapp.address</name>
         <value>hadoop1:19888</value>
@@ -160,14 +165,17 @@ vi mapred-site.xml
 
 vi hdfs-site.xml
 <configuration>
+	# namenode 存储表信息的路径
     <property>
         <name>dfs.namenode.name.dir</name>
         <value>file:/home/hadoop/hdfs_name</value>
     </property>
+    # datanode 存储实际文件数据块的路径
     <property>
         <name>dfs.datanode.data.dir</name>
         <value>file:/home/hadoop/hdfs_data</value>
     </property>
+    # 文件副本个数，不超过 datanode 的个数
     <property>
         <name>dfs.replication</name>
         <value>2</value>
@@ -176,6 +184,7 @@ vi hdfs-site.xml
         <name>dfs.namenode.http-address</name>
         <value>hadoop1:9001</value>
     </property>
+    # secondary namenode 服务网址，端口号默认为 9868，可按需修改
     <property>
         <name>dfs.namenode.secondary.http-address</name>
         <value>hadoop2:9002</value>
@@ -197,6 +206,11 @@ vi yarn-site.xml
         <name>yarn.nodemanager.auxservices.mapreduce.shuffle.class</name>
         <value>org.apache.hadoop.mapred.ShuffleHandler</value>
     </property>
+    # yarn 管理的主机名
+    <property>
+        <name>yarn.resourcemanager.hostname</name>
+        <value>hadoop1</value>
+    </property>
     <property>
         <name>yarn.resourcemanager.address</name>
         <value>hadoop1:8032</value>
@@ -216,6 +230,16 @@ vi yarn-site.xml
     <property>
         <name>yarn.resourcemanager.webapp.address</name>
         <value>hadoop1:8088</value>
+    </property>
+    # 是否聚合各子节点的日志信息到主节点，设置为是，不然在 web 上看不到日志
+    <property>
+        <name>yarn.log-aggregation-enable</name>
+        <value>true</value>
+    </property>
+    # 日志保存时长，单位秒，默认为 -1，不删除，可按需设置
+    <property>
+        <name>yarn.log-aggregation.retain-seconds</name>
+        <value>640800</value>
     </property>
 </configuration>
 
@@ -246,14 +270,14 @@ source /etc/profile
 
 ```bash
 # 拷贝到 hadoop2 和 hadoop3 上
-scp -r $HADOOP_HOME/ hadoop2:/usr/local/
-scp -r $HADOOP_HOME/ hadoop3:/usr/local/
+scp -r $HADOOP_HOME/etc/hadoop hadoop2:/usr/local/hadoop/etc/
+scp -r $HADOOP_HOME/etc/hadoop hadoop3:/usr/local/hadoop/etc/
 
-scp -r /home/hadoop hadoop2:/
-scp -r /home/hadoop hadoop3:/
+scp -r /home/hadoop hadoop2:/home
+scp -r /home/hadoop hadoop3:/home
 
-scp -r /etc/profile hadoop2:/
-scp -r /etc/profile hadoop3:/
+scp -r /etc/profile hadoop2:/etc
+scp -r /etc/profile hadoop3:/etc
 
 ### 给文件赋权(每台 Hadoop)
 chmod -R 777 /usr/local/hadoop
@@ -264,17 +288,24 @@ chmod -R 777 /usr/local/jdk
 
 ```bash
 ### hadoop1
-# 格式化hdfs
+# 格式化 hdfs
 hdfs namenode -format
 
 # 一键启动 Hadoop 集群
 source /etc/profile
-start-all.sh
+$HADOOP_HOME/sbin/start-all.sh
+# 启动历史日志服务 
+$HADOOP_HOME/bin/mapred --daemon start historyserver
 
 # 测试 Hadoop 集群(每台 Hadoop)
 jps
 
 # hadoop1是名称结点，hadoop2是第二名称节点和数据节点
+
+# 关闭历史任务服务 
+$HADOOP_HOME/bin/mapred --daemon stop historyserver
+# 关闭服务 
+$HADOOP_HOME/sbin/stop-all.sh
 ```
 
 
