@@ -1,4 +1,4 @@
-# 18 子锁
+# Lock 锁
 
 # 乐观锁 & 悲观锁
 
@@ -6,7 +6,7 @@
 
 `悲观锁`对应于生活中悲观的人，悲观的人总是想着事情往坏的方向发展。
 
-举个生活中的例子，假设厕所只有一个坑位了，[悲观锁](https://so.csdn.net/so/search?q=悲观锁&spm=1001.2101.3001.7020)上厕所会第一时间把门反锁上，这样其他人上厕所只能在门外等候，这种状态就是「阻塞」了。
+举个生活中的例子，假设厕所只有一个坑位了，悲观锁 上厕所会第一时间把门反锁上，这样其他人上厕所只能在门外等候，这种状态就是「阻塞」了。
 
 回到代码世界中，一个共享数据加了悲观锁，那线程每次想操作这个数据前都会假设其他线程也可能会操作这个数据，所以每次操作前都会上锁，这样其他线程想操作这个数据拿不到锁只能阻塞了。
 
@@ -38,8 +38,6 @@
 
 如果是写多读少的场景，即冲突比较严重，线程间竞争激励，使用乐观锁就是导致线程不断进行重试，这样可能还降低了性能，这种场景下使用悲观锁就比较合适。
 
-
-
 # 独占锁和共享锁
 
 ## **独占锁**
@@ -49,8 +47,6 @@
 <img src="../pics/image-20220523184601647.png" alt="image-20220523184601647" style="zoom:67%;" />
 
 JDK中的`synchronized`和`java.util.concurrent(JUC)`包中Lock的实现类就是独占锁。
-
-
 
 ## **共享锁**
 
@@ -76,11 +72,11 @@ JDK中的`synchronized`和`java.util.concurrent(JUC)`包中Lock的实现类就�
 
 ## **读写锁**
 
-`读写锁`是共享锁的一种具体实现。[读写锁](https://so.csdn.net/so/search?q=读写锁&spm=1001.2101.3001.7020)管理一组锁，一个是只读的锁，一个是写锁。
+​	`读写锁`是共享锁的一种具体实现。[读写锁](https://so.csdn.net/so/search?q=读写锁&spm=1001.2101.3001.7020)管理一组锁，一个是只读的锁，一个是写锁。
 
-读锁可以在没有写锁的时候被多个线程同时持有，而写锁是独占的。写锁的优先级要高于读锁，一个获得了读锁的线程必须能看到前一个释放的写锁所更新的内容。
+​	读锁可以在没有写锁的时候被多个线程同时持有，而写锁是独占的。写锁的优先级要高于读锁，一个获得了读锁的线程必须能看到前一个释放的写锁所更新的内容。
 
-读写锁相比于互斥锁并发程度更高，每次只有一个写线程，但是同时可以有多个线程并发读。
+​	读写锁相比于互斥锁并发程度更高，每次只有一个写线程，但是同时可以有多个线程并发读。
 
 <img src="../pics/image-20220523184731868.png" alt="image-20220523184731868" style="zoom:50%;" />
 
@@ -98,11 +94,61 @@ public interface ReadWriteLock {
      */
     Lock writeLock();
 }
+
+import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+ 
+public class T10_TestReadWriteLock {
+    static Lock lock = new ReentrantLock();
+    private static int value;
+ 
+    static ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
+    static Lock readLock = readWriteLock.readLock();
+    static Lock writeLock = readWriteLock.writeLock();
+ 
+    public static void read(Lock lock) {
+        try {
+            lock.lock();
+            Thread.sleep(1000);
+            System.out.println("read over!");
+            //模拟读取操作
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    }
+    public static void write(Lock lock, int v) {
+        try {
+            lock.lock();
+            Thread.sleep(1000);
+            value = v;
+            System.out.println("write over!");
+            //模拟写操作
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    }
+    public static void main(String[] args) {
+        //Runnable readR = ()-> read(lock);
+        Runnable readR = ()-> read(readLock);
+ 
+        //Runnable writeR = ()->write(lock, new Random().nextInt());
+        Runnable writeR = ()->write(writeLock, new Random().nextInt());
+ 
+        //通过观察执行时间
+        for(int i=0; i<18; i++) new Thread(readR).start();
+        for(int i=0; i<2; i++) new Thread(writeR).start();
+    }
+}
 ```
 
-`ReentrantReadWriteLock` 实现了`ReadWriteLock`接口，具体实现这里不展开，后续会深入源码解析。
-
-
+`ReentrantReadWriteLock` 实现了`ReadWriteLock`接口，具体实现这里不展开，后续会深入源码解析
 
 # 公平锁和非公平锁
 
@@ -140,13 +186,22 @@ Lock lock = new ReentrantLock(false);
 
 # 可重入锁
 
-`可重入锁`又称之为`递归锁`，是指同一个线程在外层方法获取了锁，在进入内层方法会自动获取锁。
+`可重入锁`又称之为`递归锁`，是指同一个线程在外层方法获取了锁，在进入内层方法会自动获取锁
 
 <img src="../pics/image-20220523184909504.png" alt="image-20220523184909504" style="zoom:50%;" />
 
-对于Java ReentrantLock而言, 他的名字就可以看出是一个可重入锁。对于Synchronized而言，也是一个可重入锁。
+| **特性**           | **描述**                                                     |
+| ------------------ | ------------------------------------------------------------ |
+| 尝试非阻塞地获取锁 | 当前线程尝试获取锁，如果这一时刻锁没有被其他线程获取到，则成功获取并持有锁 |
+| 锁状态中断         | 获取到锁的线程能够响应中断，当获取到锁的线程被中断时，中断异常将会被抛出，同时锁会被释放 |
+| 等待可中断         | 当持有锁的线程长期不释放锁的时候，正在等待的线程可以选择放弃等待，改为处理其他事情。<br />可中断特性对处理执行时间非常长的同步块很有帮助 |
+| 设置公平锁         | 默认非公平锁。但是可以进行设置                               |
 
-敲黑板：可重入锁的一个好处是可一定程度避免死锁。
+## ReentrantLock 
+
+对于 Java ReentrantLock 而言, 他的名字就可以看出是一个可重入锁。对于 Synchronized 而言，也是一个可重入锁。ReentrantLock 是唯一实现了 Lock 接口的类.
+
+敲黑板：可重入锁的一个好处是可一定程度避免死锁
 
 以 synchronized 为例，看一下下面的代码：
 
@@ -161,7 +216,302 @@ public synchronized void mehtodB() throws Exception{
 }
 ```
 
-上面的代码中 methodA 调用 methodB，如果一个线程调用methodA 已经获取了锁再去调用 methodB 就不需要再次获取锁了，这就是可重入锁的特性。如果不是可重入锁的话，mehtodB 可能不会被当前线程执行，可能造成死锁。
+上面的代码中 methodA 调用 methodB，如果一个线程调用methodA 已经获取了锁再去调用 methodB 就不需要再次获取锁了，这就是可重入锁的特性。如果不是可重入锁的话，mehtodB 可能不会被当前线程执行，可能造成死锁
+
+1. **锁状态中断与可重入**
+
+​	`ReentrantLock` 作为可重入锁，首先要具备可重入性，同时作为 `Lock` 的实现类，和 `Lock` 一样必须主动去释放锁，并且在发生异常时，不会自动释放锁。因此一般来说，使用 `Lock` 必须在 `try{}catch{}` 块中进行，并且将释放锁的操作放在 `finally` 块中进行，以保证锁一定被被释放，防止死锁的发生。下面通过代码对比`ReentrantLock` 用于替代synchronized时的区别，以及观察能自动中断锁这一特性：
+
+```JAVA
+/**
+ * Reentrantlock用于替代synchronized
+ * 本例中由于m1锁定this,只有m1执行完毕的时候,m2才能执行
+ * 这里是复习synchronized最原始的语义
+ * 可以看到synchronized的可重入性
+ */
+import java.util.concurrent.TimeUnit;
+
+public class T01_ReentrantLock1 {
+	synchronized void m1() {
+		for(int i=0; i<10; i++) {
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println(i);
+			if(i == 2) m2();
+		}
+	}
+	synchronized void m2() {
+		System.out.println("m2 start");
+	}
+	public static void main(String[] args) {
+		T01_ReentrantLock1 rl = new T01_ReentrantLock1();
+		new Thread(rl::m1).start();
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		new Thread(rl::m2).start();
+	}
+}
+
+/**
+ * 使用reentrantlock可以完成同样的功能
+ * 需要注意的是，必须要必须要必须要手动释放锁（重要的事情说三遍）
+ * 使用syn锁定的话如果遇到异常，jvm会自动释放锁，但是lock必须手动释放锁，因此经常在finally中进行锁的释放
+ */
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+ 
+public class T02_ReentrantLock2 {
+	Lock lock = new ReentrantLock();
+ 
+	void m1() {
+		try {
+			lock.lock(); // 相当于synchronized(this)
+			for (int i = 0; i < 10; i++) {
+				TimeUnit.SECONDS.sleep(1);
+ 
+				System.out.println(i);
+			}
+        // 如果需要中断，直接抛出错误，之后走到finally中，就释放锁了
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			lock.unlock();
+		}
+	}
+	void m2() {
+		try {
+			lock.lock();
+			System.out.println("m2 start");
+		} finally {
+			lock.unlock();
+		}
+	}
+	public static void main(String[] args) {
+		T02_ReentrantLock2 rl = new T02_ReentrantLock2();
+		new Thread(rl::m1).start();
+		try {
+			// 保证m1先执行
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		new Thread(rl::m2).start();
+	}
+}
+```
+
+2. ### 尝试非阻塞地获取锁
+
+​	可以通过使用 `tryLock` 方法来进行尝试获取锁，因为在使用 `tryLock` 的时候，不管使用锁定成功，代码都会继续执行，所以在使用 `tryLock` 的时候可以通过方法返回值，或者设置 `tryLock` 的时间来判断是否锁定成功\
+
+```java
+/**
+ * 使用reentrantlock可以进行“尝试锁定”tryLock，这样无法锁定，或者在指定时间内无法锁定，线程可以决定是否继续等待
+ */
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+public class T03_ReentrantLock3 {
+	Lock lock = new ReentrantLock();
+ 
+	void m1() {
+		try {
+			lock.lock();
+			for (int i = 0; i < 3; i++) {
+				TimeUnit.SECONDS.sleep(1);
+ 
+				System.out.println(i);
+			}
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			lock.unlock();
+		}
+	}
+ 
+	/**
+	 * 使用tryLock进行尝试锁定，不管锁定与否，方法都将继续执行
+	 * 可以根据tryLock的返回值来判定是否锁定
+	 * 也可以指定tryLock的时间，由于tryLock(time)抛出异常，所以要注意unclock的处理，必须放到finally中
+	 */
+	void m2() {       
+		/*
+		boolean locked = lock.tryLock();
+		System.out.println("m2是否获取锁" + locked);
+		if(locked) lock.unlock();
+		*/
+		
+		boolean locked = false;
+		
+		try {
+			// 如果在等待时间内无法获取锁，进行进入catch
+			locked = lock.tryLock(5, TimeUnit.SECONDS);
+			System.out.println("m2是否获取锁" + locked);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} finally {
+			if(locked) lock.unlock();
+		}
+		
+	}
+	public static void main(String[] args) {
+		T03_ReentrantLock3 rl = new T03_ReentrantLock3();
+		new Thread(rl::m1).start();
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		new Thread(rl::m2).start();
+	}
+}
+```
+
+3. ### 等待可中断
+
+​	当持有锁的线程长期不释放锁的时候，正在等待的线程如果一直等待非常浪费资源，而 `ReentrantLock` 可以选择放弃等待，改为处理其他事情。可中断特性对处理执行时间非常长的同步块很有帮助。其实主要就是对 `interrupt` 和 `lockInterruptibly` 方法的应用
+
+```java
+/**
+ * 使用ReentrantLock还可以调用lockInterruptibly方法，可以对线程interrupt方法做出响应，
+ * 在一个线程等待锁的过程中，可以被打断
+ */
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
+ 
+public class T04_ReentrantLock4 {
+	public static void main(String[] args) {
+		Lock lock = new ReentrantLock();
+		Thread t1 = new Thread(()->{
+			try {
+				lock.lock();
+				System.out.println("t1 start");
+                // 模仿长时间不释放锁的情况
+				TimeUnit.SECONDS.sleep(Integer.MAX_VALUE);
+				System.out.println("t1 end");
+			} catch (InterruptedException e) {
+				System.out.println("interrupted!");
+			} finally {
+				lock.unlock();
+			}
+		});
+		t1.start();
+		Thread t2 = new Thread(()->{
+			try {
+				//相当于lock.lock();
+                //可以对interrupt()方法做出响应
+				lock.lockInterruptibly(); 
+				System.out.println("t2 start");
+				TimeUnit.SECONDS.sleep(5);
+				System.out.println("t2 end");
+			} catch (InterruptedException e) {
+				System.out.println("interrupted!");
+			} finally {
+				lock.unlock();
+			}
+		});
+		t2.start();
+		try {
+			TimeUnit.SECONDS.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        //打断线程2的等待
+		t2.interrupt(); 
+	}
+}
+```
+
+4. ### 设置公平锁
+
+​	公平锁：是指多个线程在等待同一个锁时，必须按照申请锁的时间顺序来依次获得锁；而非公平锁则不保证这一点，在锁被释放时，任何一个等待锁的线程都有机会获得锁。`synchronized` 中的锁时非公平的， `ReentrantLock` 在默认情况下也是非公平的，但可以通过带布尔值的构造函数要求使用公平锁不过一旦使用了公平锁，将会导致 `ReentrantLock` 的性能急剧下降，会明显影响吞吐量
+
+```java
+/**
+ * ReentrantLock还可以指定为公平锁
+ */
+import java.util.concurrent.locks.ReentrantLock;
+public class T05_ReentrantLock5 extends Thread {
+    //参数为true表示为公平锁，请对比输出结果，公平锁也不是一定交叉执行
+    //多次尝试
+    //想一下为啥
+	private static ReentrantLock lock=new ReentrantLock(true);
+    public void run() {
+        for(int i=0; i<100; i++) {
+            lock.lock();
+            try{
+                System.out.println(Thread.currentThread().getName()+"获得锁");
+            }finally{
+                lock.unlock();
+            }
+        }
+    }
+    public static void main(String[] args) {
+        T05_ReentrantLock5 rl=new T05_ReentrantLock5();
+        Thread th1=new Thread(rl);
+        Thread th2=new Thread(rl);
+        th1.start();
+        th2.start();
+    }
+}
+```
+
+## LockSupport
+
+​	`park()` 阻塞线程， `unpark` (线程) 叫醒某个阻塞线程，而且 `unpark` 可以先于 `park` 使用，这个和 `wait` 不一样。
+
+​	`LockSupport` 类使用了一种名为 `Permit(许可)` 的概念来做到阻塞和唤醒线程的功能,每个线程都有一个许可，许可只有两个值 1 和 0 ，默认是 0，可以把许可看成是一种 `(0,1)` 信号量(Semaphore)，但与 `Semaphore` 不同的是，许可的累加上限是 1，`LockSupport` 是一个线程阻塞工具类，所有的方法都是静态方法，可以在线程任意位置阻塞，阻塞之后有对应的唤醒方法。`LockSupport` 内部调用 Unsafe 类的 `native`方法
+
+   同时面试经常问的俩个问题如下：
+
+1. 为什么可以先唤醒线程后阻塞线程 ?
+
+   因为 `unpark` 获得了一个许可，之后再调用 `park` 方法，就能直接使用许可消费，不会阻塞，跟唤醒和阻塞的顺序无关。        
+
+2. 为什么唤醒两次后阻塞两次,最终结果还是会阻塞线程 ? 
+
+   因为许可的数量最多为 1，连续调用两次 `unpark` 和调用一次 `unpark` 的效果一样，许可的数量为1。而调用两次 `park` 需要消费两个许可，许可不够，不能放行，所以阻塞。
+
+```java
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
+ 
+public class T13_TestLockSupport {
+    public static void main(String[] args) {
+        Thread t = new Thread(()->{
+            for (int i = 0; i < 10; i++) {
+                System.out.println(i);
+                if(i == 5) {
+                    //发现在i=5的时候线程阻塞，等待唤醒
+                    LockSupport.park();
+                }
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.start();
+        try {
+            TimeUnit.SECONDS.sleep(8);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("after 8 senconds!");
+        LockSupport.unpark(t);
+    }
+}
+```
 
 # 自旋锁
 
@@ -190,8 +540,6 @@ CAS 操作如果失败就会一直循环获取当前 value 值然后重试。
 另外自适应自旋锁也需要了解一下。
 
 在JDK1.6又引入了自适应自旋，这个就比较智能了，自旋时间不再固定，由前一次在同一个锁上的自旋时间以及锁的拥有者的状态来决定。如果虚拟机认为这次自旋也很有可能再次成功那就会次序较多的时间，如果自旋很少成功，那以后可能就直接省略掉自旋过程，避免浪费处理器资源。
-
-
 
 # 分段锁
 
