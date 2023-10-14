@@ -80,7 +80,17 @@ JDK中的`synchronized`和`java.util.concurrent(JUC)`包中Lock的实现类就�
 
 <img src="../pics/image-20220523184731868.png" alt="image-20220523184731868" style="zoom:50%;" />
 
-在 JDK 中定义了一个读写锁的接口：`ReadWriteLock`
+### ReentrantReadWriteLock
+
+在 JDK 中定义了一个读写锁的接口：`ReadWriteLock`。 `ReentrantReadWriteLock` 实现了`ReadWriteLock`接口。
+
+（1）ReentrantReadWriteLock 本身实现了 `ReadWriteLock` 接口，这个接口只提供了两个方法`readLock()`和`writeLock（）`；
+
+（2）同步器，包含一个继承了AQS的 Sync 内部类，以及其两个子类 `FairSync` 和 `NonfairSync` ；
+
+（3）ReadLock和WriteLock 两个内部类实现了Lock接口，它们具有锁的一些特性。
+
+默认构造方法使用的是非公平锁模式，在构造方法中初始化了读锁和写锁。
 
 ```java
 public interface ReadWriteLock {
@@ -148,7 +158,83 @@ public class T10_TestReadWriteLock {
 }
 ```
 
-`ReentrantReadWriteLock` 实现了`ReadWriteLock`接口，具体实现这里不展开，后续会深入源码解析
+
+
+### StampedLock
+
+​	`StampedLock` 是 Java 8 中新增的类，它是一个更加高效的读写锁的实现，而且它不是基于 AQS 来实现的，它的内部自成一片逻辑。`StampedLock` 具有三种模式：写模式、读模式、乐观读模式。
+
+​	`ReentrantReadWriteLock` 中的读和写都是一种悲观锁的体现，`StampedLock` 加入了一种新的模式——乐观读，它是指当乐观读时假定没有其它线程修改数据，读取完成后再检查下版本号有没有变化，没有变化就读取成功了，这种模式更适用于读多写少的场景。
+
+```java
+class Point {
+    private double x, y;
+    private final StampedLock sl = new StampedLock();
+ 
+    void move(double deltaX, double deltaY) {
+        // 获取写锁，返回一个版本号（戳）
+        long stamp = sl.writeLock();
+        try {
+            x += deltaX;
+            y += deltaY;
+        } finally {
+            // 释放写锁，需要传入上面获取的版本号
+            sl.unlockWrite(stamp);
+        }
+    }
+ 
+    double distanceFromOrigin() {
+        // 乐观读
+        long stamp = sl.tryOptimisticRead();
+        double currentX = x, currentY = y;
+        // 验证版本号是否有变化
+        if (!sl.validate(stamp)) {
+            // 版本号变了，乐观读转悲观读
+            stamp = sl.readLock();
+            try {
+                // 重新读取x、y的值
+                currentX = x;
+                currentY = y;
+            } finally {
+                // 释放读锁，需要传入上面获取的版本号
+                sl.unlockRead(stamp);
+            }
+        }
+        return Math.sqrt(currentX * currentX + currentY * currentY);
+    }
+ 
+    void moveIfAtOrigin(double newX, double newY) {
+        // 获取悲观读锁
+        long stamp = sl.readLock();
+        try {
+            while (x == 0.0 && y == 0.0) {
+                // 转为写锁
+                long ws = sl.tryConvertToWriteLock(stamp);
+                // 转换成功
+                if (ws != 0L) {
+                    stamp = ws;
+                    x = newX;
+                    y = newY;
+                    break;
+                }
+                else {
+                    // 转换失败
+                    sl.unlockRead(stamp);
+                    // 获取写锁
+                    stamp = sl.writeLock();
+                }
+            }
+        } finally {
+            // 释放锁
+            sl.unlock(stamp);
+        }
+    }
+}
+```
+
+​	乐观读锁是一种全新的方式，它假定数据没有改变，乐观读之后处理完业务逻辑再判断版本号是否有改变，如果没改变则乐观读成功，如果有改变则转化为悲观读锁重试.
+
+> https://blog.csdn.net/lki_suidongdong/article/details/106326880
 
 # 公平锁和非公平锁
 
@@ -199,7 +285,7 @@ Lock lock = new ReentrantLock(false);
 
 ## ReentrantLock 
 
-对于 Java ReentrantLock 而言, 他的名字就可以看出是一个可重入锁。对于 Synchronized 而言，也是一个可重入锁。ReentrantLock 是唯一实现了 Lock 接口的类.
+​	对于 Java ReentrantLock 而言, 名字就可以看出是一个可重入锁。对于 Synchronized 而言，也是一个可重入锁。ReentrantLock 是唯一实现了 Lock 接口的类.
 
 敲黑板：可重入锁的一个好处是可一定程度避免死锁
 
@@ -512,6 +598,58 @@ public class T13_TestLockSupport {
     }
 }
 ```
+
+# 条件锁
+
+​	条件锁，是指在获取锁之后发现当前业务场景自己无法处理，而需要等待某个条件的出现才可以继续处理时使用的一种锁。如在阻塞队列中，当队列中没有元素的时候是无法弹出一个元素的，这时候就需要阻塞在条件 `notEmpty` 上，等待其它线程往里面放入一个元素后，唤醒这个条件 `notEmpty` ，当前线程才可以继续去做 “弹出一个元素” 的行为。
+
+​	注意，这里的条件，必须是在**获取锁之后去等待**，对应到ReentrantLock的条件锁，就是获取锁之后才能调用condition.await()方法。
+
+​	在 Java 中，条件锁的实现都在AQS的 `ConditionObject` 类中，Condition Object 实现了 `Condition` 接口，下面我们通过一个例子来进入到条件锁的学习中。
+
+```java
+public class ReentrantLockTest {
+    public static void main(String[] args) throws InterruptedException {
+        // 声明一个重入锁
+        ReentrantLock lock = new ReentrantLock();
+        // 声明一个条件锁
+        Condition condition = lock.newCondition();
+ 
+        new Thread(()->{
+            try {
+                lock.lock();  // 1
+                try {
+                    System.out.println("before await");  // 2
+                    // 等待条件
+                    condition.await();  // 3
+                    System.out.println("after await");  // 10
+                } finally {
+                    lock.unlock();  // 11
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+        
+        // 这里睡1000ms是为了让上面的线程先获取到锁
+        Thread.sleep(1000);
+        lock.lock();  // 4
+        try {
+            // 这里睡2000ms代表这个线程执行业务需要的时间
+            Thread.sleep(2000);  // 5
+            System.out.println("before signal");  // 6
+            // 通知条件已成立
+            condition.signal();  // 7
+            System.out.println("after signal");  // 8
+        } finally {
+            lock.unlock();  // 9
+        }
+    }
+}
+// 一个线程等待条件，另一个线程通知条件已成立，后面的数字代表代码实际运行的顺序
+```
+
+
 
 # 自旋锁
 
