@@ -20,9 +20,107 @@
 
 ### SynchronousQueue
 
-​	每个删除操作都要等待插入操作，反之每个插入操作也都要等待删除动作，其内部容量是 0
+​	[SynchronousQueue](https://blog.csdn.net/lki_suidongdong/article/details/106178589) 是一个双栈双队列算法，无空间的队列或栈，任何一个对 `SynchronousQueue` 写需要等到一个对`SynchronousQueue` 的读操作，反之亦然。一个读操作需要等待一个写操作，相当于是交换通道，提供者和消费者是需要组队完成工作，缺少一个将会阻塞线程，直到等到配对为止。每个删除操作都要等待插入操作，反之每个插入操作也都要等待删除动作，其内部容量是 0。在 SynchronousQueue 中双队列FIFO提供公平模式，而双栈LIFO提供的则是非公平模式。
 
-​	在多线程中线程的执行顺序是依靠哪个线程先获得到CUP的执行权谁就先执行，虽说可以通过线程的优先权进行设置，但是只是获取CUP执行权的概率高点，但是也不一定必须先执行。在这种情况下如何保证线程按照一定的顺序进行执行
+#### 主要属性
+
+```java
+// CPU的数量
+static final int NCPUS = Runtime.getRuntime().availableProcessors();
+// 有超时的情况自旋多少次，当CPU数量小于2的时候不自旋
+static final int maxTimedSpins = (NCPUS < 2) ? 0 : 32;
+// 没有超时的情况自旋多少次
+static final int maxUntimedSpins = maxTimedSpins * 16;
+// 针对有超时的情况，自旋了多少次后，如果剩余时间大于1000纳秒就使用带时间的LockSupport.parkNanos()这个方法
+static final long spinForTimeoutThreshold = 1000L;
+// 传输器，即两个线程交换元素使用的东西
+private transient volatile Transferer<E> transferer;
+```
+
+（1）这个阻塞队列里面是会自旋的；
+（2）它使用了一个叫做transferer的东西来交换元素；
+
+#### 主要内部类
+
+```java
+// Transferer抽象类，主要定义了一个transfer方法用来传输元素
+abstract static class Transferer<E> {
+    abstract E transfer(E e, boolean timed, long nanos);
+}
+// 以栈方式实现的Transferer
+static final class TransferStack<E> extends Transferer<E> {
+    // 栈中节点的几种类型：
+    // 1. 消费者（请求数据的）
+    static final int REQUEST    = 0;
+    // 2. 生产者（提供数据的）
+    static final int DATA       = 1;
+    // 3. 二者正在匹配中
+    static final int FULFILLING = 2;
+ 
+    // 栈中的节点
+    static final class SNode {
+        // 下一个节点
+        volatile SNode next;        // next node in stack
+        // 匹配者
+        volatile SNode match;       // the node matched to this
+        // 等待着的线程
+        volatile Thread waiter;     // to control park/unpark
+        // 元素
+        Object item;                // data; or null for REQUESTs
+        // 模式，也就是节点的类型，是消费者，是生产者，还是正在匹配中
+        int mode;
+    }
+    // 栈的头节点
+    volatile SNode head;
+}
+// 以队列方式实现的Transferer
+static final class TransferQueue<E> extends Transferer<E> {
+    // 队列中的节点
+    static final class QNode {
+        // 下一个节点
+        volatile QNode next;          // next node in queue
+        // 存储的元素
+        volatile Object item;         // CAS'ed to or from null
+        // 等待着的线程
+        volatile Thread waiter;       // to control park/unpark
+        // 是否是数据节点
+        final boolean isData;
+    }
+ 
+    // 队列的头节点
+    transient volatile QNode head;
+    // 队列的尾节点
+    transient volatile QNode tail;
+}
+```
+
+（1）定义了一个抽象类Transferer，里面定义了一个传输元素的方法；
+（2）有两种传输元素的方法，一种是栈，一种是队列；
+（3）栈的特点是后进先出，队列的特点是先进先出；
+（4）栈只需要保存一个头节点就可以了，因为存取元素都是操作头节点；
+（5）队列需要保存一个头节点一个尾节点，因为存元素操作尾节点，取元素操作头节点；
+（6）每个节点中保存着存储的元素、等待着的线程，以及下一个节点；
+
+#### 主要构造方法
+
+```java
+public SynchronousQueue() {
+    // 默认非公平模式
+    this(false);
+}
+ 
+public SynchronousQueue(boolean fair) {
+    // 如果是公平模式就使用队列，如果是非公平模式就使用栈
+    transferer = fair ? new TransferQueue<E>() : new TransferStack<E>();
+}
+```
+
+（1）默认使用非公平模式，也就是栈结构；
+（2）公平模式使用队列，非公平模式使用栈；
+
+
+
+​	在多线程中线程的执行顺序是依靠哪个线程先获得到 CPU 的执行权谁就先执行，虽说可以通过线程的优先权进行设置，但是只是获取 CPU 执行权的概率高点，但是也不一定必须先执行。在这种情况下如何保证线程按照一定的顺序进行执行
 
 1. 通过 `Object` 的 `wait` 和 `notify`
 2. 通过 `Condition` 的 `await` 和 `signal`
@@ -141,7 +239,7 @@ public class T07_TestCyclicBarrier {
 
 ## Phaser（可以控制的栅栏）
 
-​	`Phaser` 是一个灵活的线程同步工具，包含了 `CyclicBarrier` 和 `CountDownLatch` 的相关功能。
+​	`Phaser` 是一个灵活的线程同步工具，包含了 `CyclicBarrier` 和 `CountDownLatch` 的相关功能。适用于这样一种场景，一个大任务可以分为多个阶段完成，且每个阶段的任务可以多个线程并发执行，但是必须上一个阶段的任务都完成了才可以执行下一个阶段的任务。这种场景虽然使用 `CyclicBarrier` 或者 `CountDownLatch`也可以实现，但是要复杂的多。首先，具体需要多少个阶段是可能会变的，其次，每个阶段的任务数也可能会变的。相比于 `CyclicBarrier` 和 `CountDownLatch`， `Phaser` 更加灵活更加方便。
 
 ​	`Phaser` 替代 `CountDownLatch` 。对于`CountDownLatch` 而言，有 2 个重要的方法，一个是`await()` 方法，可以使线程进入等待状态，在`Phaser` 中，与之对应的方法是 `awaitAdvance(int n)` 。`CountDownLatch` 中另一个重要的方法是 `countDown()` ，使计数器减一，当计数器为 0 时所有等待的线程开始执行，在`Phaser` 中，与之对应的方法是 `arrive()`
 
@@ -156,7 +254,6 @@ public class T08_TestPhaser {
     static Random r = new Random();
     static MarriagePhaser phaser = new MarriagePhaser();
  
-    //每次写这个太麻烦，直接提取出来
     static void milliSleep(int milli) {
         try {
             TimeUnit.MILLISECONDS.sleep(milli);
@@ -171,7 +268,7 @@ public class T08_TestPhaser {
             new Thread(()->{
                 Person p = new Person("person " + nameIndex);
                 p.arrive();
-                // 相当于awit
+                // 相当于 awit
                 phaser.arriveAndAwaitAdvance();
                 p.eat();
                 phaser.arriveAndAwaitAdvance();
@@ -180,12 +277,13 @@ public class T08_TestPhaser {
             }).start();
         }
     }
+    
     static class MarriagePhaser extends Phaser {
         /*
-         * boolean onAdvance(int phase, int registeredParties)方法。此方法有2个作用：
-         * 1、当每一个阶段执行完毕，此方法会被自动调用，因此，重载此方法写入的代码会在每个阶段执行完毕时执行，相当于CyclicBarrier的barrierAction。
+         *    boolean onAdvance(int phase, int registeredParties)方法。此方法有2个作用：
+         * 1、当每一个阶段执行完毕，此方法会被自动调用，因此，重载此方法写入的代码会在每个阶段执行完毕时执行，相当于					 CyclicBarrier的barrierAction。
          * 2、当此方法返回true时，意味着Phaser被终止，因此可以巧妙的设置此方法的返回值来终止所有线程。
-         * phase表示执行阶段，registeredParties表示管理的线程
+         * 	  phase 表示执行阶段，registeredParties 表示管理的线程
          **/
         @Override
         protected boolean onAdvance(int phase, int registeredParties) {
@@ -226,7 +324,7 @@ public class T08_TestPhaser {
 }
 ```
 
-可以随时控制 phaser 的大小，上边通过 `bulkRegister` 方法指定，下边可以看一下通过 `register` 注册新的 phaser ，就是相当于+1
+可以随时控制 phaser 的大小，上边通过 `bulkRegister` 方法指定，下边可以看一下通过 `register` 注册新的 phaser ，就是相当于 +1
 
 ```java
 import java.util.Random;
@@ -301,8 +399,8 @@ public class T09_TestPhaser2 {
                 System.out.printf("%s 洞房！\n", name);
                 phaser.arriveAndAwaitAdvance();
             } else {
-                //观察加一和减一的区别：发现加一的时候最后不会打印：婚礼结束，说明当前阶段没有完毕
-                //phaser.arriveAndDeregister();
+                // 观察加一和减一的区别：发现加一的时候最后不会打印：婚礼结束，说明当前阶段没有完毕
+                // phaser.arriveAndDeregister();
                 phaser.register();
             }
         }
@@ -318,11 +416,13 @@ public class T09_TestPhaser2 {
 }
 ```
 
-
+> https://blog.csdn.net/lki_suidongdong/article/details/106365432
 
 ## Semaphore（指示灯）
 
-​	可以设置几个线程同时执行，设置俩个的话，就是等这俩个线程执行完之后，其他才能执行，可以实现限流，同时可以设置公平锁和非公平锁。
+​	Semaphore，信号量，它保存了一系列的许可（permits），每次调用 `acquire()` 都将消耗一个许可，每次调用 `release()` 都将归还一个许可。可以设置几个线程同时执行，设置俩个的话，就是等这俩个线程执行完之后，其他才能执行，可以实现限流，同时可以设置公平锁和非公平锁。
+
+​	通常用于限制同一时间对共享资源的访问次数（访问的线程个数），也就是常说的限流。Semaphore 中包含了一个实现了AQS的同步器 Sync，以及它的两个子类 `FairSync` 和 `NonFairSync` ，这说明 Semaphore 也是区分公平模式和非公平模式的。
 
 ```java
 import java.util.concurrent.Semaphore;
@@ -337,8 +437,8 @@ public class T11_TestSemaphore {
  
         new Thread(()->{
             try {
-                //从此信号量获取一个许可，在提供一个许可前一直将线程阻塞，否则线程被中断。
-                //就是上边的2-1
+                //从此信号量获取一个许可，在提供一个许可前一直将线程阻塞，否则线程被中断
+                //就是上边的 2-1
                 s.acquire();
  
                 System.out.println("T1 running...");
@@ -350,8 +450,8 @@ public class T11_TestSemaphore {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             } finally {
-                //释放一个许可，将其返回给信号量。
-                //+1
+                //释放一个许可，将其返回给信号量
+                // +1
                 s.release();
             }
         }).start();

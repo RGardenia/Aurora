@@ -6,18 +6,15 @@
 
 ​		Atomic类在软件层面上是非阻塞的，它的原子性其实是依靠底层的 CAS 来保障原子性的更新数据，在要添加或者减少的时候，会使用死循环不断地 CAS 到特定的值，从而达到更新数据的目的。
 
-```java
-```
-
 
 
 ## AtomicStampedReference
 
-> `AtomicStampedReference` 是 java 并发包下提供的一个原子类，它能解决其它原子类无法解决的ABA问题。
+> `AtomicStampedReference` 是 java 并发包下提供的一个原子类，它能解决其它原子类无法解决的 ABA 问题
 
-### ABA
+### [ABA](https://blog.csdn.net/lki_suidongdong/article/details/106250381)
 
-​	ABA问题发生在多线程环境中，当某线程连续读取同一块内存地址两次，两次得到的值一样，它简单地认为“此内存地址的值并没有被修改过”，然而，同时可能存在另一个线程在这两次读取之间把这个内存地址的值从A修改成了B又修改回了A，这时还简单地认为“没有修改过”显然是错误的。
+​	ABA 问题发生在多线程环境中，当某线程连续读取同一块内存地址两次，两次得到的值一样，它简单地认为“此内存地址的值并没有被修改过”，然而，同时可能存在另一个线程在这两次读取之间把这个内存地址的值从A修改成了B又修改回了A，这时还简单地认为“没有修改过”显然是错误的。
 
 比如，两个线程按下面的顺序执行：
 
@@ -134,7 +131,7 @@ public AtomicStampedReference(V initialRef, int initialStamp) {
 }
 ```
 
-**CompareAndSet() 方法**
+**`CompareAndSet()`  方法**
 
 ```java
 public boolean compareAndSet(V   expectedReference,
@@ -247,3 +244,112 @@ public class AtomicStampedReferenceTest {
 
 > Java 中还有 `AtomicMarkableReference` 类可以解决ABA的问题
 > 它不是维护一个版本号，而是维护一个boolean类型的标记，标记值有修改
+
+
+
+## AtomicMarkableReference
+
+​	原子更新引用类型，内部使用Pair承载引用对象及是否被更新过的标记，避免了ABA问题。
+
+
+
+
+
+## **AtomicXxxArray**
+
+原子更新数组中的元素，可以更新数组中指定索引位置的元素，这些类主要有：
+
+（1）AtomicIntegerArray	原子更新int数组中的元素
+
+（2）AtomicLongArray	原子更新long数组中的元素
+
+（3）AtomicReferenceArray	原子更新Object数组中的元素
+
+```java
+private static void testAtomicReferenceArray() {
+    AtomicIntegerArray atomicIntegerArray = new AtomicIntegerArray(10);
+    atomicIntegerArray.getAndIncrement(0);
+    atomicIntegerArray.getAndAdd(1, 666);
+    atomicIntegerArray.incrementAndGet(2);
+    atomicIntegerArray.addAndGet(3, 666);
+    atomicIntegerArray.compareAndSet(4, 0, 666);
+    
+    System.out.println(atomicIntegerArray.get(0));
+    System.out.println(atomicIntegerArray.get(1));
+    System.out.println(atomicIntegerArray.get(2));
+    System.out.println(atomicIntegerArray.get(3));
+    System.out.println(atomicIntegerArray.get(4));
+    System.out.println(atomicIntegerArray.get(5));
+}
+```
+
+
+
+## AtomicXxxFieldUpdater
+
+
+
+原子更新对象中的字段，可以更新对象中指定字段名称的字段，这些类主要有：
+
+（1）AtomicIntegerFieldUpdater	原子更新对象中的int类型字段
+
+（2）AtomicLongFieldUpdater	原子更新对象中的long类型字段
+
+（3）AtomicReferenceFieldUpdater	原子更新对象中的引用类型字段
+
+```java
+private static void testAtomicReferenceField() {
+    AtomicReferenceFieldUpdater<User, String> updateName = AtomicReferenceFieldUpdater.newUpdater(User.class, String.class,"name");
+    AtomicIntegerFieldUpdater<User> updateAge = AtomicIntegerFieldUpdater.newUpdater(User.class, "age");
+    User user = new User("tong ge", 21);
+    updateName.compareAndSet(user, "tong ge", "read source code");
+    updateAge.compareAndSet(user, 21, 25);
+    updateAge.incrementAndGet(user);
+    System.out.println(user);
+}
+
+private static class User {
+    volatile String name;
+    volatile int age;
+    public User(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    @Override
+    public String toString() {
+        return "name: " + name + ", age: " + age;
+    }
+}
+```
+
+
+
+## 高性能原子类
+
+​	Java 8 中增加的原子类，它们使用分段的思想，把不同的线程 `hash` 到不同的段上去更新，最后再把这些段的值相加得到最终的值，这些类主要有：
+
+（1）Striped64		     下面四个类的父类
+
+（2）LongAccumulator	long 类型的聚合器，需要传入一个 long 类型的二元操作，可以用来计算各种聚合操作，包括加乘等
+
+（3）[LongAdder](https://blog.csdn.net/lki_suidongdong/article/details/106253269)		long 类型的累加器，LongAccumulator 的特例，只能用来计算加法，且从 0 开始计算
+
+（4）DoubleAccumulator	double 类型的聚合器，需要传入一个 `double `类型的二元操作，可以用来计算各种聚合操作，包括加乘等
+
+（5）DoubleAdder		double 类型的累加器，DoubleAccumulator 的特例，只能用来计算加法，且从 0 开始计算
+
+```java
+private static void testNewAtomic() {
+    LongAdder longAdder = new LongAdder();
+    longAdder.increment();
+    longAdder.add(666);
+    System.out.println(longAdder.sum());
+ 
+    LongAccumulator longAccumulator = new LongAccumulator((left, right)->left + right * 2, 666);
+    longAccumulator.accumulate(1);
+    longAccumulator.accumulate(3);
+    longAccumulator.accumulate(-4);
+    System.out.println(longAccumulator.get());
+}
+```
+
