@@ -11,7 +11,7 @@
 ## Docker Image
 
 ```bash
-# 通过build Dockfile生成带ssh功能的centos镜像	Dockfile
+# 通过 build Dockfile 生成带 ssh 功能的 centos 镜像	Dockfile
 FROM centos
 MAINTAINER gardenia
  
@@ -26,7 +26,8 @@ RUN yum install -y openssh-clients
 RUN yum install -y which
 RUN yum -y install net-tools
 RUN yum install -y vim
- 
+RUN yum -y install rsync
+
 RUN echo "root:123" | chpasswd
 RUN echo "root   ALL=(ALL)       ALL" >> /etc/sudoers
 RUN ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
@@ -43,11 +44,16 @@ ENV JAVA_HOME /usr/local/jdk1.8
 ENV PATH $JAVA_HOME/bin:$PATH
 
 # COPY hadoop /usr/local/hadoop
-# 拷贝并解压hadoop，根据自己的版本修改
+# 拷贝并解压 hadoop，根据自己的版本修改
 ADD hadoop-3.3.6.tar.gz /usr/local/
 RUN mv /usr/local/hadoop-3.3.6 /usr/local/hadoop
 ENV HADOOP_HOME /usr/local/hadoop
 ENV PATH $HADOOP_HOME/bin:$PATH
+
+## 在 hosts 中写入 host 信息
+RUN echo "192.168.9.3 hadoop1" >> /etc/hosts
+RUN echo "192.168.9.4 hadoop2" >> /etc/hosts
+RUN echo "192.168.9.5 hadoop3" >> /etc/hosts
 
 CMD ["/usr/sbin/sshd", "-D"]
 ```
@@ -66,8 +72,8 @@ docker network create --subnet=192.168.9.0/24 hadoop
 
 docker network ls
 
-### 启动三个容器并指定网桥
-docker run --privileged=true -d --network hadoop --hostname hadoop1 --ip 192.168.9.3 --name hadoop1 -p 9870:9870 -p 19888:19888 -p 50070:50070 -p 8088:8088 -p 9001:9001 centos-hadoop /usr/sbin/init
+### 启动三个容器并指定网桥	{ 若需要 sshd 服务，需要映射 端口 这里默认 1950 }
+docker run --privileged=true -d --network hadoop --hostname hadoop1 --ip 192.168.9.3 --name hadoop1 -p 9870:9870 -p 19888:19888 -p 50070:50070 -p 8088:8088 -p 9001:9001 -p 1950:22 centos-hadoop /usr/sbin/init
 
 docker run --privileged=true -d --network hadoop --name hadoop2 --hostname hadoop2 --ip 192.168.9.4 centos-hadoop /usr/sbin/init
 
@@ -109,7 +115,7 @@ vi /etc/hosts
 <img src="images/image-20231011164611144.png" alt="image-20231011164611144"  />
 
 ```bash
-## 给每台 hadoop 服务器中配置 ssh 免密登录
+## 给每台 hadoop 服务器中配置 ssh 免密登录	rm -f /root/.ssh/known_hosts
 ssh-keygen
 
 ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@hadoop1
@@ -249,19 +255,27 @@ hadoop2
 hadoop3
 
 ### 配置环境变量
-vi /etc/profile
+/etc/profile.d/container_env.sh
 
+## JDK
 export JAVA_HOME=/usr/local/jdk
 export PATH=$JAVA_HOME/bin:$PATH
+
+## Hadoop
 export HADOOP_HOME=/usr/local/hadoop
 export PATH=$HADOOP_HOME/bin:$PATH
 export PATH=$HADOOP_HOME/sbin:$PATH
+
 export HDFS_NAMENODE_USER=root
 export HDFS_DATANODE_USER=root
 export HDFS_JOURNALNODE_USER=root
 export HDFS_SECONDARYNAMENODE_USER=root
 export YARN_RESOURCEMANAGER_USER=root
 export YARN_NODEMANAGER_USER=root
+
+## Kafka
+export KAFKA_HOME=/opt/module/kafka
+export PATH=$PATH:$KAFKA_HOME/bin
 
 source /etc/profile
 ```
@@ -276,8 +290,8 @@ scp -r $HADOOP_HOME/etc/hadoop hadoop3:/usr/local/hadoop/etc/
 scp -r /home/hadoop hadoop2:/home
 scp -r /home/hadoop hadoop3:/home
 
-scp -r /etc/profile hadoop2:/etc
-scp -r /etc/profile hadoop3:/etc
+scp -r /etc/profile.d/container_env.sh hadoop2:/etc/profile.d/
+scp -r /etc/profile.d/container_env.sh hadoop3:/etc/profile.d/
 
 ### 给文件赋权(每台 Hadoop)
 chmod -R 777 /usr/local/hadoop

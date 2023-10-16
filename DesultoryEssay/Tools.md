@@ -4,6 +4,8 @@
 
 - Microsoft Office
 
+  https://otp.landian.vip/zh-cn	coolhub.top	部署	激活
+
 ## Record
 
 - 语雀
