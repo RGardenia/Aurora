@@ -59,7 +59,7 @@ Manager是集群的软件分发及管理监控平台，可以在几个小时内�
 
 **（2）公司成立之初就吸纳了大约25名至30名专门研究Hadoop的雅虎工程师，上述工程师均在2005年开始协助雅虎开发Hadoop，贡献了Hadoop80%的代码。**
 
-（3）Hortonworks的主打产品是Hortonworks Data Platform（HDP），也同样是100%开源的产品，HDP除常见的项目外还包括了**Ambari**，一款开源的安装和管理系统。
+（3）Hortonworks的主打产品是 Hortonworks Data Platform（HDP），也同样是100%开源的产品，HDP除常见的项目外还包括了**Ambari**，一款开源的安装和管理系统。
 
 （4）2018年Hortonworks目前**已经被Cloudera公司收购**。
 
@@ -505,7 +505,7 @@ drwxr-xr-x. 4 gardenia gardenia 4096 5月 22 2017 **share**
 
 （1）scp定义
 
-> scp可以实现服务器与服务器之间的数据拷贝。（from server1 to server2）
+> scp 可以实现服务器与服务器之间的数据拷贝。（from server1 to server2）
 
 （2）基本语法
 
@@ -533,11 +533,11 @@ scp     -r      $pdir/$fname        $user@$host:$pdir/$fname
 >
 > <span style="color:red">scp -r gardenia@hadoop102:/opt/module/\* gardenia@hadoop104:/opt/module</span>
 
-**2）rsync远程同步工具**
+**2）rsync 远程同步工具**
 
-rsync主要用于备份和镜像。具有速度快、避免复制相同内容和支持符号链接的优点。
+rsync 主要用于备份和镜像。具有速度快、避免复制相同内容和支持符号链接的优点。
 
-<span style="color:red">rsync和scp区别</span>：用rsync做文件的复制要比scp的速度快，rsync只对差异文件做更新。scp是把所有文件都复制过去。
+<span style="color:red">rsync和scp区别</span>：用 `rsync` 做文件的复制要比 scp 的速度快，rsync 只对差异文件做更新。scp 是把所有文件都复制过去。
 
 （1）基本语法
 
@@ -563,11 +563,11 @@ rsync     -av       \$pdir/\$fname      \$user@\$host:\$pdir/\$fname
 
 （2）案例实操
 
-（a）删除hadoop103中/opt/module/hadoop-3.3.1/wcinput
+（a）删除 `hadoop103中/opt/module/hadoop-3.3.1/wcinput` 
 
 > rm -rf wcinput/
 
-（b）同步hadoop102中的/opt/module/hadoop-3.3.1到hadoop103
+（b）同步 `hadoop102` 中的 `/opt/module/hadoop-3.3.1` 到 `hadoop103` 
 
 > rsync -av hadoop-3.3.1/ gardenia@hadoop103:/opt/module/hadoop-3.3.1/
 
@@ -591,7 +591,7 @@ rsync     -av       \$pdir/\$fname      \$user@\$host:\$pdir/\$fname
 
 （3）脚本实现
 
-​		（a）在`/home/gardenia/bin`目录下创建xsync文件
+​		（a）在`/home/gardenia/bin` 目录下创建 `xsync` 文件
 
 ```bash
 mkdir bin
@@ -611,7 +611,7 @@ then
     exit;
 fi
 #2. 遍历集群所有机器
-for host in hadoop102 hadoop103 hadoop104
+for host in hadoop001 hadoop002 hadoop003
 do
     echo ====================  $host  ====================
     #3. 遍历所有目录，挨个发送
@@ -641,7 +641,7 @@ done
 
 > xsync /home/gardenia/bin
 
-（d）将脚本复制到/bin中，以便全局调用
+（d）将脚本复制到 `/bin` 中，以便全局调用
 
 > sudo cp xsync /bin/
 

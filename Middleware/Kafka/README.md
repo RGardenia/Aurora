@@ -55,7 +55,7 @@
 
 ### 集群规划
 
-| hadoop102 | hadoop103 | hadoop104 |
+| hadoop001 | hadoop002 | hadoop003 |
 | :-------: | :-------: | :-------: |
 |    zk     |    zk     |    zk     |
 |   kafka   |   kafka   |   kafka   |
@@ -69,17 +69,18 @@
 1）解压安装包
 
 ```bash
-tar -zxvf kafka_2.13-3.5.1.tgz -C /opt/module/
-mv kafka_2.13-3.5.1/ kafka
+mkdir /opt/module
+tar -zxvf kafka_2.12-3.6.0.tgz -C /opt/module/
+mv kafka_2.12-3.6.0 kafka
 ```
 
-2）进入到 /opt/module/kafka 目录，修改配置文件
+2）进入到 `/opt/module/kafka` 目录，修改配置文件
 
 ```bash
 cd config/
 vim server.properties
 ### 输入以下内容
-#broker 的全局唯一编号，不能重复，只能是数字。
+#broker 的全局唯一编号，不能重复，只能是数字
 broker.id=0
 #处理网络请求的线程数量
 num.network.threads=3
@@ -91,8 +92,7 @@ socket.send.buffer.bytes=102400
 socket.receive.buffer.bytes=102400
 #请求套接字的缓冲区大小
 socket.request.max.bytes=104857600
-#kafka 运行日志(数据)存放的路径，路径不需要提前创建，kafka 自动帮你创建，可以
-配置多个磁盘路径，路径与路径之间可以用"，"分隔
+#kafka 运行日志(数据)存放的路径，路径不需要提前创建，kafka 自动帮你创建，可以配置多个磁盘路径，路径与路径之间可以用"，"分隔
 log.dirs=/opt/module/kafka/datas
 #topic 在当前 broker 上的分区个数
 num.partitions=1
@@ -114,6 +114,9 @@ zookeeper.connect=hadoop102:2181,hadoop103:2181,hadoop104:2181/kafka
 
 ```bash
 xsync kafka/
+
+scp -r /opt/module/kafka hadoop2:/opt/module/
+scp -r /opt/module/kafka hadoop3:/opt/module/
 ```
 
 4）分别在 hadoop103 和 hadoop104 上修改配置文件 `/opt/module/kafka/config/server.properties` 中的 `broker.id=1`、`broker.id=2`
@@ -121,7 +124,7 @@ xsync kafka/
 > 注：broker.id 不得重复，整个集群中唯一
 
 ```bash
- vim kafka/config/server.properties
+vim kafka/config/server.properties
 
 ### 修改:
 # The id of the broker. This must be set to a unique integer for each broker.
@@ -136,23 +139,25 @@ log.dirs=/data/kafka
 # or 
 log.dirs=/opt/module/kafka/datas
 
-zookeeper.connect=hadoop102:2181,hadoop103:2181,hadoop104:2181/kafka
+zookeeper.connect=hadoop001:2181,hadoop002:2181,hadoop003:2181/kafka
 ```
 
 5）配置环境变量
 
-（1）在 `/etc/profile.d/my_env.sh` 文件中增加 kafka 环境变量配置
+（1）在 `/etc/profile.d/container_env.sh` 文件中增加 `kafka` 环境变量配置
 ```bash
-sudo vim /etc/profile.d/my_env.sh
+sudo vim /etc/profile.d/container_env.sh
 
 # KAFKA_HOME
 export KAFKA_HOME=/opt/module/kafka
 export PATH=$PATH:$KAFKA_HOME/bin
 
+scp -r /etc/profile.d/container_env.sh hadoop2:/etc/profile.d/
+scp -r /etc/profile.d/container_env.sh hadoop3:/etc/profile.d/
 source /etc/profile
 
 ### 分发环境变量文件到其他节点，并 source
-sudo /home/gardenia/bin/xsync /etc/profile.d/my_env.sh
+sudo /home/gardenia/bin/xsync /etc/profile.d/container_env.sh
 ```
 
 6）启动集群
@@ -162,7 +167,7 @@ sudo /home/gardenia/bin/xsync /etc/profile.d/my_env.sh
 zk.sh start
 ```
 
-（2）依次在 hadoop102、hadoop103、hadoop104 节点上启动 Kafka
+（2）依次在 hadoop001、hadoop002、hadoop003节点上启动  `Kafka` 
 ```bash
 bin/kafka-server-start.sh -daemon config/server.properties
 ```
@@ -179,16 +184,16 @@ bin/kafka-server-start.sh -daemon config/server.properties
 #! /bin/bash
 case $1 in 
 "start"){
-	for i in hadoop102 hadoop103 hadoop104
+	for i in hadoop001 hadoop002 hadoop003
 	do
-		echo " --------启动 $i Kafka-------"
+		echo " --------start $i Kafka-------"
 		ssh $i "/opt/module/kafka/bin/kafka-server-start.sh -daemon /opt/module/kafka/config/server.properties"
 	done
 };;
 "stop"){
-	for i in hadoop102 hadoop103 hadoop104
+	for i in hadoop001 hadoop002 hadoop003
 	do
-		echo " --------停止 $i Kafka-------"
+		echo " --------stop $i Kafka-------"
 		ssh $i "/opt/module/kafka/bin/kafka-server-stop.sh "
 	done
 };;
