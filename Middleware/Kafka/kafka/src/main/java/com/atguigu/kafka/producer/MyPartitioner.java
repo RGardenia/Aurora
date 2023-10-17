@@ -14,22 +14,12 @@ public class MyPartitioner implements Partitioner {
 
         int partition;
 
-        if (msgValues.contains("atguigu")){
+        if (msgValues.contains("gardenia")) {
             partition = 0;
-        }else {
+        } else {
             partition = 1;
         }
 
         return partition;
-    }
-
-    @Override
-    public void close() {
-
-    }
-
-    @Override
-    public void configure(Map<String, ?> configs) {
-
     }
 }

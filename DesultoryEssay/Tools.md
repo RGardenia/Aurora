@@ -135,10 +135,7 @@
 
 # 云原生
 
-## 容器
-
-- Docker
-- Kubernetes
+## 
 
 ### 桌面级容器
 
@@ -151,7 +148,7 @@
 
 ## 中间件
 
-
+- Zookeeper	https://github.com/vran-dev/PrettyZoo	Zookeeper GUI	Support Win / Mac / Linux Platform
 
 # Daily
 

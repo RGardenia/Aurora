@@ -1,9 +1,5 @@
 ## 综述
 
-Reference：https://github.com/lizhirui/AXI_spec_chinese
-
-**本文参考分析整理总结了AMBA AXI and ACE Protocol Specification文档的AXI总线协议规范部分，错误之处欢迎指出。**
-
 AMBA AXI协议支持高性能高频的系统设计，该协议拥有以下优点：
 
 * 适合高带宽和低延迟的设计
@@ -1506,3 +1502,7 @@ RRESP，BRESP：如果主设备不需要执行独占访问事务也不需要事�
 AxPROT：规范不要求从设备区分非安全和安全访问，也不要求任何额外的保护支持，因此不要求从设备支持AxPROT输入信号。
 
 **注意：要特别注意AxPROT信号，AxPROT[1]信号表示事务是否为安全事务，不正确的设置可能会导致不正确的系统行为。**
+
+
+
+Reference：https://github.com/lizhirui/AXI_spec_chinese
