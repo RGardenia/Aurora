@@ -21,10 +21,12 @@ doc
 *.pdf
 *.ttf
 *.mp4
+*.xmind
 
 ## 提交 ##
 *.doc
 *.docx
+*.txt
 static/
 
 # BlueJ files
