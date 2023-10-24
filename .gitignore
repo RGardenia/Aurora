@@ -28,6 +28,8 @@ doc
 *.docx
 *.txt
 static/
+Vue_Code/
+vue_basic/
 
 # BlueJ files
 *.ctxt
