@@ -2,9 +2,9 @@
 
 
 
-# 1.Docker安装
+# 1.Docker 安装
 
-- Docker可以运行在Windows、Mac、CentOS、Ubuntu等操作系统上
+- Docker可以运行在 Windows、Mac、CentOS、Ubuntu 等操作系统上
 
 - Docker支持以下的CentOS版本：
 
@@ -13,15 +13,13 @@
 
 - 目前，CentOS 仅发行版本中的内核支持 Docker
 
-- - Docker 运行在 CentOS 7 上，要求系统为64位、系统内核版本为 3.10 以上。
-  - Docker 运行在 CentOS-6.5 或更高的版本的 CentOS 上，要求系统为64位、系统内核版本为 2.6.32-431 或者更高版本。
+- - Docker 运行在 CentOS 7 上，要求系统为64位、系统内核版本为 3.10 以上
+  - Docker 运行在 CentOS-6.5 或更高的版本的 CentOS 上，要求系统为64位、系统内核版本为 2.6.32-431 或者更高版本
 
-## 1.1.安装Docker
-
->环境查看
+## 1.1. 安装 Docker
 
 ```shell
-# 系统内核是3.10以上的
+# 系统内核是 3.10 以上的
 [root@centos-7-test1 ~]# uname -r
 3.10.0-1127.el7.x86_64
 ```
@@ -46,7 +44,7 @@ REDHAT_SUPPORT_PRODUCT="centos"
 REDHAT_SUPPORT_PRODUCT_VERSION="7"
 ```
 
->安装Docker
+**安装 Docker**
 
 帮助文档：https://docs.docker.com/engine/install/centos/
 
@@ -75,17 +73,39 @@ http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo # 阿里云的�
 # 更新yum软件包索引
 yum makecache fast
 
-# 4、安装docker相关的软件 docker-ce社区版 docker-ee企业版
-sudo yum install docker-ce docker-ce-cli containerd.io
+# 4、安装 docker 相关的软件 docker-ce 社区版 docker-ee 企业版	docker-ce-cli：操作 docker 的命令行程序 containerd.io：docker的容器化运行环境
+sudo yum install -y docker-ce docker-ce-cli containerd.io
 
-# 5、启动docker
+# 5、启动 docker
 sudo systemctl start docker
 
-# 6、测试docker安装成功？
+# 6、测试 docker 安装成功
 docker version
 
-# 7、永远的 [HelloWorld] ^_^ 能够成功拉取image表示docker安装成功！
-docker run hello-world
+# 7、配置 开机自启
+sudo systemctl enable docker --now
+
+# 8、配置加速
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://dcjo5fe0.mirror.aliyuncs.com"]
+}
+EOF
+
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+# 9、Docker引擎权限	有权限作为普通用户运行 docker 命令
+# 确保 docker 用户组存在：
+sudo groupadd docker
+
+# 然后把自己加进去：
+sudo usermod -aG docker $USER
+
+# 修正你的 ~/.docker 目录的权限：
+sudo chown $USER:$USER /home/$USER/.docker -R
+sudo chmod g+rwx $HOME/.docker -R
 ```
 
 ```shell
@@ -100,7 +120,7 @@ docker: Error response from daemon: Get https://registry-1.docker.io/v2/library/
 # 重启docker服务：service docker restart
 ```
 
-> 卸载Docker
+**卸载 Docker**
 
 ```shell
 # 1、卸载依赖
@@ -109,10 +129,248 @@ sudo yum remove docker-ce docker-ce-cli containerd.io
 # 2、删除资源
 sudo rm -rf /var/lib/docker
 
-# /var/lib/docker是Docker默认的工作路径！！！
+# /var/lib/docker 是 Docker 默认的工作路径！！！
 ```
 
-## 1.2.阿里云镜像加速
+## 1.2 Win 10 安装 Docker DeskTop
+
+下载 msi 安装，安装完成后，将镜像等文件移至 别 盘
+
+```bash
+wsl --shutdown
+
+wsl --export docker-desktop-data D:\Files\docker\vm-data\DockerDesktop\docker-desktop-data.tar
+
+wsl --unregister docker-desktop-data
+-- 正在注销...
+
+wsl --import docker-desktop-data D:\Files\docker\vm-data\DockerDesktop\ D:\Files\docker\vm-data\DockerDesktop\docker-desktop-data.tar --version 2
+```
+
+**更改 镜像地址**
+
+```bash
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "features": {
+    "buildkit": true
+  },
+  "insecure-registries":[
+        "47.98.152.91:5000"
+   ],
+  "registry-mirrors": [ 
+    "https://registry.docker-cn.com", 
+    "http://hub-mirror.c.163.com", 
+    "https://docker.mirrors.ustc.edu.cn"
+   ]
+}
+```
+
+**FAQ**
+
+```bash
+# 开启 Docker Desktop 后，一直显示Stopping...
+  ○ 创建 wsl.txt 文件，粘贴以下内容
+
+Windows Registry Editor Version 5.00
+  
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\WinSock2\Parameters\AppId_Catalog\0408F7A3]
+"AppFullPath"="C:\\Windows\\System32\\wsl.exe"
+"PermittedLspCategories"=dword:80000000
+
+  ○ 另存为 wsl.reg 文件，编码方式修改为 ANSI
+  ○ 鼠标右击，选择合并，完成后重启 Docker
+```
+
+
+
+## 1.3 Link Security
+
+```bash
+# 配置外部访问
+vim /usr/lib/systemd/system/docker.service
+
+ExecStart=/usr/bin/dockerd -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock
+
+systemctl daemon-reload && systemctl restart docker
+```
+
+```bash
+# 解析域名 生产 TLS 证书
+mkdir -p /opt/sh
+vim /opt/sh/tls.sh
+
+# #!/bin/bash
+# set -e
+# if [ -z $1 ];then
+#         echo "baobao66.club"
+#         exit 0
+# fi
+# HOST=$1
+# mkdir -p /opt/cert/docker
+# cd /opt/cert/docker
+# openssl genrsa -aes256 -out ca-key.pem 4096
+# openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+# openssl genrsa -out server-key.pem 4096
+# openssl req -subj "/CN=$HOST" -sha256 -new -key server-key.pem -out server.csr
+# # 配置白名单，推荐配置0.0.0.0，允许所有IP连接但只有证书才可以连接成功
+# echo subjectAltName = DNS:$HOST,IP:0.0.0.0 > extfile.cnf
+# openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+# openssl genrsa -out key.pem 4096
+# openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+# echo extendedKeyUsage = clientAuth > extfile.cnf
+# openssl x509 -req -days 365 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out cert.pem -extfile extfile.cnf
+# rm -v client.csr server.csr
+# chmod -v 0400 ca-key.pem key.pem server-key.pem
+# chmod -v 0444 ca.pem server-cert.pem cert.pem
+# 上述不可用！
+
+#!/bin/ bash
+# 相关配置信息(除IP有用，其他基本唛有用)
+# 服务器 IP 或者域名
+SERVER="106.14.45.61"
+PASSWORD="try1849!"
+COUNTRY="CN"
+STATE="shanghai"
+CITY="shanghai"
+ORGANIZATION="reunion"
+ORGANIZATIONAL_UNIT="Dev"
+EMAIL="zczy@163.com"
+
+###开始生成文件###
+echo "开始生成文件"
+# 创建密钥文件夹
+mkdir -p /usr/local/cert
+# 切换到生产密钥的目录
+cd /usr/local/cert
+# 生成ca私钥(使用aes256加密)
+openssl genrsa -aes256 -passout pass:$PASSWORD -out ca-key.pem 2048
+# 生成ca证书，填写配置信息
+openssl req -new -x509 -passin "pass:$PASSWORD" -days 3650 -key ca-key.pem -sha256 -out ca.pem -subj "/C=$COUNTRY/ST=$STATE/L=$CITY/O=$ORGANIZATION/OU=$ORGANIZATIONAL_UNIT/CN=$SERVER/emailAddress=$EMAIL"
+# 生成server证书私钥文件
+openssl genrsa -out server-key.pem 2048
+# 生成server证书请求文件
+openssl req -subj "/CN=$SERVER" -new -key server-key.pem -out server.csr
+
+# 配置白名单, 你使用的是服务器Ip的话,请将前面的 DNS 换成 IP
+# echo subjectAltName = IP:106.14.45.61,IP:0.0.0.0 >> extfile.cnf
+sh -c 'echo "subjectAltName = IP:'$SERVER',IP:0.0.0.0" >> extfile.cnf'
+sh -c 'echo "extendedKeyUsage = serverAuth" >> extfile.cnf'
+
+# 使用cA证书及cA密钥以及上面的server证书请求文件进行签发，生成server自签证书
+openssl x509 -req -days 3650 -in server.csr -CA ca.pem -CAkey ca-key.pem -passin "pass:$PASSWORD" -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+# 生成 client 证书 RSA 私钥文件
+openssl genrsa -out key.pem 2048
+# 生成client证书请求文件
+openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+
+sh -c 'echo extendedKeyUsage=clientAuth >> extfile.cnf'
+sh -c 'echo extendedKeyUsage=clientAuth >> extfile-client.cnf'
+
+# 生成 client 自签证书（根据上面的client私钥文件、client证书请求文件生成)
+openssl x509 -req -days 3650 -in client.csr -CA ca.pem -CAkey ca-key.pem -passin "pass:$PASSWORD" -CAcreateserial -out cert.pem -extfile extfile.cnf
+
+# 更改密钥权限
+chmod 0400 ca-key.pem key.pem server-key.pem
+# 更改密钥权限
+chmod 0444 ca.pem server-cert.pem cert.pem
+# 删除无用文件
+rm -vf client.csr server.csr extfile.cnf extfile-client.cnf
+
+# 复制密钥文件
+cp server-*.pem /etc/docker/
+cp ca.pem /etc/docker/
+echo "生成文件完成!"
+###生成结束###
+```
+
+若上述 sh 文件报错，可依次执行下方代码
+
+```bash
+mkdir /usr/local/cert
+cd /usr/local/cert
+
+# 生成RSA私钥
+# 运行下面命令时，会提示输入密码，输入两次一致即可。
+openssl genrsa -aes256 -out ca-key.pem 4096
+
+# 以上面生成的RSA密钥创建证书
+# 运行此命令后，会提示输入国家、省、市、组织名称、单位、邮箱等资料。
+# 国家只能是两位，例如：CN，其他的随便填写即可。
+openssl req -new -x509 -days 3650 -key ca-key.pem -sha256 -out ca.pem
+
+# 生成服务端的RSA私钥
+openssl genrsa -out server-key.pem 4096
+
+# 生成服务端的证书签名
+# /CN=服务器IP 此处配置你的服务器IP，这里只能是公网IP或域名！
+openssl req -subj "/CN=39.98.107.99" -sha256 -new -key server-key.pem -out server.csr
+
+# 配置白名单
+# DNS: 此处配置你的服务器IP，这里只能是公网IP或域名！
+# IP: 此处配置允许访问的IP，可以配置多个，以逗号间隔即可。此处也同样是支支持公网IP。如果允许任何携带证书的人访问，直接修改为0.0.0.0即可
+echo subjectAltName = IP:39.98.107.99,IP:0.0.0.0 >> extfile.cnf
+
+# 为extfile.cnf追加属性
+# 此属性用于服务器身份验证
+echo extendedKeyUsage = serverAuth >> extfile.cnf
+
+# 生成签名过的客户端证书
+# 期间会要求输入密码，输入和上面一致即可
+openssl x509 -req -days 3650 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out server-cert.pem -extfile extfile.cnf
+
+# 生成客户端的RSA私钥
+openssl genrsa -out key.pem 4096
+
+# 生成client.csr
+openssl req -subj '/CN=client' -new -key key.pem -out client.csr
+
+# 为extfile.cnf添加认证参数
+echo extendedKeyUsage = clientAuth >> extfile.cnf
+
+# 为extfile-client.cnf添加认证参数
+echo extendedKeyUsage = clientAuth > extfile-client.cnf
+
+# 生成签名证书
+openssl x509 -req -days 3650 -sha256 -in client.csr -CA ca.pem -CAkey ca-key.pem \
+  -CAcreateserial -out cert.pem -extfile extfile-client.cnf
+
+# 删除无用的配置文件
+rm -vf client.csr server.csr extfile.cnf extfile-client.cnf
+
+# 将服务端证书放到docker的目录
+cp server-*.pem /etc/docker/
+cp ca.pem /etc/docker/
+```
+
+修改`docker`配置文件
+
+```bash
+vim /usr/lib/systemd/system/docker.service
+
+# 替换
+ExecStart=/usr/bin/dockerd \
+  --tlsverify --tlscacert=/usr/local/cert/ca.pem \
+  --tlscert=/usr/local/cert/server-cert.pem \
+  --tlskey=/usr/local/cert/server-key.pem \
+  -H tcp://0.0.0.0:2375 \
+  -H unix:///var/run/docker.sock
+
+ExecStart=/usr/bin/dockerd --tlsverify --tlscacert=/usr/local/cert/ca.pem --tlscert=/usr/local/cert/server-cert.pem --tlskey=/usr/local/cert/server-key.pem -H tcp://0.0.0.0:2375 -H unix:///var/run/docker.sock
+# 老规矩
+systemctl daemon-reload && systemctl restart docker
+```
+
+
+
+## 1.4.阿里云镜像加速
 
 > 设置阿里云镜像步骤
 
@@ -146,7 +404,7 @@ sudo systemctl restart docker
 
 ![docker运行流程](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4261535913,3068120869&fm=26&gp=0.jpg)
 
-## 1.3.底层原理
+## 1.5.底层原理
 
 > docker是怎么工作的？
 
@@ -164,7 +422,7 @@ Docker-Server接收到Docker-Client的指令，就会执行这个命令。
 
 
 
-# 2.Docker的常用命令
+# 2.Docker 的常用命令
 
 ## 2.1.帮助命令
 
@@ -472,7 +730,7 @@ version	Show the docker version information     		# 展示Docker版本信息
 wait	Block until one or more containers stop,then print their exit codes		# 截取容器停止时的退出状态
 ```
 
-# 3.Docker镜像
+# 3.Docker 镜像
 
 ## 3.1.镜像是什么？
 
@@ -933,7 +1191,7 @@ CMD /usr/local/apache-tomcat-9.0.36/bin/startup.sh
 
 <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2699174763,1602099223&amp;fm=26&amp;gp=0.jpg" alt="docker流程"  />
 
-# 6.Docker网络
+# 6.Docker 网络
 
 ## 6.1.理解Docker网络
 
@@ -1050,7 +1308,7 @@ docker network connect NETWORK CONTAINER
 # 一个容器两个IP
 ```
 
-# 7.SpringBoot微服务打包成镜像
+# 7. SpringBoot 微服务打包成镜像
 
 ```shell
 # 1、构建SpringBoot项目。

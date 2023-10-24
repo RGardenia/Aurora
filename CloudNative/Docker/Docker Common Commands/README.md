@@ -15,7 +15,7 @@
 
 ## 1.1.apt source
 
-更换apt源大多数情况下可以加快软件下载速度。
+更换 `apt` 源大多数情况下可以加快软件下载速度
 
 ```
 cp /etc/apt/sources.list /etc/apt/sources.list.bak
