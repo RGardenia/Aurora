@@ -23,6 +23,7 @@ doc
 *.mp4
 *.xmind
 
+### git rm --cached -r fold/
 ## 提交 ##
 *.doc
 *.docx
@@ -30,6 +31,8 @@ doc
 static/
 Vue_Code/
 vue_basic/
+spark-kafka/
+springboot-kafka/
 
 # BlueJ files
 *.ctxt
