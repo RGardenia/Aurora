@@ -13,6 +13,7 @@
 - 息流 FlowUs
 - Typora
 - 记事本
+- Obsidian
 
 ### 思维导图
 
