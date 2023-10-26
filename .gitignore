@@ -19,6 +19,7 @@ Software
 /Datum
 doc
 *.pdf
+!MachineLearning/Tricks/images/*.pdf
 *.ttf
 *.mp4
 *.xmind
