@@ -272,15 +272,15 @@ drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
 
 ![image-20230220181814808](images/image-20230220181814808.png)
 
-（4）保证Linux系统ifcfg-ens33文件中IP地址、虚拟网络编辑器地址和Windows系统VM8网络IP地址相同。
+（4）保证 Linux 系统 `ifcfg-ens33` 文件中IP地址、虚拟网络编辑器地址和 Windows 系统 VM8 网络 IP 地址相同
 
-**3）修改克隆机主机名，以下以hadoop102举例说明**
+**3）修改克隆机主机名，以下以 hadoop102 举例说明**
 
 （1）修改主机名称
 
 `vim /etc/hostname hadoop102`
 
-> （2）配置Linux克隆机主机名称映射hosts文件，打开/etc/hosts
+> （2）配置 Linux 克隆机主机名称映射 hosts 文件，打开 `/etc/hosts`
 
 `vim /etc/hosts`
 
@@ -310,9 +310,7 @@ drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
 
 **5）修改windows的主机映射文件（hosts文件）**
 
-> （1）如果操作系统是window7，可以直接修改
-
-（a）进入C:\\Windows\\System32\\drivers\\etc路径
+（a）进入 `C:\\Windows\\System32\\drivers\\etc` 路径
 
 （b）打开hosts文件并添加如下内容，然后保存
 
@@ -336,9 +334,9 @@ drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
 192.168.9.108 hadoop108
 ```
 
-（2）如果操作系统是window10，先拷贝出来，修改保存以后，再覆盖即可
+（2）如果操作系统是 window10，先拷贝出来，修改保存以后，再覆盖即可
 
-​	（a）进入C:\\Windows\\System32\\drivers\\etc路径
+​	（a）进入 `C:\\Windows\\System32\\drivers\\etc` 路径
 
 ​	（b）拷贝hosts文件到桌面
 
@@ -364,7 +362,7 @@ drwxr-xr-x. 2 gardenia gardenia 4096 5月 28 17:18 software
 192.168.9.108 hadoop108
 ```
 
-​	（d）将桌面hosts文件覆盖C:\\Windows\\System32\\drivers\\etc路径hosts文件
+​	（d）将桌面 hosts 文件覆盖 `C:\\Windows\\System32\\drivers\\etc` 路径 hosts 文件
 
 ## 2.3 在hadoop102安装JDK
 
