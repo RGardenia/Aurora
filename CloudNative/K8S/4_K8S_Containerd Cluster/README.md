@@ -24,11 +24,37 @@
 ```bash
 # 设置主机名
 hostnamectl set-hostname <newhostname>
+
+yum install -y epel-release
+yum install -y net-tools
+yum install -y vim
+
+## 关闭防火墙，关闭防火墙开机自启
+systemctl stop firewalld
+systemctl disable firewalld.service
+
 # reboot
+echo "192.168.3.4 master" >> /etc/hosts
+echo "192.168.3.5 node1" >> /etc/hosts
+echo "192.168.3.6 node2" >> /etc/hosts
+
+# 时间同步
+# 启动 chronyd 服务
+systemctl start chronyd
+# 设置 chronyd 服务开机自启
+systemctl enable chronyd
+# chronyd 服务启动几秒钟后使用 date 命令验证时间
+date
+## OR
+yum install -y ntpdate
+ntpdate ntp.aliyun.com
 
 ## 部署节点与其他节点互信
 ssh-keygen
-ssh-copy-id -i id_rsa.pub <hostname>
+# ssh-copy-id -i id_rsa.pub <hostname>
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@master
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@node1
+ssh-copy-id -f -i /root/.ssh/id_rsa -p 22 root@node2
 
 # Fix Static Ip
 vim /etc/sysconfig/network-scripts/ifcfg-ens160
@@ -44,46 +70,175 @@ DNS1=8.8.8.8
 # systemctl status NetworkManager
 # nmcli c reload
 # nmcli c up $160
+# nmcli n on
+# 还有种可能是克隆时 MAC 地址冲突	https://www.codenong.com/cs106874096/
 
-# 内核优化
-#执行kubeadm init前，要做参数优化
-vim /etc/modules-load.d/modules.conf
-ip_vs
-br_netfilter
-#加载模块使其生效
-modprobe ip_vs
-modprobe br_netfilter
-#调整内核参数
-vim /etc/sysctl.conf
+# 将 SELinux 设置为 permissive 模式（相当于将其禁用）
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+# sed -ri 's/SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+
+# 禁用 swap 分区 注释掉 swap 分区一行
+# k8s 要求关闭系统的swap。如果不关闭，默认配置下kubelet无法启动。不过可以在启动kubelet时添加命令行参数来解决 --fail-swap-on=false
+swapoff -a
+sed -i 's/.*swap.*/#&/' /etc/fstab
+# 检查关闭swap成功
+free -h
+
+# 操作系统内核优化
+# 调整内核参数
+vim /etc/sysctl.d/k8s.conf
+# 桥接网络模式，流量的分发过滤	开启内核路由转发功能
 net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1 #桥接网络模式，流量的分发过滤
-net.ipv4.ip_forward = 1 #开启内核路由转发功能
+net.bridge.bridge-nf-call-iptables = 1
+net.ipv4.ip_forward = 1
 vm.max_map_count=262144
 kernel.pid_max=4194303
 fs.file-max=1000000
 net.ipv4.tcp_max_tw_buckets=6000
 net.netfilter.nf_conntrack_max=2097152
 vm.swappiness=0
-sysctl -p #使其生效
+
+sudo sysctl -p /etc/sysctl.d/k8s.conf
+sudo sysctl --system
+# 检查是否应用成功
+sysctl net.bridge.bridge-nf-call-iptables net.bridge.bridge-nf-call-ip6tables net.ipv4.ip_forward
+
+# 执行 kubeadm init 前，要做参数优化
+cat <<EOF | sudo tee /etc/modules-load.d/k8s.conf
+ip_vs
+overlay
+br_netfilter
+EOF
+## 加载模块使其生效
+modprobe overlay
+modprobe ip_vs
+modprobe br_netfilter
+## 查看是否加载
+lsmod | grep br_netfilter
+lsmod | grep overlay
+
+# 对 product_uuid 校验	确保 MAC 地址唯一
+sudo cat /sys/class/dmi/id/product_uuid
+
+# 检查端口是否启用 netcat nc
+nc 127.0.0.1 6443
+
+# 配置 IPVS
+## kube-proxy 中的 IPVS 实现通过减少对 iptables 的使用来增加可扩展性。当 k8s 集群中的负载均衡配置变多的时候，IPVS能实现比 iptables 更高效的转发性能
+# 安装ipset和ipvsadm
+yum install -y ipset ipvsadm
+# 编写配置文件
+cat > /etc/sysconfig/modules/ipvs.modules <<EOF
+#!/bin/bash
+modprobe -- ip_vs
+modprobe -- ip_vs_rr
+modprobe -- ip_vs_wrr
+modprobe -- ip_vs_sh
+modprobe -- nf_conntrack
+EOF
+# 添加权限并执行
+chmod +x /etc/sysconfig/modules/ipvs.modules && bash /etc/sysconfig/modules/ipvs.modules 
+# 查看对应的模块是否加载成功
+lsmod | grep -e ip_vs -e nf_conntrack
+
+# YUM 源
+### 谷歌 YUM 源
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
+        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+
+### 阿里云	报错：修改 repo_gpgcheck=0 跳过验证
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg
+EOF
+
+### 华为云：	具体见 https://www.huaweicloud.com/zhishi/Kubernetes.html
+cat <<EOF > /etc/yum.repos.d/kubernetes.repo 
+[kubernetes] 
+name=Kubernetes 
+baseurl=https://repo.huaweicloud.com/kubernetes/yum/repos/kubernetes-el7-$basearch 
+enabled=1 
+gpgcheck=1 
+repo_gpgcheck=1 
+gpgkey=https://repo.huaweicloud.com/kubernetes/yum/doc/yum-key.gpg https://repo.huaweicloud.com/kubernetes/yum/doc/rpm-package-key.gpg 
+EOF
+
+yum check-update  # 清除 yum 缓存
+### 执行完成之后 需要刷新 yum 源
+yum repolist
 ```
 
-**安装工具 kubeadm**
+### **安装工具 kubeadm**
 
 ```bash
-# 安装kubeadm、kubectl、kubelet 
-#配置阿里镜像加速
-apt-get update && apt-get install -y apt-transport-https
-curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add -  
-# 执行此步骤报错可能需要执行 sudo apt-get install -y gnupg
-cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
-deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+### install CNI
+curl -L -k https://github.com/containernetworking/plugins/releases/download/v1.3.0/cni-plugins-linux-amd64-v1.3.0.tgz
+mkdir /opt/cni/bin -p
+tar xf cni-plugins-linux-amd64-v1.3.0.tgz -C /opt/cni/bin
+cat << EOF | tee /etc/cni/net.d/10-containerd-net.conflist
+{
+ "cniVersion": "1.0.0",
+ "name": "containerd-net",
+ "plugins": [
+   {
+     "type": "bridge",
+     "bridge": "cni0",
+     "isGateway": true,
+     "ipMasq": true,
+     "promiscMode": true,
+     "ipam": {
+       "type": "host-local",
+       "ranges": [
+         [{
+           "subnet": "10.88.0.0/16" 
+         }],
+         [{
+           "subnet": "2001:db8:4860::/64"
+         }]
+       ],
+       "routes": [
+         { "dst": "0.0.0.0/0" },
+         { "dst": "::/0" }
+       ]
+     }
+   },
+   {
+     "type": "portmap",
+     "capabilities": {"portMappings": true},
+     "externalSetMarkChain": "KUBE-MARK-MASQ"
+   }
+ ]
+}
 EOF
-apt-get update
+# 至此，可以进行 复制 ISO 系统镜像
+
+# 安装 kubeadm、kubectl、kubelet 
+# 查看可用版本
+yum list kubeadm.x86_64 --showduplicates | sort -r
+yum list kubelet.x86_64 --showduplicates | sort -r
+yum list kubectl.x86_64 --showduplicates | sort -r
+
 apt-cache madison kubeadm
-apt-get install kubeadm=1.24.3-00 kubectl=1.24.3-00 kubelet=1.24.3-00
+
+sudo yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes --setopt=obsoletes=0
+sudo systemctl enable --now kubelet
 ```
 
-**安装 containerd**
+### **安装 containerd**
 
 ```bash
 apt-cache madison  containerd # 验证仓库版版本，不建议二进制方式安装
@@ -145,5 +300,13 @@ sandbox_image = "k8s.gcr.io/pause:3.6" 修改为 sandbox_image = "registry.cn-ha
   endpoint = ["https://lzpmltr2.mirror.aliyuncs.com"]
   
 systemctl restart containerd && systemctl enable containerd #启动设置开机自启动
+```
+
+### 安装 kubelet
+
+```bash
+### 为了实现docker使用的cgroupdriver与kubelet使用的cgroup的一致性，建议修改如下文件内容。
+vim /etc/sysconfig/kubelet
+KUBELET_EXTRA_ARGS="--cgroup-driver=systemd"
 ```
 
