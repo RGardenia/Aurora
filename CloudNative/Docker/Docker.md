@@ -843,7 +843,7 @@ nginx:6.1
 # 查看所有的volume情况
 docker volume ls
 
-[root@mingyu bin]# docker volume ls
+[root@gardenia bin]# docker volume ls
 DRIVER              VOLUME NAME
 local               6831db4e060f8452a51fc56b52af0605c944bb0ab16c778a96469233794783ea
 
@@ -856,7 +856,7 @@ docker run -d -p 3307:3306 --name mysql-test \
 mysql:5.7
 
 # 查看具名挂载卷的位置
-[root@mingyu bin]# docker inspect mysql-test
+[root@gardenia bin]# docker inspect mysql-test
 "Mounts": [
 {
 "Type": "volume",
@@ -914,7 +914,7 @@ CMD /bin/bash
 # 这里每个命令就是镜像的一层
 
 # 2、docker build生成镜像 
-[root@mingyu docker-test-volume]# docker build -f /root/docker-test-volume/dockerfile1 -t mingyu/centos:1.0 . # 这里的这个点表示当前路径下！一定要加
+[root@gardenia docker-test-volume]# docker build -f /root/docker-test-volume/dockerfile1 -t gardenia/centos:1.0 . # 这里的这个点表示当前路径下！一定要加
 Sending build context to Docker daemon  2.048kB
 Step 1/4 : FROM centos
 latest: Pulling from library/centos
@@ -935,10 +935,10 @@ Step 4/4 : CMD /bin/bash
 Removing intermediate container c6985be4aaed
  ---> 8adb23ccb590
 Successfully built 8adb23ccb590
-Successfully tagged mingyu/centos:1.0
+Successfully tagged gardenia/centos:1.0
 
 # 3、启动自己写的容器
-docker run -it --name mycentos mingyu/centos:1.0 /bin/bash
+docker run -it --name mycentos gardenia/centos:1.0 /bin/bash
 
 # 在容器内部可以看到我们自己定义的容器卷
 [root@26c568f61497 /]# ls
@@ -946,7 +946,7 @@ bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  s
 
 
 # 4、查看容器的数据卷的挂载位置
-[root@mingyu ~]# docker inspect mycentos
+[root@gardenia ~]# docker inspect mycentos
 "Mounts": [
 {
 "Type": "volume",
@@ -980,7 +980,7 @@ bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  s
 ```shell
 # mycentos01容器继承mycentos的容器数据卷
 # mycentos01容器也有mycentos的数据了！
-docker run -it --name mycentos01 --volumes-from mycentos mingyu/centos:1.0 /bin/bash
+docker run -it --name mycentos01 --volumes-from mycentos gardenia/centos:1.0 /bin/bash
 
 # 测试删除mycentos容器，mycentos01容器仍然可以访问数据卷的数据
 ```
@@ -1043,9 +1043,9 @@ ENV                        # 构建的时候设置环境变量
 
 ```shell
 # 1、编写dockerfile文件
-[root@mingyu dockerfile]# vim dockerfile-centos
+[root@gardenia dockerfile]# vim dockerfile-centos
 FROM centos
-MAINTAINER mingyu<1466637477@qq.com>
+MAINTAINER gardenia<1466637477@qq.com>
 
 ENV MYPATH /usr/local
 WORKDIR $MYPATH
@@ -1061,20 +1061,20 @@ CMD /bin/bash
 
 # 2、docker build构建镜像
 # 语法：docker build -f dockerfile文件路径 -t 镜像名:版本号 .
-docker build -f dockerfile-centos -t mingyu/centos:2.0 .
+docker build -f dockerfile-centos -t gardenia/centos:2.0 .
 
 # 3、查看我们自己构建的镜像
-[root@mingyu dockerfile]# docker images
+[root@gardenia dockerfile]# docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
-mingyu/centos       2.0                 bab722ff73fc        About a minute ago   287MB
+gardenia/centos       2.0                 bab722ff73fc        About a minute ago   287MB
 
 # 4、测试运行
-docker run -it --name mycentos mingyu/centos:2.0
+docker run -it --name mycentos gardenia/centos:2.0
 
 # 原生的CentOS并没有vim和ifconfig命令，我们自己构建的CentOS是可以用的！
 
 # 5、docker history 可以查看镜像的构建步骤
-[root@mingyu dockerfile]# docker history mingyu/centos:2.0
+[root@gardenia dockerfile]# docker history gardenia/centos:2.0
 IMAGE               CREATED             CREATED BY                                      SIZE               
 bab722ff73fc        8 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "/bin…   0B                 
 84744206026b        8 minutes ago       /bin/sh -c #(nop)  CMD ["/bin/sh" "-c" "echo…   0B                 
@@ -1084,7 +1084,7 @@ cd5031824201        8 minutes ago       /bin/sh -c #(nop)  EXPOSE 80            
 023728153f3b        8 minutes ago       /bin/sh -c yum -y install vim                   57.1MB             
 72a357865b33        8 minutes ago       /bin/sh -c #(nop) WORKDIR /usr/local            0B                 
 c248625c78e6        8 minutes ago       /bin/sh -c #(nop)  ENV MYPATH=/usr/local        0B                 
-6fb94cf1eadc        8 minutes ago       /bin/sh -c #(nop)  MAINTAINER mingyu<1466637…   0B                 
+6fb94cf1eadc        8 minutes ago       /bin/sh -c #(nop)  MAINTAINER gardenia<1466637…   0B                 
 831691599b88        10 days ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0B                 
 <missing>           10 days ago         /bin/sh -c #(nop)  LABEL org.label-schema.sc…   0B                 
 <missing>           10 days ago         /bin/sh -c #(nop) ADD file:84700c11fcc969ac0…   215MB    
@@ -1099,7 +1099,7 @@ CMD                        # 指定容器启动的时候要运行的命令，只
 ENTRYPOINT                 # 指定容器启动的时候要运行的命令，可以追加命令
 
 # 1、写dockerfile文件
-[root@mingyu dockerfile]# vim dockerfile-cmd-test
+[root@gardenia dockerfile]# vim dockerfile-cmd-test
 FROM centos
 CMD ["ls","-a"]
 
@@ -1107,17 +1107,17 @@ CMD ["ls","-a"]
 docker build -f dockerfile-cmd-test -t test/cmd:1.0 .
 
 # 3、查看构建好的镜像
-[root@mingyu dockerfile]# docker images
+[root@gardenia dockerfile]# docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 test/cmd            1.0                 df29f1d322e7        4 minutes ago       215MB
 
 # 4、启动测试镜像 发现我们ls -a命令生效
-[root@mingyu dockerfile]# docker run -it --name test-cmd test/cmd:1.0
+[root@gardenia dockerfile]# docker run -it --name test-cmd test/cmd:1.0
 .   .dockerenv	dev  home  lib64       media  opt   root  sbin	sys  usr
 ..  bin		etc  lib   lost+found  mnt    proc  run   srv	tmp  var
 
 # 5、测试追加命令 结果失败 o(╥﹏╥)o
-[root@mingyu dockerfile]# docker run -it --name test-cmd test/cmd:1.0 -l
+[root@gardenia dockerfile]# docker run -it --name test-cmd test/cmd:1.0 -l
 docker: Error response from daemon: OCI runtime create failed: container_linux.go:349: starting container process caused "exec: \"-l\": executable file not found in $PATH": unknown.
 
 # 6、原因：用CMD的情况下 -l 替换了 CMD ["ls","-a"]，-l不是命令所以就报错了！
@@ -1130,7 +1130,7 @@ CMD                        # 指定容器启动的时候要运行的命令，只
 ENTRYPOINT                 # 指定容器启动的时候要运行的命令，可以追加命令
 
 # 1、写dockerfile文件
-[root@mingyu dockerfile]# vim dockerfile-entrypoint-test
+[root@gardenia dockerfile]# vim dockerfile-entrypoint-test
 FROM centos
 ENTRYPOINT ["ls","-a"]
 
@@ -1138,17 +1138,17 @@ ENTRYPOINT ["ls","-a"]
 docker build -f dockerfile-entrypoint-test -t test/entrypoint:1.0 .
 
 # 3、查看构建好的镜像
-[root@mingyu dockerfile]# docker images
+[root@gardenia dockerfile]# docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 test/entrypoint     1.0                 6ede8cb2383f        31 seconds ago      215MB
 
 # 4、启动测试镜像 发现我们ls -a命令生效
-[root@mingyu dockerfile]# docker run --name test-entrypoint -it test/entrypoint:1.0
+[root@gardenia dockerfile]# docker run --name test-entrypoint -it test/entrypoint:1.0
 .   .dockerenv	dev  home  lib64       media  opt   root  sbin	sys  usr
 ..  bin		etc  lib   lost+found  mnt    proc  run   srv	tmp  var
 
 # 5、测试追加命令 成功了 (*^▽^*)
-[root@mingyu dockerfile]# docker run --name test-entrypoint1 -it test/entrypoint:1.0 -l
+[root@gardenia dockerfile]# docker run --name test-entrypoint1 -it test/entrypoint:1.0 -l
 total 56
 drwxr-xr-x  1 root root 4096 Jun 27 05:58 .
 drwxr-xr-x  1 root root 4096 Jun 27 05:58 ..
@@ -1165,7 +1165,7 @@ apache-tomcat-9.0.36.tar.gz
 
 # 2、编写dockerfile文件
 FROM centos
-MAINTAINER mingyu<1466637477@qq.com>
+MAINTAINER gardenia<1466637477@qq.com>
 
 ADD /opt/java/jdk-8u251-linux-x64.tar.gz /usr/local/
 ADD /opt/tomcat/apache-tomcat-9.0.36.tar.gz /usr/local/
@@ -1198,7 +1198,7 @@ CMD /usr/local/apache-tomcat-9.0.36/bin/startup.sh
 > 查看网络环境
 
 ```shell
-[root@mingyu tomcat]# ifconfig
+[root@gardenia tomcat]# ifconfig
 docker0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 172.18.0.1  netmask 255.255.0.0  broadcast 172.18.255.255
         ether 02:42:f4:c7:a9:d2  txqueuelen 0  (Ethernet)
@@ -1241,7 +1241,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 
 ```shell
 # 1、docker network ls 查看所有的docker网络
-[root@mingyu ~]# docker network ls
+[root@gardenia ~]# docker network ls
 NETWORK ID          NAME                DRIVER              SCOPE
 8ae116b000e5        bridge              bridge              local
 18feddce366c        host                host                local
@@ -1275,7 +1275,7 @@ docker run -d p --name tomcat01 --net bridge tomcat
 docker network create --driver bridge --subnet 192.168.0.0/16 --gateway 192.168.0.1 mynetwork
 
 # 4、查看自己创建的网络
-[root@mingyu ~]# docker network ls
+[root@gardenia ~]# docker network ls
 NETWORK ID          NAME                DRIVER              SCOPE
 8ae116b000e5        bridge              bridge              local
 18feddce366c        host                host                local
@@ -1294,7 +1294,7 @@ NETWORK ID          NAME                DRIVER              SCOPE
 
 ```shell
 # docker network connect
-[root@mingyu ~]# docker network --help
+[root@gardenia ~]# docker network --help
 Usage:	docker network COMMAND
 Manage networks
 Commands:
@@ -1327,12 +1327,12 @@ ENTRYPOINT ["java","-jar","/app.jar"]
 # 4、将Dockerfile和jar上传到服务器上同一层目录下
 
 # 5、构建镜像
-docker build -f Dockerfile -t mingyu/renren-fast:1.0 .
+docker build -f Dockerfile -t gardenia/renren-fast:1.0 .
 
 # 6、启动镜像
 docker run --name renren-fast -p 8080:8080 \
 -v /root/idea/renren-fast/tmp:/tmp \
--d mingyu/renren-fast:1.0
+-d gardenia/renren-fast:1.0
 
 # 7、访问服务器地址
 http://39.97.3.60:8080/renren-fast/sys/user/info

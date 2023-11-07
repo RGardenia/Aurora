@@ -93,7 +93,7 @@ apt update
 
 https://docs.docker.com/engine/install/ubuntu/
 
-```
+```bash
 sudo apt-get install \
     apt-transport-https \
     ca-certificates \

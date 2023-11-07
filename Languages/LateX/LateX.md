@@ -14,8 +14,6 @@
 \end{matrix}
 ```
 
-
-
 ![img](LateX.assets/f1aa6288806d09a61d79b5c869bceb79.svg)
 
 
