@@ -1,14 +1,14 @@
-# Kubernetes核心技术Helm
+# Kubernetes 核心技术 Helm
 
 Helm就是一个包管理工具【类似于npm】
 
 ![img](images/892532-20180224212352306-705544441.png)
 
-## 为什么引入Helm
+## 为什么引入 Helm
 
-首先在原来项目中都是基于yaml文件来进行部署发布的，而目前项目大部分微服务化或者模块化，会分成很多个组件来部署，每个组件可能对应一个deployment.yaml,一个service.yaml,一个Ingress.yaml还可能存在各种依赖关系，这样一个项目如果有5个组件，很可能就有15个不同的yaml文件，这些yaml分散存放，如果某天进行项目恢复的话，很难知道部署顺序，依赖关系等，而所有这些包括
+​	首先在原来项目中都是基于yaml文件来进行部署发布的，而目前项目大部分微服务化或者模块化，会分成很多个组件来部署，每个组件可能对应一个`deployment.yaml` , 一个 `service.yaml` ,一个 `Ingress.yaml` 还可能存在各种依赖关系，这样一个项目如果有5个组件，很可能就有15个不同的 yaml 文件，这些 yaml 分散存放，如果某天进行项目恢复的话，很难知道部署顺序，依赖关系等，而所有这些包括
 
-- 基于yaml配置的集中存放
+- 基于 yaml 配置的集中存放
 - 基于项目的打包
 - 组件间的依赖
 
@@ -23,7 +23,7 @@ Helm的引入，就是为了解决这个问题
 - 实现YAML文件高效复用
 - 使用helm应用级别的版本管理
 
-## Helm介绍
+## Helm 介绍
 
 Helm是一个Kubernetes的包管理工具，就像Linux下的包管理器，如yum/apt等，可以很方便的将之前打包好的yaml文件部署到kubernetes上。
 
@@ -32,9 +32,9 @@ Helm有三个重要概念
 - helm：一个命令行客户端工具，主要用于Kubernetes应用chart的创建、打包、发布和管理
 - Chart：应用描述，一系列用于描述k8s资源相关文件的集合
 - Release：基于Chart的部署实体，一个chart被Helm运行后将会生成对应的release，将在K8S中创建出真实的运行资源对象。也就是应用级别的版本管理
-- Repository：用于发布和存储Chart的仓库
+- Repository：用于发布和存储 Chart 的仓库
 
-## Helm组件及架构
+## Helm 组件及架构
 
 Helm采用客户端/服务端架构，有如下组件组成
 
@@ -46,14 +46,14 @@ Helm采用客户端/服务端架构，有如下组件组成
 
 ## Helm v3变化
 
-2019年11月13日，Helm团队发布了Helm v3的第一个稳定版本
+2019年11月13日，Helm 团队发布了 Helm v3 的第一个稳定版本
 
 该版本主要变化如下
 
 - 架构变化
 
-  - 最明显的变化是Tiller的删除
-  - V3版本删除Tiller
+  - 最明显的变化是 `Tiller` 的删除
+  - V3 版本删除Tiller
   - relesase可以在不同命名空间重用
 
 V3之前
@@ -64,17 +64,24 @@ V3之前
 
 ![image-20201118171956054](images/image-20201118171956054.png)
 
-## helm配置
+## helm 配置
 
 首先我们需要去 [官网下载](https://helm.sh/docs/intro/quickstart/)
 
-- 第一步，[下载helm](https://github.com/helm/helm/releases)安装压缩文件，上传到linux系统中
-- 第二步，解压helm压缩文件，把解压后的helm目录复制到 usr/bin 目录中
+- 第一步，[下载helm](https://github.com/helm/helm/releases)安装压缩文件，上传到 `linux` 系统中
+- 第二步，解压 helm 压缩文件，把解压后的 `helm` 目录复制到 `usr/bin` 目录中
 - 使用命令：helm
 
-我们都知道yum需要配置yum源，那么helm就就要配置helm源
+```bash
+wget https://get.helm.sh/helm-v3.13.2-linux-amd64.tar.gz -P /opt/module
 
-## helm仓库
+tar -zxf /opt/module/helm-v3.13.2-linux-amd64.tar.gz --transform 's/linux-amd64/helm/'
+ln -s /opt/module/helm/helm /usr/local/bin/helm
+
+helm  version
+```
+
+## helm 仓库
 
 添加仓库
 
@@ -91,6 +98,9 @@ helm repo add stable http://mirror.azure.cn/kubernetes/charts
 helm repo add aliyun https://kubernetes.oss-cn-hangzhou.aliyuncs.com/charts
 # 配置google源
 helm repo add google https://kubernetes-charts.storage.googleapis.com/
+
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add stable https://charts.helm.sh/stable
 
 # 更新
 helm repo update
@@ -113,13 +123,13 @@ helm search repo stable
 helm repo remove stable
 ```
 
-## helm基本命令
+## helm 基本命令
 
 - chart install
 - chart upgrade
 - chart rollback
 
-## 使用helm快速部署应用
+## 使用 helm 快速部署应用
 
 ### 使用命令搜索应用
 
@@ -178,7 +188,7 @@ kubectl edit svc ui-weave-scope
 
 然后我们通过 ip + 32185 即可访问
 
-### 如果自己创建Chart
+### 如果自己创建 Chart
 
 使用命令，自己创建Chart
 
@@ -196,7 +206,7 @@ helm create mychart
 - values.yaml：存放的是全局的yaml文件
 - chart.yaml：当前chart属性配置信息
 
-### 在templates文件夹创建两个文件
+### 在 templates 文件夹创建两个文件
 
 我们创建以下两个
 
@@ -212,7 +222,7 @@ kubectl create deployment web1 --image=nginx --dry-run -o yaml > deployment.yaml
 kubectl expose deployment web1 --port=80 --target-port=80 --type=NodePort --dry-run -o yaml > service.yaml
 ```
 
-### 安装mychart
+### 安装 mychart
 
 执行命令创建
 
@@ -230,7 +240,7 @@ helm install web1 mychart
 helm upgrade web1 mychart
 ```
 
-## chart模板使用
+## chart 模板使用
 
 通过传递参数，动态渲染模板，yaml内容动态从传入参数生成
 

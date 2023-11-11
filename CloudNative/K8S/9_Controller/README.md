@@ -1,4 +1,4 @@
-# Kubernetes核心技术-Controller
+# Kubernetes 核心技术 Controller
 
 ## 内容
 

@@ -1,4 +1,4 @@
-# Kubernetes集群管理工具kubectl
+# Kubernetes 集群管理工具 kubectl
 
 ## 概述
 

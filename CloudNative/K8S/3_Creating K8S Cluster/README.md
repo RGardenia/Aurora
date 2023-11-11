@@ -305,13 +305,13 @@ wget https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-
 # 添加
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-##①首先下载v0.13.1-rc2-amd64 镜像
+## ① 首先下载 v0.13.1-rc2-amd64 镜像
 ##参考博客：https://www.cnblogs.com/pyxuexi/p/14288591.html
-##② 导入镜像，命令，，特别提示，3个机器都需要导入，3个机器都需要导入，3个机器都需要导入，3个机器都需要导入，重要的事情说3遍。不然抱错。如果没有操作，报错后，需要删除节点，重置，在导入镜像，重新加入才行。本地就是这样操作成功的！
+##② 导入镜像命令，特别提示，3个机器都需要导入，3个机器都需要导入，3个机器都需要导入，3个机器都需要导入，重要的事情说3遍。不然抱错。如果没有操作，报错后，需要删除节点，重置，在导入镜像，重新加入才行。本地就是这样操作成功的！
 docker load < flanneld-v0.13.1-rc2-amd64.docker
 #####下载本地，替换将image: quay.io/coreos/flannel:v0.13.1-rc2 替换为 image: quay.io/coreos/flannel:v0.13.1-rc2-amd64
 
-# 查看状态 【kube-system是k8s中的最小单元】
+# 查看状态 【kube-system 是 k8s 中的最小单元】
 kubectl get pods -n kube-system
 ```
 
@@ -319,20 +319,20 @@ kubectl get pods -n kube-system
 
 ![image-20201113165929510](images/image-20201113165929510.png)
 
-运行完成后，查看状态可以发现，已经变成了Ready状态了
+运行完成后，查看状态可以发现，已经变成了 Ready 状态了
 
 ![image-20201113194557147](images/image-20201113194557147.png)
 
-如果上述操作完成后，还存在某个节点处于NotReady状态，可以在Master将该节点删除
+如果上述操作完成后，还存在某个节点处于 NotReady 状态，可以在 Master 将该节点删除
 
 ```bash
-# master节点将该节点删除
+# master 节点将该节点删除
 
-##20210223 yan 查阅资料添加###kubectl drain k8snode1 --delete-local-data --force --ignore-daemonsets
+### kubectl drain k8snode1 --delete-local-data --force --ignore-daemonsets
 
 kubectl delete node k8snode1
  
-# 然后到k8snode1节点进行重置
+# 然后到 k8snode1 节点进行重置
  kubeadm reset
 # 重置完后在加入
 kubeadm join 192.168.177.130:6443 --token 8j6ui9.gyr4i156u30y80xf     --discovery-token-ca-cert-hash sha256:eda1380256a62d8733f4bddf926f148e57cf9d1a3a58fb45dd6e80768af5a500
