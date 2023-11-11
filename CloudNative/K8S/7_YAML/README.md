@@ -1,4 +1,4 @@
-# Kubernetes集群YAML文件详解
+# Kubernetes 集群 YAML 文件详解
 
 ## 概述
 

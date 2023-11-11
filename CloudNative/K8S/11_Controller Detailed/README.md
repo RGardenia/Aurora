@@ -1,4 +1,4 @@
-# Kubernetes控制器Controller详解
+# Kubernetes 控制器 Controller
 
 ## Statefulset
 

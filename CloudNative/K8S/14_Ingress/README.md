@@ -1,4 +1,4 @@
-# Kubernetes核心技术Ingress
+# Kubernetes 核心技术 Ingress
 
 ## 前言
 

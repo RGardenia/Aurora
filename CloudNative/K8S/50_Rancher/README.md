@@ -1,4 +1,4 @@
-# 使用Rancher2.0搭建Kubernetes集群
+# 使用 Rancher2.0 搭建 Kubernetes 集群
 
 中文文档：https://docs.rancher.cn/docs/rancher2
 
