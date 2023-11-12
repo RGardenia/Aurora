@@ -1,6 +1,6 @@
 /**
  * @Description Gin框架中的 参数绑定，也就是将结构体和我们的参数进行绑定
- * @Author 陌溪
+ * @Author Gardenia
  * @Date 2020年9月17日17:12:04
  **/
 package main

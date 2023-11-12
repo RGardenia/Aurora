@@ -6,7 +6,8 @@ import java.nio.channels.Pipe;
 
 /**
  * 管道
- * @author: 陌溪
+ *
+ * @author: Gardenia
  * @create: 2020-03-28-10:49
  */
 public class PipeDemo {

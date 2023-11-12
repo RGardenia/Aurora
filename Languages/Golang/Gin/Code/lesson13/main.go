@@ -1,6 +1,6 @@
 /**
  * @Description Gin框架 接收 URL Path上的参数 【注意，返回的都是string类型】
- * @Author 陌溪
+ * @Author Gardenia
  * @Date 2020年9月17日16:26:43
  **/
 package main
