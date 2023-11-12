@@ -1,4 +1,5 @@
 package com.moxi.interview.study.nio;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -12,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 阻塞式NIO
  *
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-03-27-19:16
  */
 public class TestBlockingDemo {
@@ -42,7 +43,7 @@ public class TestBlockingDemo {
 
         // 接收服务端的反馈
         int len = 0;
-        while((len = sChannel.read(buf)) != -1) {
+        while ((len = sChannel.read(buf)) != -1) {
             buf.flip();
             System.out.println(new String(buf.array(), 0, len));
             buf.clear();
@@ -71,7 +72,7 @@ public class TestBlockingDemo {
         ByteBuffer buf = ByteBuffer.allocate(1024);
 
         // 读取客户端的数据，并保存到本地
-        while(socketChannel.read(buf) != -1) {
+        while (socketChannel.read(buf) != -1) {
             // 切换成读模式
             buf.flip();
 

@@ -10,7 +10,7 @@
 /**
  * QQ客户端
  *
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-03-28-11:09
  */
 public class QQClient {
@@ -106,7 +106,7 @@ serverSocket.setConfig();
 /**
  * 单线程版服务器，NIO的伪代码
  *
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-03-28-12:04
  */
 public class OneThreadServer {

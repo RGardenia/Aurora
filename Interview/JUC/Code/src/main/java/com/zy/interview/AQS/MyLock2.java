@@ -8,16 +8,17 @@ import java.util.concurrent.locks.Lock;
 /**
  * 自定义锁
  *
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-07-17-17:06
  */
 public class MyLock2 implements Lock {
     private volatile int i = 0;
+
     @Override
     public void lock() {
         synchronized (this) {
             // 判断是否有线程已经占用了锁
-            while(i != 0) {
+            while (i != 0) {
                 try {
                     // 如果有线程占有锁，可以直接阻塞
                     this.wait();
@@ -78,7 +79,7 @@ public class MyLock2 implements Lock {
         @Override
         protected boolean tryRelease(int arg) {
             assert arg == 1;
-            if(!isHeldExclusively()) {
+            if (!isHeldExclusively()) {
                 throw new IllegalMonitorStateException();
             }
             // 释放锁

@@ -12,7 +12,9 @@ Blocked by Sentinel(flow limiting)
 
 ## Feign全局兜底异常处理
 
-之前提到过通过 [配置Sentinel规则持久化到Nacos中](http://www.moguit.cn/#/info?blogUid=6473a200c9986f45af2ae9f12534ec93) 提到将Sentinel规则持久化到数据库中，但是我们在通过feign调用时，不能很好的处理由sentinel产生的流控异常，当然我们可以通过 **@SentinelResource** 注解来解决，如下所示，我们通过在需要处理的方法上，编写一个异常处理的方法即可
+之前提到过通过 [配置Sentinel规则持久化到Nacos中](http://www.moguit.cn/#/info?blogUid=6473a200c9986f45af2ae9f12534ec93)
+提到将Sentinel规则持久化到数据库中，但是我们在通过feign调用时，不能很好的处理由sentinel产生的流控异常，当然我们可以通过 *
+*@SentinelResource** 注解来解决，如下所示，我们通过在需要处理的方法上，编写一个异常处理的方法即可
 
 ```bash
 @GetMapping("/testHotKey")
@@ -32,13 +34,14 @@ public String deal_testHotKey (String p1, String p2, BlockException exception)
 
 但是这个解决的方法比较麻烦，因为如果我们的接口很多的话，那么需要在每个需要处理的接口上都进行添加，因此可以考虑定义一个全局的兜底异常处理。
 
-我们需要做的就是在feign上在编写一套全局的异常处理，首先我们有一个已经写好的feign接口PictureFeignClient.Java，在下面的 @Feign注解上，我们需要添加全局fallback类
+我们需要做的就是在feign上在编写一套全局的异常处理，首先我们有一个已经写好的feign接口PictureFeignClient.Java，在下面的
+@Feign注解上，我们需要添加全局fallback类
 
 ```bash
 /**
  * 图片服务feign远程调用
  *
- * @author 陌溪
+ * @author Gardenia
  * @date 2020年10月3日21:16:34
  */
 @FeignClient(name = "mogu-picture", fallback = PictureFeignFallback.class)
@@ -66,7 +69,7 @@ public interface PictureFeignClient {
 /**
  * 图片服务降级兜底方法【当服务不可用时会触发】
  *
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-10-03-20:54
  */
 @Component
@@ -129,7 +132,7 @@ FeignBlockHandler.java
 ```java
 /**
  * 全局feign异常处理类
- * @author: 陌溪
+ * @author: Gardenia
  * @date: 2020-10-03-21:56
  */
 @Component

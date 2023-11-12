@@ -49,8 +49,8 @@ semaphore.release();
 
 ```
 /**
- * 信号量Demo
- * @author: 陌溪
+ * 信号量 Demo
+ * @author: Gardenia
  * @create: 2020-03-16-15:01
  */
 public class SemaphoreDemo {

@@ -9,7 +9,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * 分散读取，聚集写入
- * @author: 陌溪
+ *
+ * @author: Gardenia
  * @create: 2020-03-27-17:54
  */
 public class ScatterAndGatherDemo {
@@ -20,6 +21,7 @@ public class ScatterAndGatherDemo {
 
     /**
      * 聚集写入
+     *
      * @throws IOException
      */
     private static void Gather() throws IOException {
@@ -37,6 +39,7 @@ public class ScatterAndGatherDemo {
 
     /**
      * 分散读取
+     *
      * @throws IOException
      */
     private static void Scatteer() throws IOException {
@@ -53,7 +56,7 @@ public class ScatterAndGatherDemo {
         ByteBuffer[] bufs = {buf1, buf2};
         channel.read(bufs);
 
-        for (ByteBuffer byteBuffer: bufs) {
+        for (ByteBuffer byteBuffer : bufs) {
             // 切换成读模式
             byteBuffer.flip();
         }

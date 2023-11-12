@@ -1,6 +1,6 @@
 /**
  * @Description Gin框架中 使用GORM中的Model
- * @Author 陌溪
+ * @Author Gardenia
  * @Date 2020年9月17日21:38:50
  **/
 package main
@@ -55,7 +55,7 @@ func main() {
 
 	// 创建记录
 	u1 := User{
-		Name: "陌溪",
+		Name: "Gardenia",
 	}
 
 	db.Create(&u1)

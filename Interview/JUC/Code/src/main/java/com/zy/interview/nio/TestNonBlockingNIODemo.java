@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-03-28-8:57
  */
 public class TestNonBlockingNIODemo {
@@ -66,19 +66,19 @@ public class TestNonBlockingNIODemo {
         ssChannel.register(selector, SelectionKey.OP_ACCEPT);
 
         // 轮询式的获取选择器上已经准备就绪的事件
-        while(selector.select() > 0) {
+        while (selector.select() > 0) {
 
             // 获取当前选择器中 所有注册的选择键（已就绪的监听事件）
             Iterator<SelectionKey> it = selector.selectedKeys().iterator();
 
-            while(it.hasNext()) {
+            while (it.hasNext()) {
                 // 获取准备就绪的事件
                 SelectionKey sk = it.next();
 
                 // 判断是具体什么事件准备就绪
 
                 // 接收事件就绪
-                if(sk.isAcceptable()) {
+                if (sk.isAcceptable()) {
                     // 若 接收就绪，获取客户端连接
                     SocketChannel sChannel = ssChannel.accept();
 
@@ -88,7 +88,7 @@ public class TestNonBlockingNIODemo {
                     // 将该通道注册到选择器上，并监听读就绪状态
                     sChannel.register(selector, SelectionKey.OP_READ);
 
-                } else if(sk.isReadable()) {
+                } else if (sk.isReadable()) {
                     // 读就绪状态就绪
 
                     // 获取当前选择器上 读就绪 状态的通道
@@ -98,7 +98,7 @@ public class TestNonBlockingNIODemo {
                     ByteBuffer buf = ByteBuffer.allocate(1024);
 
                     int len = 0;
-                    while((len = sChannel.read(buf)) > 0) {
+                    while ((len = sChannel.read(buf)) > 0) {
                         // 切换成读取模式
                         buf.flip();
                         // 打印客户端的发送

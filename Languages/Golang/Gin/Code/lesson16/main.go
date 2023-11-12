@@ -1,6 +1,6 @@
 /**
  * @Description Gin框架中的 请求重定向
- * @Author 陌溪
+ * @Author Gardenia
  * @Date 2020年9月17日17:12:04
  **/
 package main

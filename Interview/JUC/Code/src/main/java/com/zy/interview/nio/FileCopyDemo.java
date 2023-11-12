@@ -9,7 +9,8 @@ import java.nio.channels.FileChannel;
 
 /**
  * 利用通道完成文件的复制（非直接缓冲区）
- * @author: 陌溪
+ *
+ * @author: Gardenia
  * @create: 2020-03-27-16:36
  */
 public class FileCopyDemo {
@@ -48,18 +49,18 @@ public class FileCopyDemo {
         } finally {
             try {
                 // 关闭流
-                if(fis != null) {
+                if (fis != null) {
                     fis.close();
                 }
-                if(fos != null) {
+                if (fos != null) {
                     fos.close();
                 }
 
                 // // 关闭通道
-                if(outChannel != null) {
+                if (outChannel != null) {
                     outChannel.close();
                 }
-                if(inChannel != null) {
+                if (inChannel != null) {
                     inChannel.close();
                 }
             } catch (Exception e) {

@@ -144,7 +144,7 @@ public class HelloApp {
 
 ```java
 /**
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-07-05-8:47
  */
 public class ClassInitTest {
@@ -204,7 +204,7 @@ return
 
 ```java
 /**
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-07-05-9:14
  */
 public class DeadThreadTest {
@@ -258,7 +258,7 @@ JVM支持两种类型的类加载器 。分别为引导类加载器（Bootstrap 
 
 ```java
 /**
- * @author: 陌溪
+ * @author: Gardenia
  * @create: 2020-07-05-9:47
  */
 public class ClassLoaderTest {

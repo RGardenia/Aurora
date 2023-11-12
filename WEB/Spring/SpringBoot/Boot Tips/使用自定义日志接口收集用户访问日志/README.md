@@ -25,7 +25,7 @@
     /**
      * 日志记录、自定义注解
      *
-     * @author 陌溪
+     * @author Gardenia
      * @date 2020年2月27日08:55:02
      */
     @Target(ElementType.METHOD)
@@ -332,7 +332,7 @@
     
     /**
      * AOP相关的工具
-     * @author 陌溪
+     * @author Gardenia
      * @date 2020年2月27日08:44:28
      */
     public enum AspectUtil {
@@ -414,7 +414,7 @@
     /**
      * 切面相关工具类
      *
-     * @author: 陌溪
+     * @author: Gardenia
      * @create: 2020-01-21-12:34
      */
     @Slf4j

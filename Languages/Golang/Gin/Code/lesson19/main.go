@@ -1,6 +1,6 @@
 /**
  * @Description Gin框架中 使用GORM
- * @Author 陌溪
+ * @Author Gardenia
  * @Date 2020年9月17日21:38:50
  **/
 package main
@@ -37,7 +37,7 @@ func main() {
 	// 创建记录
 	u1 := UserInfo{
 		ID: 1,
-		Name: "陌溪",
+		Name: "Gardenia",
 		Gender: "男",
 		Hobby: "看书",
 	}
