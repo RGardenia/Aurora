@@ -4,6 +4,44 @@
 
 
 
+## CMake
+
+https://cmake.org/download/
+
+https://cmake.org/files/
+
+```bash
+wget https://cmake.org/files/v3.5/cmake-3.5.1-Linux-x86_64.tar.gz
+
+tar xvf cmake-3.5.1-Linux-x86_64.tar.gz
+mv cmake-3.5.1-Linux-x86_64 cmake
+
+vim /etc/profile
+export CMAKE_HOME=/opt/module/cmake
+export PATH=$CMAKE_HOME/bin:$PATH
+
+source /etc/profile
+cmake -version
+```
+
+```bash
+# 上面这个 不太行
+wget https://cmake.org/files/v3.26/cmake-3.26.1.tar.gz
+
+yum install  -y openssl  openssl-devel
+tar xvf cmake-3.26.1.tar.gz  -C /opt/module/cmake --strip-components=1
+mv cmake-3.26.1 cmake
+
+./configure
+echo $?
+# 返回值是0，就是执行成功，如果返回值是1，就是执行失败
+make
+make install
+cmake --version
+```
+
+
+
 
 
 

@@ -275,7 +275,7 @@ WantedBy=multi-user.target
 # 默认输出配置文件
 mkdir /etc/containerd/
 containerd config default > /etc/containerd/config.toml
-vim /etc/containerd/config.toml 
+vim /etc/containerd/config.toml
 sandbox_image = "k8s.gcr.io/pause:3.6" 修改为 sandbox_image = "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.7"
 # 配置镜像加速
 [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
@@ -509,18 +509,20 @@ service/nginx        NodePort    10.111.232.7   <none>        80:32474/TCP   72s
 # 可通过 Port：32474 访问
 ```
 
-**部署 `Dashboard`**
+### **部署 `Dashboard`**
 
 ```bash
 # https://github.com/kubernetes/dashboard/releases
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
 
 k get po -n kubernetes-dashboard
-
-kubectl get svc -n kubernetes-dashboard
+k get svc -n kubernetes-dashboard
+kubectl get ClusterRole -n kubernetes-dashboard
+kubectl get ServiceAccount -n kubernetes-dashboard
 
 # 获取 Token
 kubectl -n kubernetes-dashboard create token kubernetes-dashboard
+kubectl create token --namespace kubernetes-dashboard --duration 2592000s kubernetes-dashboard
 
 # token 只是创建了，但是没有放在 secrets 里
 kubectl -n kubernetes-dashboard get serviceaccounts kubernetes-dashboard
@@ -530,6 +532,11 @@ kubectl -n kubernetes-dashboard describe clusterrole cluster-admin
 kubectl -n kubernetes-dashboard describe clusterrole kubernetes-dashboard
 # 提权
 kubectl create clusterrolebinding kubernetes-dashboard-cluster-admin --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:kubernetes-dashboard
+
+kubectl delete clusterrolebinding kubernetes-dashboard-cluster-admin
+
+kubectl -n kubernetes-dashboard get secret|grep admin-user
+
 # 查看集群的权限绑定
 kubectl get clusterrolebindings -o wide | grep dash
 # Reference：https://blog.csdn.net/qq_41619571/article/details/127217339
