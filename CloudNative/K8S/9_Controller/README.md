@@ -1,30 +1,20 @@
 # Kubernetes 核心技术 Controller
 
-## 内容
+## 概述
 
-- 什么是Controller
-- Pod和Controller的关系
-- Deployment控制器应用场景
-- yaml文件字段说明
-- Deployment控制器部署应用
-- 升级回滚
-- 弹性伸缩
+Controller 是在集群上管理和运行容器的对象，Controller 是实际存在的，Pod 是虚拟机的
 
-## 什么是Controller
+## Pod 和 Controller 的关系
 
-Controller是在集群上管理和运行容器的对象，Controller是实际存在的，Pod是虚拟机的
+Pod是通过Controller 实现应用的运维，比如弹性伸缩，滚动升级等
 
-## Pod和Controller的关系
-
-Pod是通过Controller实现应用的运维，比如弹性伸缩，滚动升级等
-
-Pod 和 Controller之间是通过label标签来建立关系，同时Controller又被称为控制器工作负载
+Pod 和 Controller 之间是通过label标签来建立关系，同时 Controller 又被称为控制器工作负载
 
 ![image-20201116092431237](images/image-20201116092431237.png)
 
-## Deployment控制器应用
+## Deployment 控制器应用
 
-- Deployment控制器可以部署无状态应用
+- Deployment 控制器可以部署无状态应用
 - 管理Pod和ReplicaSet
 - 部署，滚动升级等功能
 - 应用场景：web服务，微服务
@@ -33,7 +23,7 @@ Deployment表示用户对K8S集群的一次更新操作。Deployment是一个比
 
 这样一个复合操作用一个RS是不好描述的，所以用一个更通用的Deployment来描述。以K8S的发展方向，未来对所有长期伺服型的业务的管理，都会通过Deployment来管理。
 
-## Deployment部署应用
+## Deployment 部署应用
 
 之前我们也使用Deployment部署过应用，如下代码所示
 
@@ -82,7 +72,7 @@ status: {}
 
 ![image-20201116093638951](images/image-20201116093638951.png)
 
-### 使用YAML创建Pod
+### 使用 YAML 创建 Pod
 
 通过刚刚的代码，我们已经生成了YAML文件，下面我们就可以使用该配置文件快速创建Pod镜像了
 
