@@ -8,7 +8,7 @@
 - 鉴权【授权】
 - 准入控制
 
-进行访问的时候，都需要经过 apiserver， apiserver做统一协调，比如门卫
+进行访问的时候，都需要经过 apiserver， apiserver 做统一协调，比如门卫
 
 - 访问过程中，需要证书、token、或者用户名和密码
 - 如果访问pod需要serviceAccount
