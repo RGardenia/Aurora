@@ -64,6 +64,16 @@ kubectl get --help
 |  edit   |          使用默认的编辑器编辑一个资源          |
 | delete  | 通过文件名，标准输入，资源名称或标签来删除资源 |
 
+```bash
+
+kubectl expose (-f FILENAME | TYPE NAME | TYPE/NAME) [–port=port] [–protocol=TCP|UDP] [–target-port=number-or-name] [–name=name] [–externalip=external-ip-of-service] [–type=type] [flags]
+
+kubectl explain [–recursive=false] [flags]
+
+```
+
+
+
 ### 部署命令
 
 |      命令      |                          介绍                          |
@@ -73,19 +83,33 @@ kubectl get --help
 |     scale      | 扩容或缩容 Pod 数量，Deployment、ReplicaSet、RC 或 Job |
 |   autoscale    |       创建一个自动选择扩容或缩容并设置 Pod 数量        |
 
+```bash
 
+kubectl scale (-f FILENAME | TYPE NAME | TYPE/NAME) --replicas=COUNT [–resource-version=version] [–current-replicas=count] [flags]
+
+kubectl autoscale (-f FILENAME | TYPE NAME | TYPE/NAME) [–min=MINPODS] --max=MAXPODS [–cpu-percent=CPU] [flags]
+
+```
 
 ### 集群管理命令
 
 |     命令     |              介绍              |
 | :----------: | :----------------------------: |
 | certificate  |          修改证书资源          |
-| cluster-info |          显示集群信息          |
+| cluster-info |     显示集群信息、端点信息     |
 |     top      |        显示资源 (CPU/M)        |
 |    cordon    |        标记节点不可调度        |
 |   uncordon   |        标记节点可被调度        |
 |    drain     | 驱逐节点上的应用，准备下线维护 |
 |    taint     |       修改节点taint标记        |
+
+```bash
+
+kubectl cluster-info [flags]
+
+```
+
+
 
 ### 故障和调试命令
 
@@ -95,10 +119,25 @@ kubectl get --help
 |     logs     | 在一个 Pod 中打印一个容器日志，如果 Pod 只有一个容器，容器名称是可选的 |
 |    attach    |                     附加到一个运行的容器                     |
 |     exec     |                        执行命令到容器                        |
-| port-forward |                        转发一个或多个                        |
+| port-forward |                   转发一个或多个 本地端口                    |
 |    proxy     |         运行一个 `proxy` 到 `Kubernetes API Server`          |
 |      cp      |                    拷贝文件或目录到容器中                    |
 |     auth     |                           检查授权                           |
+
+```bash
+
+kubectl logs POD [-c CONTAINER] [–follow] [flags]
+
+kubectl exec POD-name [-c CONTAINER-name] [-i] [-t] [flags] [-- COMMAND [args…]]
+
+# 将一个或多个本地端口转发到 Pod
+kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT […[LOCAL_PORT_N:]REMOTE_PORT_N] [flags]
+
+kubectl proxy [–port=PORT] [–www=static-dir] [–www-prefix=prefix] [–apiprefix=prefix] [flags]
+
+```
+
+
 
 ### 其它命令
 
@@ -116,6 +155,19 @@ kubectl get --help
 |     help     |                      所有命令帮助                      |
 |    plugin    |                   运行一个命令行插件                   |
 |   version    |                打印客户端和服务版本信息                |
+
+```bash
+
+# 更新资源的一个或多个字段
+kubectl patch (-f FILENAME | TYPE NAME | TYPE/NAME) --patch PATCH [flags]
+
+kubectl label (-f FILENAME | TYPE NAME | TYPE/NAME) KEY_1=VAL_1 … KEY_N=VAL_N [–overwrite] [–all] [–resource-version=version] [flags]
+
+kubectl config SUBCOMMAND [flags]
+
+```
+
+
 
 ### 目前使用的命令
 
