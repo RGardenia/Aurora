@@ -4,6 +4,42 @@
 
 
 
+# Ubuntu Deploy Minikube
+
+> https://kubernetes.io/zh-cn/docs/tasks/tools/install-kubectl-linux/#install-using-other-package-management
+> https://minikube.sigs.k8s.io/docs/start/
+
+```bash
+sudo apt-get update
+# apt-transport-https 可以是一个虚拟包
+sudo apt-get install -y apt-transport-https ca-certificates curl
+
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+# 源	覆盖 /etc/apt/sources.list.d/kubernetes.list 中的所有现存配置
+echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+sudo apt-get update
+sudo apt-get install -y kubectl
+# OR
+snap install kubectl --classic
+kubectl version --client
+
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+sudo dpkg -i minikube_latest_amd64.deb
+
+minikube config set driver docker
+
+minikube start --force --driver=docker
+
+minikube dashboard
+# kubectl proxy --port=8001 --address='120.46.36.46' --accept-hosts='^.*' &
+kubectl expose service kubernetes-dashboard --type=NodePort --name=kube-dashboard-service --port=8001 --target-port=80
+nohup kubectl proxy --port=8001 --address='0.0.0.0' --accept-hosts='^.*' &
+```
+
+
+
 
 
 # Switch
