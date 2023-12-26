@@ -111,15 +111,15 @@ spec:
     nodePort: 8400
 ```
 
-​	集群外就可以使用 kubernetes 任意一个节点的 IP 加上 8400 端口访问该服务了。kube-proxy 会自动将流量以 `round-robin` 的方式转发给该 service 的每一个 pod
+​	集群外就可以使用 `kubernetes` 任意一个节点的 IP 加上 8400 端口访问该服务了。`kube-proxy` 会自动将流量以 `round-robin` 的方式转发给该 `service` 的每一个 `pod`
 ​	这种服务暴露方式，无法指定想要的应用常用端口，不过可以在集群上再部署一个反向代理作为流量入口
 
 
 
 ### LoadBalancer
 
-​	LoadBalancer 只能在service上定义。这是公有云提供的负载均衡器，如tke、AWS、Azure、CloudStack、GCE等。
-​	LoadBalancer 服务是暴露服务到 Internet 的标准方式。所有通往你指定的端口的流量都会被转发到对应的服务。它没有过滤条件，没有路由等。这意味着你几乎可以发送任何种类的流量到该服务，像 HTTP，TCP，UDP，WebSocket，gRPC 或其它任意种类 ~
+​	LoadBalancer 只能在 `service` 上定义。这是公有云提供的负载均衡器，如 `tke、AWS、Azure、CloudStack、GCE` 等。
+​	LoadBalancer 服务是暴露服务到 `Internet` 的标准方式。所有通往指定的端口的流量都会被转发到对应的服务。它没有过滤条件，没有路由等。这意味着几乎可以发送任何种类的流量到该服务，像 HTTP，TCP，UDP，WebSocket，gRPC 或其它任意种类 ~
 
 ```yml
 apiVersion: v1
@@ -144,7 +144,7 @@ spec:
 
 ### Ingress
 
-​	 `Ingress` 是自 `kubernetes1.1` 版本后引入的资源类型。必须要部署 `Ingress controller` 才能创建 `Ingress` 资源，Ingress controller是以一种插件的形式提供。 `Ingress controller` 是部署在Kubernetes之上的Docker容器。它的 Docker 镜像包含一个像 `nginx` 或`HAProxy` 的负载均衡器和一个控制器守护进程。控制器守护程序从 Kubernetes 接收所需的 Ingress 配置。它会生成一个 `nginx` 或 `HAProxy` 配置文件，并重新启动负载均衡器进程以使更改生效。换句话说， `Ingress controller` 是由 Kubernetes 管理的负载均衡器。
+​	 `Ingress` 是自 `kubernetes1.1` 版本后引入的资源类型。必须要部署 `Ingress controller` 才能创建 `Ingress` 资源，`Ingress controller` 是以一种插件的形式提供。 `Ingress controller` 是部署在 `Kubernetes` 之上的 `Docker` 容器。它的 Docker 镜像包含一个像 `nginx` 或`HAProxy` 的负载均衡器和一个控制器守护进程。控制器守护程序从 Kubernetes 接收所需的 Ingress 配置。它会生成一个 `nginx` 或 `HAProxy` 配置文件，并重新启动负载均衡器进程以使更改生效。换句话说， `Ingress controller` 是由 Kubernetes 管理的负载均衡器。
 ​	Kubernetes Ingress 提供了负载平衡器的典型特性：HTTP路由，粘性会话，SSL终止，SSL直通，TCP和UDP负载平衡等。目前并不是所有的 `Ingress controller` 都实现了这些功能，需要查看具体的 `Ingress controller` 文档。
 
 ​	 `Ingress` 为管理对外服务到集群内服务之间规则的集合，能把集群内 Service 配置成外网能够访问的 URL，提供基于域名的访问 ~

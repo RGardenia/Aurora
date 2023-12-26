@@ -294,3 +294,19 @@ JVM在上下文切换的时候使用了Unsafe中的两个非常牛逼的方法pa
 - 当阻塞中的线程需要再次运行时，JVM调用Unsafe的unpark()方法来唤醒此线程。
 
 > java中的集合时看到了大量的`LockSupport.park()/unpark()`，它们底层都是调用的Unsafe的这两个方法。
+
+
+
+
+
+
+
+# Maven
+
+> https://www.yuque.com/yuzhi-vmblo/qesfbo/go0pzd
+
+
+
+# Gradle 
+
+> https://www.yuque.com/youyi-ai1ik/emphm9/kyhenl

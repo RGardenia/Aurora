@@ -34,16 +34,23 @@ minikube config set driver docker
 
 minikube start --force --driver=docker
 
+# 部署 Dashboard
 minikube dashboard
-# kubectl proxy --port=8001 --address='120.46.36.46' --accept-hosts='^.*' &
+### kubectl proxy --port=8001 --address='120.46.36.46' --accept-hosts='^.*' &
 kubectl expose service kubernetes-dashboard --type=NodePort --name=kube-dashboard-service --port=8001 --target-port=80
 nohup kubectl proxy --port=8001 --address='0.0.0.0' --accept-hosts='^.*' &
 ```
 
 ## Centos	K8S
 
+> https://blog.csdn.net/gudongkun1121/article/details/132126441
+
 ```bash
 cat /etc/redhat-release
+hostnamectl set-hostname gardenia
+cat >> /etc/hosts << EOF  
+120.46.36.46 gardenia
+EOF
 
 # 时间同步
 systemctl start chronyd
@@ -102,25 +109,33 @@ chmod +x /etc/sysconfig/modules/ipvs.modules
 lsmod | grep -e ip_vs -e nf_conntrack_ipv4
 
 # 配置 containerd
+wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+yum makecache
+yum install containerd.io -y
+
 containerd config default > /etc/containerd/config.toml
-systemctl start containerd
-systemctl enable containerd
 
 vim /etc/containerd/config.toml
 root = "/home/containerd"
 [plugins."io.containerd.grpc.v1.cri"]
-  sandbox_image = "registry.aliyuncs.com/google_containers/pause:3.9"
+  sandbox_image = "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.9"
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
   [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
     SystemdCgroup = true
 [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
   [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
     endpoint = ["https://a79n7bst.mirror.aliyuncs.com"]
+[plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
+    runtime_type = "io.containerd.runtime.v1.linux"
+#ERROR
+FATA[0000] validate service connection: CRI v1 image API is not implemented for endpoint "unix:///run/containerd/containerd.sock": rpc error: code = Unimplemented desc = unknown service runtime.v1.ImageService
 
+systemctl enable containerd
 systemctl restart containerd
+systemctl status containerd
 # sudo yum install -y docker-buildx-plugin docker-compose-plugin
 
-# cri-dockerd
+# cri-dockerd	跳过
 sudo yum install -y wget
 sudo wget https://github.com/Mirantis/cri-dockerd/releases/download/v0.3.4/cri-dockerd-0.3.4-3.el7.x86_64.rpm
 sudo rpm -ivh cri-dockerd-0.3.4-3.el7.x86_64.rpm
@@ -143,7 +158,7 @@ sudo systemctl status docker cir-docker.socket cri-docker
 
 # 安装 kubeadm、kubelet 和 kubectl
 ## 配置 yum 源
-cat <<EOF | tee /etc/yum.repos.d/kubernetes.repo
+cat << EOF | tee /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
 baseurl=https://mirrors.cloud.tencent.com/kubernetes/yum/repos/kubernetes-el7-x86_64/
@@ -156,7 +171,9 @@ EOF
 yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 systemctl enable kubelet
 
-## 配置 kubelet cgroup
+sudo crictl config runtime-endpoint unix:///var/run/containerd/containerd.sock
+
+## 配置 kubelet cgroup	Docker 跳过
 vim /etc/sysconfig/kubelet
 KUBELET_CGROUP_ARGS="--cgroup-driver=systemd"
 KUBE_PROXY_MODE="ipvs"
@@ -171,36 +188,98 @@ runc -v
 kubeadm config images list
 kubeadm config images pull
 ## 初始化 Master
-kubeadm init  --kubernetes-version=v1.28.5 --image-repository=registry.aliyuncs.com/google_containers --cri-socket=unix:///var/run/cri-dockerd.sock --apiserver-advertise-address=192.168.255.140 --pod-network-cidr=10.244.0.0/16 --service-cidr=10.96.0.0/12 --config=init-config.yaml
+kubeadm init  \
+--kubernetes-version=v1.28.5 \
+--image-repository=registry.aliyuncs.com/google_containers \
+--apiserver-advertise-address=192.168.0.108 \
+--pod-network-cidr=10.244.0.0/16 \
+--service-cidr=10.96.0.0/12
+# apiserver-advertise-address 指定为自己内网 IP
+# --control-plane-endpoint=gardenia
+# --cri-socket=unix:///var/run/cri-dockerd.sock
 
 kubeadm config print init-defaults > init-config.yaml
 # advertiseAddress 修改为 自己 IP
 # 切入 Docker
 kubeadm reset --cri-socket unix:///var/run/cri-dockerd.sock
 kubeadm init --config=init-config.yaml
- 
+
 # 创建必要文件
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+mkdir -p $HOME/.kube &&
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config &&
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # 让 master 参与服务调度，不做 control-plane
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+kubectl label nodes gardenia node-role.kubernetes.io/control-plane-
 kubectl label node --all kubernetes.io/role=master
 
-sudo crictl config runtime-endpoint unix:///var/run/containerd/containerd.sock
-
 # 安装网络附加组件	https://github.com/flannel-io/flannel/releases
-ctr -n k8s.io images import flanneld-v0.24.0-amd64.docker
-
+# ctr -n k8s.io images import flanneld-v0.24.0-amd64.docker
 vim kube-flannel.yml
-# https://github.com/flannel-io/flannel/blob/master/Documentation/kube-flannel.yml
+wget https://github.com/flannel-io/flannel/blob/master/Documentation/kube-flannel.yml
 kubectl apply -f kube-flannel.yml
 
 kubectl get nodes
+
+# 部署 Dashboard	https://github.com/kubernetes/dashboard/releases
+crictl pull docker.io/kubernetesui/dashboard:v2.7.0
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+
+kubectl get svc -n kubernetes-dashboard
+kubectl get pods -n kubernetes-dashboard
+## 暴露端口
+kubectl edit svc kubernetes-dashboard -n kubernetes-dashboard
+type: NodePort
+
+## Nginx 代理
+### kubectl create configmap nginx-conf --from-file nginx.conf
+### kubectl get configmap
+cat >> dash-usr.yaml << EOF  
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admin-user
+  namespace: kubernetes-dashboard
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: admin-user
+  namespace: kubernetes-dashboard
+EOF
+
+kubectl apply -f dash-usr.yaml
+kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
 ```
 
+
+
+## FAQ
+
 ```bash
+
+1. [kubelet-check] Initial timeout of 40s passed.
+crictl --runtime-endpoint unix:///var/run/containerd/containerd.sock ps -a | grep kube | grep -v pause
+# apiserver 停了
+
+# 不用担心名称不同，镜像 id 是一样的，会被 k8s 识别到
+crictl pull registry.aliyuncs.com/google_containers/kube-apiserver:v1.28.5 &&
+crictl pull registry.aliyuncs.com/google_containers/kube-controller-manager:v1.28.5 &&
+crictl pull registry.aliyuncs.com/google_containers/kube-scheduler:v1.28.5 &&
+crictl pull registry.aliyuncs.com/google_containers/kube-proxy:v1.28.5 &&
+crictl pull registry.aliyuncs.com/google_containers/pause:3.9 &&
+crictl pull registry.aliyuncs.com/google_containers/etcd:3.5.9-0 &&
+crictl pull registry.aliyuncs.com/google_containers/coredns:v1.10.1
+
 vim bash.sh
 images=(
     kube-apiserver:v1.28.5
@@ -222,6 +301,26 @@ chmod +x bash.sh
 ./bash.sh
 
 docker images --format "{{.Repository}}:{{.Tag}}" | grep 'k8s.gcr.io' | awk '{print $1}' | xargs docker rmi
+```
+
+### Nginx Config
+
+```bash
+yum -y install gcc pcre-devel zlib-devel openssl openssl-devel &&
+wget http://nginx.org/download/nginx-1.23.0.tar.gz &&
+tar -zxvf nginx-1.23.0.tar.gz &&
+cd nginx-1.23.0 &&
+./configure --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module &&
+make & make install &&
+cd /usr/local/nginx/ &&
+./sbin/nginx -t
+
+vim /usr/local/nginx/conf/nginx.conf
+location / {
+    proxy_pass https://localhost:30098/;
+}
+
+/usr/local/nginx/sbin/nginx
 ```
 
 
