@@ -11,6 +11,7 @@
 *.iml
 *.ipr
 .mvn
+.fleet
 
 ## 相关 软件 ##
 Software
