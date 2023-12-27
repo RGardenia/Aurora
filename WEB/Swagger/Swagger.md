@@ -3,7 +3,7 @@
 - `Swagger`号称世界上最流行的Api框架。
 - Restful Api 文档在线自动生成工具 => Api 文档与API定义同步更新。
 - 直接运行，可以在线测试API接口。
-- 支持多种语言：Java、PHP。。。
+- 支持多种语言：Java、PHP ...
 
 
 
