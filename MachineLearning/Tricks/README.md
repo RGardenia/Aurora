@@ -2,12 +2,6 @@
 
 
 
-
-
-
-
-
-
 # Learning
 
 ```bash
