@@ -2,6 +2,19 @@
 
 
 
+```bash
+# master 主机需要开放
+6443             Kubernetes API server
+2379-2380        etcd server client API
+10250            Kubelet API
+10259            kube-scheduler
+10257            kube-controller-manager
+ 
+# node 主机需要开放
+10250            Kubelet API
+30000-32767      NodePort Services
+```
+
 
 
 # Deploy Minikube
@@ -47,24 +60,40 @@ nohup kubectl proxy --port=8001 --address='0.0.0.0' --accept-hosts='^.*' &
 
 ```bash
 cat /etc/redhat-release
+cat /etc/os-release
+
 hostnamectl set-hostname gardenia
 cat >> /etc/hosts << EOF  
-120.46.36.46 gardenia
+106.14.45.61 gardenia
 EOF
 
 # 时间同步
-systemctl start chronyd
+systemctl start chronyd &&
 systemctl enable chronyd
 
 # 禁用 selinux
-vim /etc/selinux/config
+cat /etc/selinux/config
 SELINUX=disabled
 
 # 禁用 swap 分区
-vim /etc/fstab
+cat /etc/fstab
 /dev/mapper/centos-root /                       xfs     defaults        0 0
 UUID=532ab9ca-839e-4ca2-9ac5-b871d9cc7f71 /boot     xfs     defaults        0 0
 # /dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+# 创建虚拟网卡
+vim /etc/sysconfig/network-scripts/ifcfg-eth0:1
+DEVICE=eth0:1
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=yes
+BOOTPROTO=static
+IPADDR=106.14.45.61
+NETMASK=255.255.255.0
+
+systemctl restart NetworkManager
+nmcli c reload
+# nmcli c up $160
 
 # 配置 iptables
 cat <<EOF | tee /etc/modules-load.d/k8s.conf
@@ -110,21 +139,25 @@ lsmod | grep -e ip_vs -e nf_conntrack_ipv4
 
 # 配置 containerd
 wget https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo -O /etc/yum.repos.d/docker-ce.repo
+## 若是 Alibaba 的 Centos
+sudo vim /etc/yum.repos.d/docker-ce.repo
+:%s/$releasever/8/g
+## 安装 containerd
 yum makecache
 yum install containerd.io -y
 
 containerd config default > /etc/containerd/config.toml
 
 vim /etc/containerd/config.toml
-root = "/home/containerd"
+# root = "/home/containerd"
 [plugins."io.containerd.grpc.v1.cri"]
   sandbox_image = "registry.cn-hangzhou.aliyuncs.com/google_containers/pause:3.9"
 [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
   [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
     SystemdCgroup = true
-[plugins."io.containerd.grpc.v1.cri".registry.mirrors]
-  [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
-    endpoint = ["https://a79n7bst.mirror.aliyuncs.com"]
+# [plugins."io.containerd.grpc.v1.cri".registry.mirrors]
+#   [plugins."io.containerd.grpc.v1.cri".registry.mirrors."docker.io"]
+#     endpoint = ["https://a79n7bst.mirror.aliyuncs.com"]
 [plugins."io.containerd.grpc.v1.cri".containerd.default_runtime]
     runtime_type = "io.containerd.runtime.v1.linux"
 #ERROR
@@ -191,18 +224,19 @@ kubeadm config images pull
 kubeadm init  \
 --kubernetes-version=v1.28.5 \
 --image-repository=registry.aliyuncs.com/google_containers \
---apiserver-advertise-address=192.168.0.108 \
+--apiserver-advertise-address=106.14.45.61 \
+--apiserver-cert-extra-sans=106.14.45.61 \
 --pod-network-cidr=10.244.0.0/16 \
 --service-cidr=10.96.0.0/12
 # apiserver-advertise-address 指定为自己内网 IP
 # --control-plane-endpoint=gardenia
 # --cri-socket=unix:///var/run/cri-dockerd.sock
 
-kubeadm config print init-defaults > init-config.yaml
-# advertiseAddress 修改为 自己 IP
 # 切入 Docker
 kubeadm reset --cri-socket unix:///var/run/cri-dockerd.sock
 kubeadm init --config=init-config.yaml
+
+kubeadm config print init-defaults > init-config.yaml
 
 # 创建必要文件
 mkdir -p $HOME/.kube &&
@@ -211,7 +245,7 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # 让 master 参与服务调度，不做 control-plane
 kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-kubectl label nodes gardenia node-role.kubernetes.io/control-plane-
+kubectl label nodes gardenia node-role.kubernetes.io/control-plane
 kubectl label node --all kubernetes.io/role=master
 
 # 安装网络附加组件	https://github.com/flannel-io/flannel/releases
@@ -220,9 +254,11 @@ vim kube-flannel.yml
 wget https://github.com/flannel-io/flannel/blob/master/Documentation/kube-flannel.yml
 kubectl apply -f kube-flannel.yml
 
+kubectl get pods --all-namespaces -o wide
 kubectl get nodes
+kubectl get cs
 
-# 部署 Dashboard	https://github.com/kubernetes/dashboard/releases
+# 部署 Dashboard	https://github.com/kubernetes/dashboard/releases	Skip
 crictl pull docker.io/kubernetesui/dashboard:v2.7.0
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
 kubectl delete -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
@@ -259,6 +295,7 @@ EOF
 
 kubectl apply -f dash-usr.yaml
 kubectl -n kubernetes-dashboard get secret $(kubectl -n kubernetes-dashboard get sa/admin-user -o jsonpath="{.secrets[0].name}") -o go-template="{{.data.token | base64decode}}"
+# https://blog.csdn.net/a437936609/article/details/122325282
 ```
 
 
