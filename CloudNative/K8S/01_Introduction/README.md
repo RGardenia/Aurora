@@ -232,13 +232,13 @@ k8s 集群控制节点，对集群进行调度管理，接受集群外用户去�
 
 ### Service
 
-- 定义一组pod的访问规则
-- Pod的负载均衡，提供一个或多个Pod的稳定访问地址
+- 定义一组 pod 的访问规则
+- Pod的负载均衡，提供一个或多个 Pod 的稳定访问地址
 - 支持多种方式【ClusterIP、NodePort、LoadBalancer】
 
 ![image-20201122161132055](images/image-20201122161132055.png)
 
-可以用来组合pod，同时对外提供服务
+可以用来组合 pod，同时对外提供服务
 
 ### Label
 
@@ -269,13 +269,13 @@ label：标签，用于对象资源查询，筛选
 
 ![image-20201122163512535](images/image-20201122163512535.png)
 
-- 通过Kubectl提交一个创建RC（Replication Controller）的请求，该请求通过APlserver写入etcd
-- 此时Controller Manager通过API Server的监听资源变化的接口监听到此RC事件
-- 分析之后，发现当前集群中还没有它所对应的Pod实例
-- 于是根据RC里的Pod模板定义一个生成Pod对象，通过APIServer写入etcd
-- 此事件被Scheduler发现，它立即执行执行一个复杂的调度流程，为这个新的Pod选定一个落户的Node，然后通过API Server讲这一结果写入etcd中
-- 目标Node上运行的Kubelet进程通过APiserver监测到这个"新生的Pod.并按照它的定义，启动该Pod并任劳任怨地负责它的下半生，直到Pod的生命结束
-- 随后，我们通过Kubectl提交一个新的映射到该Pod的Service的创建请求
-- ControllerManager通过Label标签查询到关联的Pod实例，然后生成Service的Endpoints信息，并通过APIServer写入到etod中，
-- 接下来，所有Node上运行的Proxy进程通过APIServer查询并监听Service对象与其对应的Endponts信息，建立一个软件方式的负载均衡器来实现Service访问到后端Pod的流量转发功能
+- 通过 `Kubectl` 提交一个创建 RC（Replication Controller）的请求，该请求通过 `APlserver` 写入 `etcd`
+- 此时 `Controller Manager` 通过 `API Server` 的监听资源变化的接口监听到此RC事件
+- 分析之后，发现当前集群中还没有它所对应的 `Pod` 实例
+- 于是根据 RC 里的 Pod 模板定义一个生成 Pod 对象，通过 `APIServer` 写入 `etcd`
+- 此事件被 `Scheduler` 发现，它立即执行执行一个复杂的调度流程，为这个新的Pod选定一个落户的 Node，然后通过 API Server 讲这一结果写入 `etcd` 中
+- 目标 Node 上运行的 `Kubelet` 进程通过 `APIServer` 监测到这个"新生的 Pod .并按照它的定义，启动该 Pod 并任劳任怨地负责它的下半生，直到 Pod 的生命结束
+- 随后，通过 `Kubectl` 提交一个新的映射到该 Pod 的Service的创建请求
+- ControllerManager 通过 `Label` 标签查询到关联的 Pod 实例，然后生成 Service 的 Endpoints 信息，并通过 `APIServer` 写入到 etcd 中
+- 所有 Node 上运行的 Proxy 进程通过 `APIServer` 查询并监听 Service 对象与其对应的 Endponts 信息，建立一个软件方式的负载均衡器来实现 Service 访问到后端 Pod 的流量转发功能
 

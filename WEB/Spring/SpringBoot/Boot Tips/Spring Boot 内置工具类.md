@@ -1,8 +1,8 @@
 # Spring Boot 内置工具类
 
-```
 今天介绍下Spring Boot给我们提供的内置工具类，大家可以学习下，也可以收藏下 ，平时开发用到！
-```
+
+
 
 ## **断言**
 
@@ -10,7 +10,7 @@
 2. Assert 关键字在 JDK1.4 中引入，可通过 JVM 参数`-enableassertions`开启
 3. SpringBoot 中提供了 Assert 断言工具类，通常用于数据合法性检查
 
-```
+```java
 // 要求参数 object 必须为非空（Not Null），否则抛出异常，不予放行
 // 参数 message 参数用于定制异常信息。
 void notNull(Object object, String message)
@@ -39,7 +39,7 @@ void isAssignable(Class superType, Class subType, String message)
 
 获取对象的基本信息
 
-```
+```java
 // 获取对象的类名。参数为 null 时，返回字符串："null" 
 String nullSafeClassName(Object obj)
 // 参数为 null 时，返回 0
@@ -56,7 +56,7 @@ String getDisplayString(Object obj)
 
 判断工具
 
-```
+```java
 // 判断数组是否为空
 boolean isEmpty(Object[] array)
 // 判断参数对象是否是数组
@@ -78,7 +78,7 @@ boolean isEmpty(Object obj)
 
 其他工具方法
 
-```
+```java
 // 向参数数组的末尾追加新元素，并返回一个新数组
 <A, O extends A> A[] addObjectToArray(A[] array, O obj)
 // 原生基础类型数组 --> 包装类数组
@@ -89,7 +89,7 @@ Object[] toObjectArray(Object source)
 
 字符串判断工具
 
-```
+```java
 // 判断字符串是否为 null，或 ""。注意，包含空白符的字符串为非空
 boolean isEmpty(Object str)
 // 判断字符串是否是以指定内容结束。忽略大小写
@@ -110,7 +110,7 @@ int countOccurrencesOf(String str, String sub)
 
 字符串操作工具
 
-```
+```java
 // 查找并替换指定子串
 String replace(String inString, String oldPattern, String newPattern)
 // 去除尾部的特定字符
@@ -158,7 +158,7 @@ String unqualify(String qualifiedName, char separator)
 
 集合判断工具
 
-```
+```java
 // 判断 List/Set 是否为空
 boolean isEmpty(Collection<?> collection)
 // 判断 Map 是否为空
@@ -175,7 +175,7 @@ boolean hasUniqueObject(Collection<?> collection)
 
 集合操作工具
 
-```
+```java
 // 将 Array 中的元素都添加到 List/Set 中
 <E> void mergeArrayIntoCollection(Object array, Collection<E> collection)  
 // 将 Properties 中的键值对都添加到 Map 中
@@ -200,7 +200,7 @@ Class<?> findCommonElementType(Collection<?> collection)
 
 1. 输入
 
-```
+```java
 // 从文件中读入到字节数组中
 byte[] copyToByteArray(File in)
 // 从输入流中读入到字节数组中
@@ -211,7 +211,7 @@ String copyToString(Reader in)
 
 输出
 
-```
+```java
 // 从字节数组到文件
 void copy(byte[] in, File out)
 // 从文件到文件
@@ -230,7 +230,7 @@ void copy(String in, Writer out)
 
 从资源路径获取文件
 
-```
+```java
 // 判断字符串是否是一个合法的 URL 字符串。
 static boolean isUrl(String resourceLocation)
 // 获取 URL
@@ -241,7 +241,7 @@ static File getFile(String resourceLocation)
 
 Resource
 
-```
+```java
 // 文件系统资源 D:\...
 FileSystemResource
 // URL 资源，如 file://... http://...
@@ -268,7 +268,7 @@ String getDescription()
 
 输入
 
-```
+```java
 void copy(byte[] in, OutputStream out)
 int copy(InputStream in, OutputStream out)
 void copy(String in, Charset charset, OutputStream out)
@@ -277,7 +277,7 @@ long copyRange(InputStream in, OutputStream out, long start, long end)
 
 输出
 
-```
+```java
 byte[] copyToByteArray(InputStream in)
 String copyToString(InputStream in, Charset charset)
 // 舍弃输入流中的内容
@@ -290,7 +290,7 @@ int drain(InputStream in)
 
 获取方法
 
-```
+```java
 // 在类中查找指定方法
 Method findMethod(Class<?> clazz, String name) 
 // 同上，额外提供方法参数类型作查找条件
@@ -313,7 +313,7 @@ boolean declaresException(Method method, Class<?> exceptionType)
 
 执行方法
 
-```
+```java
 // 执行方法
 Object invokeMethod(Method method, Object target)  
 // 同上，提供方法参数
@@ -326,7 +326,7 @@ void makeAccessible(Constructor<?> ctor)
 
 获取字段
 
-```
+```java
 // 在类中查找指定属性
 Field findField(Class<?> clazz, String name) 
 // 同上，多提供了属性的类型
@@ -337,7 +337,7 @@ boolean isPublicStaticFinal(Field field)
 
 设置字段
 
-```
+```java
 // 获取 target 对象的 field 属性值
 Object getField(Field field, Object target) 
 // 设置 target 对象的 field 属性值，值为 value
@@ -359,7 +359,7 @@ void doWithLocalFields(Class<?> clazz, ReflectionUtils.FieldCallback fc)
 
 判断代理类型
 
-```
+```java
 // 判断是不是 Spring 代理对象
 boolean isAopProxy()
 // 判断是不是 jdk 动态代理对象
@@ -370,7 +370,7 @@ boolean isCglibProxy()
 
 获取被代理对象的 class
 
-```
+```java
 // 获取被代理的目标 class
 Class<?> getTargetClass()
 ```
@@ -379,10 +379,11 @@ Class<?> getTargetClass()
 
 获取当前对象的代理对象
 
-```
+```java
 Object currentProxy()
 ```
 
 
 
-![图片](D:/Files/images/640.png)
+
+

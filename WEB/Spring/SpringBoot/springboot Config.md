@@ -2,7 +2,7 @@
 
 > 这里有几个定制banner的网站，文字、图片。
 >
-> ​		http://patorjk.com/software/taag
+> ​	http://patorjk.com/software/taag
 >
 > 　　http://www.network-science.de/ascii/
 >
