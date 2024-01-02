@@ -113,7 +113,7 @@ conda config --add channels http://pypi.douban.com/simple/
 # 显示检索路径，每次安装包时会将包源路径显示出来
 conda config --set show_channel_urls yes
 conda config --set always_yes True
- 
+
 #执行以下命令清除索引缓存，保证用的是镜像站提供的索引
 conda clean -i
  

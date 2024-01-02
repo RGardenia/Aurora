@@ -8,7 +8,7 @@
 
 
 
-## MYSQL
+## MySQL
 
 ```bash
 
@@ -154,8 +154,28 @@ spec:
 kubectl apply -f mysql-service.yaml
 kubectl get svc -n garmysql
 
-mysql -h106.14.45.61 -P30169 -uroot -p161513
+mysql -h106.14.45.61 -P30169 -uroot -p151613
 kubectl get all -n garmysql
 ```
 
 > https://cloud.tencent.com/developer/article/1783227
+
+
+
+
+
+## KuBoard
+
+```bash
+## 线安装
+wget https://addons.kuboard.cn/kuboard/kuboard-v3.yaml
+kubectl apply -f https://addons.kuboard.cn/kuboard/kuboard-v3.yaml
+
+kubectl get pods -n kuboard
+kubectl get all -n kube-system | grep kuboard
+
+echo $(kubectl -n kube-system get secret $(kubectl -n kube-system get secret | grep kuboard-user | awk '{print $1}') -o go-template='{{.data.token}}' | base64 -d)
+```
+
+
+
