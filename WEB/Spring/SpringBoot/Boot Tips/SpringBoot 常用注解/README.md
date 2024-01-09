@@ -1,23 +1,23 @@
-# ![image-20220617102934475](images/image-20220617102934475.png)40 个 SpringBoot 常用注解
+# SpringBoot 常用注解
 
 
 
 - Spring Web MVC
 
-- Spring Bean 注解
+- Spring Bean
 
 - Spring Dependency Inject 
 
--  Bean Scops注解
+-  Bean Scops 
 
 - 容器配置注解
 
-- - @Autowired
+  - @Autowired
   - @Primary
   - @PostConstruct与@PreDestroy
   - @Qualifier
 
-- Spring Boot注解
+- Spring Boot
 
   
 
@@ -102,7 +102,7 @@
 
 `@ControllerAdvice`是@Component注解的一个延伸注解，Spring会自动扫描并检测被@ControllerAdvice所标注的类。`@ControllerAdvice`需要和`@ExceptionHandler`、`@InitBinder`以及`@ModelAttribute`注解搭配使用，主要是用来处理控制器所抛出的异常信息。
 
-首先，我们需要定义一个被`@ControllerAdvice`所标注的类，在该类中，定义一个用于处理具体异常的方法，并使用@ExceptionHandler注解进行标记。
+首先，需要定义一个被`@ControllerAdvice`所标注的类，在该类中，定义一个用于处理具体异常的方法，并使用@ExceptionHandler注解进行标记。
 
 此外，在有必要的时候，可以使用`@InitBinder`在类中进行全局的配置，还可以使用@ModelAttribute配置与视图相关的参数。使用`@ControllerAdvice`注解，就可以快速的创建统一的，自定义的异常处理类。
 
@@ -128,7 +128,7 @@
 
 **@ResponseStatus**
 
-`@ResponseStatus`注解可以标注请求处理方法。使用此注解，可以指定响应所需要的HTTP STATUS。特别地，我们可以使用HttpStauts类对该注解的value属性进行赋值。
+`@ResponseStatus`注解可以标注请求处理方法。使用此注解，可以指定响应所需要的HTTP STATUS。特别地，可以使用HttpStauts类对该注解的value属性进行赋值。
 
 下面是使用`@ResponseStatus`注解的一个示例：
 
@@ -138,7 +138,7 @@
 
 `@PathVariable`注解是将方法中的参数绑定到请求URI中的模板变量上。可以通过`@RequestMapping`注解来指定URI的模板变量，然后使用`@PathVariable`注解将方法中的参数绑定到模板变量上。
 
-特别地，`@PathVariable`注解允许我们使用value或name属性来给参数取一个别名。下面是使用此注解的一个示例：
+特别地，`@PathVariable`注解允许使用value或name属性来给参数取一个别名。下面是使用此注解的一个示例：
 
 ![image-20220617101517936](images/image-20220617101517936.png)
 
@@ -196,7 +196,7 @@
 
 **@CrossOrigin**
 
-`@CrossOrigin`注解将为请求处理类或请求处理方法提供跨域调用支持。如果我们将此注解标注类，那么类中的所有方法都将获得支持跨域的能力。使用此注解的好处是可以微调跨域行为。使用此注解的示例如下：
+`@CrossOrigin`注解将为请求处理类或请求处理方法提供跨域调用支持。如果将此注解标注类，那么类中的所有方法都将获得支持跨域的能力。使用此注解的好处是可以微调跨域行为。使用此注解的示例如下：
 
 ![image-20220617101931087](images/image-20220617101931087.png)
 
@@ -322,7 +322,7 @@ this is send DingDing method message.
 
 ### @Qualifier
 
-当系统中存在同一类型的多个Bean时，@Autowired在进行依赖注入的时候就不知道该选择哪一个实现类进行注入。此时，我们可以使用@Qualifier注解来微调，帮助@Autowired选择正确的依赖项。下面是一个关于此注解的代码示例：
+当系统中存在同一类型的多个Bean时，@Autowired在进行依赖注入的时候就不知道该选择哪一个实现类进行注入。此时，可以使用@Qualifier注解来微调，帮助@Autowired选择正确的依赖项。下面是一个关于此注解的代码示例：
 
 ![image-20220617103225963](images/image-20220617103225963.png)
 
@@ -330,7 +330,7 @@ this is send DingDing method message.
 
 ## 六、Spring Boot注解
 
-**@SpringBootApplication**
+### **@SpringBootApplication**
 
 `@SpringBootApplication`注解是一个快捷的配置注解，在被它标注的类中，可以定义一个或多个Bean，并自动触发自动配置Bean和自动扫描组件。此注解相当于`@Configuration`、`@EnableAutoConfiguration`和`@ComponentScan`的组合。
 
@@ -345,7 +345,7 @@ public class Application{
 }
 ```
 
-**@EnableAutoConfiguration**
+### **@EnableAutoConfiguration**
 
 @EnableAutoConfiguration注解用于通知Spring，根据当前类路径下引入的依赖包，自动配置与这些依赖包相关的配置项。
 
@@ -378,7 +378,7 @@ public MyBean myBean(){
         }
 ```
 
-**@ConditionalOnProperty**
+### **@ConditionalOnProperty**
 
 @ConditionalOnProperty注解会根据Spring配置文件中的配置项是否满足配置要求，从而决定是否要执行被其标注的方法。示例代码如下：
 
@@ -390,7 +390,7 @@ Alipay alipay(){
         }
 ```
 
-**@ConditionalOnResource**
+**### @ConditionalOnResource**
 
 此注解用于检测当某个配置文件存在使，则触发被其标注的方法，下面是使用此注解的代码示例：
 
@@ -412,9 +412,9 @@ HealthCheckController healthCheckController(){
         }
 ```
 
-**@ConditionalExpression**
+### **@ConditionalExpression**
 
-此注解可以让我们控制更细粒度的基于表达式的配置条件限制。当表达式满足某个条件或者表达式为真的时候，将会执行被此注解标注的方法。
+此注解可以让控制更细粒度的基于表达式的配置条件限制。当表达式满足某个条件或者表达式为真的时候，将会执行被此注解标注的方法。
 
 ```java
 @Bean
@@ -424,7 +424,7 @@ LocalFileStore store(){
         }
 ```
 
-**@Conditional**
+### @Conditional
 
 @Conditional注解可以控制更为复杂的配置条件。在Spring内置的条件控制注解不满足应用需求的时候，可以使用此注解定义自定义的控制条件，以达到自定义的要求。下面是使用该注解的简单示例：
 
@@ -437,8 +437,370 @@ CustomProperties addCustomProperties(){
 
 
 
-## 总结
+### Cache
 
-本次课程总结了Spring Boot中常见的各类型注解的使用方式，让大家能够统一的对Spring Boot常用注解有一个全面的了解。
+缓存可以通过将经常访问的数据存储在内存中，减少底层数据源如数据库的压力，从而有效提高系统的性能和稳定性。我想大家的项目中或多或少都有使用过，项目也不例外，但是最近在review公司的代码的时候写的很蠢且low, 大致写法如下：
 
-由于篇幅的原因，关于Spring Boot不常用的一些注解，将在下一次分享中进行补充和说明。
+```java
+public User getById(String id) {
+ User user = cache.getUser();
+    if(user != null) {
+        return user;
+    }
+    // 从数据库获取
+    user = loadFromDB(id);
+    cahce.put(id, user);
+ return user;
+}
+```
+
+
+
+#### @EnableCaching
+
+现在大部分项目都是是SpringBoot项目，可以在启动类添加注解`@EnableCaching`来开启缓存功能
+
+```java
+@SpringBootApplication
+@EnableCaching
+public class SpringCacheApp {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Cache.class, args);
+    }
+}
+```
+
+既然要能使用缓存，就需要有一个缓存管理器Bean，默认情况下，`@EnableCaching` 将注册一个`ConcurrentMapCacheManager`的Bean，不需要单独的 bean 声明。`ConcurrentMapCacheManage`r将值存储在`ConcurrentHashMap`的实例中，这是缓存机制的最简单的线程安全实现
+
+#### 自定义缓存管理器
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+```
+
+Redis 缓存管理器
+
+```java
+@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public RedisConnectionFactory redisConnectionFactory() {
+        return new LettuceConnectionFactory();
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
+            .disableCachingNullValues()
+            .serializeValuesWith(SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()));
+
+        RedisCacheManager redisCacheManager = RedisCacheManager.builder(redisConnectionFactory())
+            .cacheDefaults(redisCacheConfiguration)
+            .build();
+
+        return redisCacheManager;
+    }
+}
+```
+
+可以使用`@Cacheable`、`@CachePut` 或`@CacheEvict` 注解来操作缓存
+
+
+
+#### @Cacheable
+
+该注解可以将方法运行的结果进行缓存，在缓存时效内再次调用该方法时不会调用方法本身，而是直接从缓存获取结果并返回给调用方
+
+| 属性名             | 描述                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| value / cacheNames | 指定缓存的名称，Spring Cache 使用 CacheManage 管理多个缓存组件 Cache，这里的 Cache 组件就是根据该名称进行文分的，它负责对缓存执行真正的 CRUD 操作 |
+| key                | 缓存数据时 Key的值，默认是使用方法参数的值，可以便用 SpEL 表达式计算 Key 的值 |
+| keyGenerator       | 缓存 Key的生成策略，它和 key 届性互斥使用 (只能二选一)       |
+| cacheManager       | 指定缓存管理器 (如 ConcurrentHashMap、 Redis等)              |
+| cacheResolver      | 作用和 cacheManager 属性一样，两者只能二选一                 |
+| condition          | 指定缓存的条件(满足什么条件才缓存)，可用 SpEL 表达式(如 #id>1，表示当入参id大于时才缓存) |
+| unless             | 否定缓存，即满足 unless 指定的条件时，方法的结果不进行缓存，使用 unless 时可以在调用的方法获取到结果之后再进行判断 (如 #result == null，表示如果结果为 null 时不缓存) |
+| sync               | 是否使用异步模式进行缓存，默认值是 false                     |
+
+```java
+@Service
+public class MyService {
+
+    @Autowired
+    private MyRepository repository;
+
+    @Cacheable(value = "myCache", key = "#id")
+    public MyEntity getEntityById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+}
+```
+
+`@Cacheable` 注解用于缓存 `getEntityById()`方法的结果，该方法根据其 `ID` 从数据库中检索 MyEntity 对象
+
+#### @CachePut
+
+使用 `@CachePut` 注解标注的方法，在执行前不会去检查缓存中是否存在之前执行过的结果，而是每次都会执行该方法，并将执行结果以键值对的形式写入指定的缓存中。`@CachePut` 注解一般用于更新缓存数据，相当于缓存使用的是写模式中的双写模式
+
+```java
+@Service
+public class MyService {
+
+    @Autowired
+    private MyRepository repository;
+
+    @CachePut(value = "myCache", key = "#entity.id")
+    public void saveEntity(MyEntity entity) {
+        repository.save(entity);
+    }
+}
+```
+
+
+
+#### @CacheEvict
+
+`@CacheEvict` 注解的方法在被调用时，会从缓存中移除已存储的数据。`@CacheEvict` 注解一般用于删除缓存数据，相当于缓存使用的是写模式中的失效模式
+
+| 属性名             | 描述                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| value / cacheNames | 缓存的名称                                                   |
+| key                | 缓存的键                                                     |
+| allEntries         | 是否根据缓存名称清空所有缓存数据，默认值为 false ，当值指定为 true 时，Spring Cache 将忽略注解上指定的key 属性 |
+| beforelnvocation   | 是否在方法执行之前就清空缓存，默认值为 false                 |
+
+```java
+@Service
+public class MyService {
+
+    @Autowired
+    private MyRepository repository;
+
+     @CacheEvict(value = "myCache", key = "#id")
+    public void deleteEntityById(Long id) {
+        repository.deleteById(id);
+    }
+}
+```
+
+
+
+#### @Caching
+
+`@Caching` 注解用于在一个方法或者类上，同时指定多个 Spring Cache 相关的注解
+
+| 属性名    | 描述                      |
+| --------- | ------------------------- |
+| cacheable | 用于指定 @Cacheable 注解  |
+| put       | 用于指定 @CachePut 注解   |
+| evict     | 用于指定 @CacheEvict 注解 |
+
+`@Caching`注解中的`evict`属性指定在调用方法 `saveEntity` 时失效两个缓存
+
+```java
+@Service
+public class MyService {
+
+    @Autowired
+    private MyRepository repository;
+
+    @Cacheable(value = "myCache", key = "#id")
+    public MyEntity getEntityById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    @Caching(evict = {
+        @CacheEvict(value = "myCache", key = "#entity.id"),
+        @CacheEvict(value = "otherCache", key = "#entity.id")
+    })
+    public void saveEntity(MyEntity entity) {
+        repository.save(entity);
+    }
+}
+```
+
+调用`getEntityById`方法时，Spring会先检查结果是否已经缓存在`myCache`缓存中。如果是，`Spring` 将返回缓存的结果而不是执行该方法。如果结果尚未缓存，Spring 将执行该方法并将结果缓存在 `myCache` 缓存中。方法执行后，Spring会根据`@CacheEvict`注解从`otherCache`缓存中移除缓存结果
+
+```java
+@Service
+public class MyService {
+
+    @Caching(
+        cacheable = {
+            @Cacheable(value = "myCache", key = "#id")
+        },
+        evict = {
+            @CacheEvict(value = "otherCache", key = "#id")
+        }
+    )
+    public MyEntity getEntityById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+}
+```
+
+​	调用`saveData`方法时，Spring会根据`@CacheEvict`注解先从`otherCache`缓存中移除数据。然后，Spring 将执行该方法并将结果保存到数据库或外部 API
+
+​	方法执行后，Spring 会根据`@CachePut`注解将结果添加到 `myCache`、`myOtherCache` 和 `myThirdCache` 缓存中。Spring 还将根据`@Cacheable`注解检查结果是否已缓存在 `myFourthCache` 和 `myFifthCache` 缓存中。如果结果尚未缓存，Spring 会将结果缓存在适当的缓存中。如果结果已经被缓存，Spring 将返回缓存的结果，而不是再次执行该方法
+
+```java
+@Service
+public class MyService {
+
+    @Caching(
+        put = {
+            @CachePut(value = "myCache", key = "#result.id"),
+            @CachePut(value = "myOtherCache", key = "#result.id"),
+            @CachePut(value = "myThirdCache", key = "#result.name")
+        },
+        evict = {
+            @CacheEvict(value = "otherCache", key = "#id")
+        },
+        cacheable = {
+            @Cacheable(value = "myFourthCache", key = "#id"),
+            @Cacheable(value = "myFifthCache", key = "#result.id")
+        }
+    )
+    public MyEntity saveData(Long id, String name) {
+        // Code to save data to a database or external API
+        MyEntity entity = new MyEntity(id, name);
+        return entity;
+    }
+}
+```
+
+
+
+#### @CacheConfig
+
+`@CacheConfig` 注解，可以将一些缓存配置简化到类级别的一个地方，这样就不必多次声明相关值
+
+```java
+@CacheConfig(cacheNames={"myCache"})
+@Service
+public class MyService {
+
+    @Autowired
+    private MyRepository repository;
+
+    @Cacheable(key = "#id")
+    public MyEntity getEntityById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
+
+    @CachePut(key = "#entity.id")
+    public void saveEntity(MyEntity entity) {
+        repository.save(entity);
+    }
+
+    @CacheEvict(key = "#id")
+    public void deleteEntityById(Long id) {
+        repository.deleteById(id);
+    }
+}
+```
+
+
+
+#### Condition & Unless
+
+- `condition`作用：指定缓存的条件（满足什么条件才缓存），可用 `SpEL` 表达式（如 `#id>0`，表示当入参 id 大于 0 时才缓存）
+- `unless`作用 : 否定缓存，即满足 `unless` 指定的条件时，方法的结果不进行缓存，使用 `unless` 时可以在调用的方法获取到结果之后再进行判断（如 #result == null，表示如果结果为 null 时不缓存）
+
+```java
+//when id >10, the @CachePut works. 
+@CachePut(key = "#entity.id", condition="#entity.id > 10")
+public void saveEntity(MyEntity entity) {
+ repository.save(entity);
+}
+
+//when result != null, the @CachePut works.
+@CachePut(key = "#id", condition="#result == null")
+public void saveEntity1(MyEntity entity) {
+ repository.save(entity);
+}
+```
+
+
+
+#### 清理全部缓存
+
+通过`allEntries`、`beforeInvocation`属性可以来清除全部缓存数据，不过`allEntries`是方法调用后清理，`beforeInvocation`是方法调用前清理
+
+```java
+//方法调用完成之后，清理所有缓存
+@CacheEvict(value="myCache",allEntries=true)
+public void delectAll() {
+    repository.deleteAll();
+}
+
+//方法调用之前，清除所有缓存
+@CacheEvict(value="myCache",beforeInvocation=true)
+public void delectAll() {
+    repository.deleteAll();
+}
+```
+
+
+
+#### SpEL表达式
+
+| 类型       | 运算符                                           |
+| ---------- | ------------------------------------------------ |
+| 关系       | <、>，<=，>=，==，!=、lt，gt，le，ge，eq，ne     |
+| 算术       | 十、-，*，1，%，^                                |
+| 逻辑       | &&，\|\|，!，and，or，not， between， instanceof |
+| 条件       | ?: (ternary)，?: (elvis)                         |
+| 正则表达式 | matches                                          |
+| 其他类型   | ?.，?[...], ![..],..., $[...]                    |
+
+**Spring Cache 可用的变量**
+
+| 名称          | 位置     | 描述                                                         | 示例                 |
+| ------------- | -------- | ------------------------------------------------------------ | -------------------- |
+| methodName    | 根 对象  | 调用的方法的名称                                             | #root.methodName     |
+| method        | 根 对象  | 正在调用的方法                                               | #root.method.name    |
+| target        | 根 对象  | 正在调用的目标对象                                           | #root.target         |
+| targetClass   | 根 对象  | 调用的目标的类                                               | #root.targetClass    |
+| args          | 根 对象  | 用于调用目标的参数(作为数组)                                 | #root.args[0]        |
+| caches        | 根 对象  | 正在调用的方法使用的缓存列表 (如@Cacheable(value=["cache1""cache2”}))，则有两个缓存) | #root.caches[0].name |
+| argument name | 评估背景 | 方法参数名，可以直接使用 #参数名 ，也可以使用 #pe 或 #a 的形式， 代表参数的索引 | #iban、#a0、#p0      |
+| result        | 评估背景 | 方法执行后的返回值，仅当方法执行之后的判断有效，如 unless、 cache put、cache evict (当 beforeInvocation = false) 的表达式 | result               |
+
+
+
+#### Practice
+
+通过`Spring`缓存注解可以快速优雅地在我们项目中实现缓存的操作，但是在双写模式或者失效模式下，可能会出现缓存数据一致性问题（读取到脏数据），`Spring Cache` 暂时没办法解决
+
+- 只缓存经常读取的数据：缓存可以显着提高性能，但只缓存经常访问的数据很重要。很少或从不访问的缓存数据会占用宝贵的内存资源，从而导致性能问题
+- 根据应用程序的特定需求选择合适的缓存提供程序和策略。`SpringBoot` 支持多种缓存提供程序，包括 `Ehcache`、`Hazelcast` 和 `Redis`
+- 使用缓存时请注意潜在的线程安全问题。对缓存的并发访问可能会导致数据不一致或不正确，因此选择线程安全的缓存提供程序并在必要时使用适当的同步机制非常重要
+- 避免过度缓存。缓存对于提高性能很有用，但过多的缓存实际上会消耗宝贵的内存资源，从而损害性能。在缓存频繁使用的数据和允许垃圾收集不常用的数据之间取得平衡很重要
+- 使用适当的缓存逐出策略。使用缓存时，重要的是定义适当的缓存逐出策略以确保在必要时从缓存中删除旧的或陈旧的数据
+- 使用适当的缓存键设计。缓存键对于每个数据项都应该是唯一的，并且应该考虑可能影响缓存数据的任何相关参数，例如用户 ID、时间或位置
+- 常规数据（读多写少、即时性与一致性要求不高的数据）完全可以使用 Spring Cache，至于写模式下缓存数据一致性问题的解决，只要缓存数据有设置过期时间就足够了
+- 特殊数据（读多写多、即时性与一致性要求非常高的数据），不能使用 Spring Cache，建议考虑特殊的设计（例如使用 Cancal 中间件等）
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
