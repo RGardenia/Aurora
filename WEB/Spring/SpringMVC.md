@@ -410,7 +410,11 @@ private void initHandlerMappings(ApplicationContext context) {
 }
 ```
 
-`getDefaultStrategies(context, HandlerMapping.class)`实际上是读取默认配置文件。
+`getDefaultStrategies(context, HandlerMapping.class)`实际上是读取默认配置文件
 
-![SpringMVC默认配置文件](https://cdn.jsdelivr.net/gh/RingoTangs/image-hosting@master/spring5/image.2tddy3tm00a0.png)
+
+
+
+
+
 
