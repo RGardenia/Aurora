@@ -55,6 +55,7 @@
 
 ## 终端工具
 
+- [Termius](https://www.termius.com/)	https://wwx.lanzoui.com/b00zobsfe
 - iTerm2     ( 适用于 MAC )
 - Xshell  /  Xftp  （ 这个就不用说了吧 ！）
 - Windows Terminal   （windows 下命令行工具）
