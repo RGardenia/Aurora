@@ -61,7 +61,7 @@ git config --global url."git@github.com:".insteadOf https://github.com/
 
 git config --global --list
 user.name=Gardenia
-user.email=1511502172@qq.com
+user.email=xxxxxxxxxx@qq.com
 url.git@github.com:.insteadof=https://github.com/
 ```
 
@@ -72,7 +72,21 @@ url.git@github.com:.insteadof=https://github.com/
    ```bash
    pip install torch==2.1.0+cu121 -f https://download.pytorch.org/whl/torch_stable.html
    
+   conda install pytorch==2.2.0 torchvision==0.17.0 torchaudio==2.2.0 pytorch-cuda=11.8 -c pytorch -c nvidia
    
+   import torch
+   print(torch.__version__)
+   print(torch.cuda.is_available())
+   python -c "import torch; print(torch.cuda.is_available())"
+   ```
+
+3. Cuda
+
+   ```bash
+   ####cuda12.0下载####
+   wget https://developer.download.nvidia.com/compute/cuda/12.0.0/local_installers/cuda_12.0.0_525.60.13_linux.run
+   ####cuda12.3下载####
+   wget https://developer.download.nvidia.com/compute/cuda/12.3.2/local_installers/cuda_12.3.2_545.23.08_linux.run
    ```
 
    
