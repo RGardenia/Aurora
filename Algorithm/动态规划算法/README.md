@@ -1193,7 +1193,6 @@ leetcode.494 [目标和](https://leetcode-cn.com/problems/target-sum/)
 +1+1+1-1+1 = 3
 +1+1+1+1-1 = 3
 
-一共有5种方法让最终目标和为3。
+一共有5种方法让最终目标和为3
 ```
-
 
