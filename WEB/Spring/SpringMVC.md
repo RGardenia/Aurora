@@ -102,7 +102,7 @@ session=request.getSession();即可，获取 Response 也是需要在⽅法的�
 
 ## 1. DispatcherServlet结构图
 
-![DispatcherServlet继承图](https://cdn.jsdelivr.net/gh/RingoTangs/image-hosting@master/spring5/DispatcherServlet结构.6us8563buow0.png)
+![DispatcherServlet继承图](images/DispatcherServlet%E7%BB%93%E6%9E%84.6us8563buow0.png)
 
 注：`HttpServlet、HttpServletBean、FrameworkServlet` 都是抽象类。
 

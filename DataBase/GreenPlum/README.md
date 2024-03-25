@@ -4,7 +4,7 @@
 
 # 简介
 
-## 1.1 MPP架构的由来
+## 1.1 MPP 架构的由来
 
 MPP（Massively Parallel Processing）架构是一种用于处理大规模数据的计算架构，它通过将任务分配给多个处理单元并行执行，以提高处理速度和性能。MPP 架构的由来可以追溯到对大规模数据处理需求的不断增长，传统的单一处理器或对称多处理器（SMP）架构无法满足这些需求。MPP 架构允许在大规模数据集上实现水平扩展，通过添加更多的处理单元来增加计算和存储能力。
 
@@ -24,7 +24,7 @@ l **高可用性：** 为了提高系统的可用性，MPP 架构通常设计成
 
 ## 1.2 GreenPlum
 
-Greenplum是基于开源PostgreSQL的分布式数据库，采用shared-nothing架构，即主机、操作系统、内存、存储都是每台服务器独立自我控制，不存在共享。
+Greenplum是基于开源 PostgreSQL 的分布式数据库，采用shared-nothing架构，即主机、操作系统、内存、存储都是每台服务器独立自我控制，不存在共享。
 
 Greenplum本质上是一个关系型数据库集群，实际上是由多个独立的数据库服务组合而成的一个逻辑数据库。这种数据库集群采取的是MPP（Massively Parallel Processing）架构，大规模并行处理。
 
@@ -84,7 +84,7 @@ Greenplum产品是基于流行的PostgreSQL之上开发，几乎所有的Postgre
 
 # 安装
 
-## 2.1 GreenPlum安装地址
+## 2.1 GreenPlum 安装地址
 
 **1）GreenPlum官网地址**
 
@@ -101,6 +101,8 @@ https://network.pivotal.io/products/vmware-tanzu-greenplum
 
 
 ## 2.2 部署
+
+### 2.2.1 环境
 
 1. **安装模板虚拟机，IP地址**192.168.10.101**、主机名称**hadoop101**、内存**8G**、核数4个、**硬盘50G
 
@@ -304,13 +306,1012 @@ https://network.pivotal.io/products/vmware-tanzu-greenplum
 
    ​         `ntpdate cn.pool.ntp.org`
 
+### 2.2.2 安装 GreenPlum
+
+1. 创建 **gpadmin** 组及用户（三个节点都创建 ...）
+
+   ```bash
+   groupadd gpadmin
+   useradd gpadmin -r -m -g gpadmin
+   passwd gpadmin
+   ```
+
+2. 给 gpadmin 设置用户具有root权限，方便后期加sudo执行root权限的命令
+
+   ```bash
+   vim /etc/sudoers
+   
+   ## Allow root to run any commands anywhere
+   root    ALL=(ALL)     ALL
+   gpadmin ALL=(ALL)     NOPASSWD:ALL
+   ```
+
+3. 配置节点间的免密登录（三台同样的操作，一下以hadoop102为例...）
+
+   ```bash
+   # 生成 SSH 密钥
+   ssh-keygen -t rsa
+   # 分发 SSH 密钥
+   ssh-copy-id hadoop102
+   ```
+
+4. 配置GreenPlum的ssh权限互通设置 （在hadoop102节点配置）
+
+   ```bash
+   # 在/home/gpadmin 目录下常见一个 conf 目录，用于存放配置文件
+   mkdir -p /home/gpadmin/conf
+   
+   vim /home/gpadmin/conf/hostlist
+   hadoop102
+   hadoop103
+   hadoop104
+   
+   vim /home/gpadmin/conf/seg_hosts
+   hadoop103
+   hadoop104
+   ```
+
+5. 先上传GreenPlum软件安装包，然后执行rpm安装（三台都需要安装）
+
+   ```bash
+   mkdir -p /home/gpadmin/software
+   
+   sudo yum -y install ./open-source-greenplum-db-6.25.3-rhel7-x86_64.rpm
+   
+   # 注意：安装完之后，将这个文件在gpadmin用户赋予权限
+   sudo chown -R gpadmin:gpadmin
+   ```
+
+6. 使用 gpssh-exkeys 打通所有服务器 (Master节点进行操作)
+
+   ```bash
+   cd /usr/local/greenplum-db-6.25.3/
+   source
+   
+   cd /home/gpadmin/conf
+   gpssh-exkeys -f hostlist
+   ```
+
+7. 环境变量配置 `.bashrc` 和 `GPHOME`（所有节点机器 gpadmin 用户操作）
+
+   ```bash
+   mkdir -p /home/gpadmin/data/master
+   
+   cat <<EOF >> /home/gpadmin/.bashrc
+   source /usr/local/greenplum-db/greenplum_path.sh
+   export PGPORT=5432
+   export PGUSER=gpadmin
+   export MASTER_DATA_DIRECTORY=/home/gpadmin/data/master/gpseg-1
+   export PGDATABASE=gp_sydb
+   export LD_PRELOAD=/lib64/libz.so.1 ps
+   EOF
+   
+   source /home/gpadmin/.bashrc
+   ```
+
+8. 配置环境变量GPHOME，首先进到文件中直接修改
+
+   ```bash
+   vim /usr/local/greenplum-db/greenplum_path.sh
+   
+   #添加以下路径
+   GPHOME=/usr/local/greenplum-db
+   ```
+
+9. 创建数据文件夹（Master节点）
+
+   ```bash
+   # 创建各个节点的数据文件夹，该步骤之后 hostlist 文件包含机器下都会创建 data 目录，data 目录下都会创建 master、primary、mirror 文件夹
+   gpssh -f /home/gpadmin/conf/hostlist
+   gpssh -f /home/gpadmin/conf/hostlist
+   => mkdir data
+   [hadoop102]
+   [hadoop103] mkdir: cannot create directory ‘data’: File exists
+   [hadoop104] mkdir: cannot create directory ‘data’: File exists
+   => cd data
+   [hadoop102]
+   [hadoop103]
+   [hadoop104]
+   => mkdir master
+   [hadoop102]
+   [hadoop103] mkdir: cannot create directory ‘master’: File exists
+   [hadoop104] mkdir: cannot create directory ‘master’: File exists
+   => mkdir primary
+   [hadoop102]
+   [hadoop103]
+   [hadoop104]
+   => mkdir mirror
+   [hadoop102]
+   [hadoop103]
+   [hadoop104]
+   => exit
+   ```
+
+   > 注意：cannot create directory ‘master’: File exists 不用管
+
+10. 连通性检查（主节点 gpadmin 用户操作）
+
+    ```bash
+    gpcheckperf -f /home/gpadmin/conf/hostlist -r N -d /tmp
+    ```
 
 
 
+### 2.2.3 集群初始化
+
+1）创建初始化配置文件（主节点 gpadmin 用户操作）
+
+> **这里修改初始化文件，首先拷贝一个文件gpinitsystem_config，在修改**
+
+```bash
+mkdir /home/gpadmin/gpconfigs
+
+cp /usr/local/greenplum-db/docs/cli_help/gpconfigs/gpinitsystem_config /home/gpadmin/gpconfigs/gpinitsystem_config
+
+vim /home/gpadmin/gpconfigs/gpinitsystem_config
+# ------------------------以下为配置内容------------------------
+# 该项配置设置主节点数据存储位置，括号里边有几个代表每台主机创建几个postgresql数据库实例，即segment的实例数，上边示例是2个。
+declare -a DATA_DIRECTORY=(/home/gpadmin/data/primary /home/gpadmin/data/primary)
+# 该项配置设置主节点机器名字
+MASTER_HOSTNAME=mdw
+# 该项配置设置主节点数据存储位置
+MASTER_DIRECTORY=/home/gpadmin/data/master
+# 该项配置设置是备节点数据存储位置,规则同DATA_DIRECTORY，括号里边数量和DATA_DIRECTORY保持一致。
+# greenplum数据分主节点和备节点，主节点挂掉时候备节点数据会启用。
+declare -a MIRROR_DATA_DIRECTORY=(/home/gpadmin/data/primary /home/gpadmin/data/primary)
+# 该项配置设置默认数据库名字，和环境变量数据库名字保持一致，不然会失败。
+DATABASE_NAME=gp_sydb
+
+# 在/home/gpadmin/gpconfigs新增一个配置文件hostfile_gpinitsystem
+cd /home/gpadmin/gpconfigs
+vim hostfile_gpinitsystem
+# 内容如下:
+hadoop103
+hadoop104
+```
+
+2）初始化
+
+```bash
+gpinitsystem -c /home/gpadmin/gpconfigs/gpinitsystem_config -h /home/gpadmin/gpconfigs/hostfile_gpinitsystem
+```
+
+集群初始化成功完成，会提示：Greenplum Database instance successfully created
+
+初始化有误，可以使用命令gpdeletesystem进行删除，重新初始化：
+
+`gpdeletesystem -d /home/gpadmin/data/master/gpseg-1 -f` 
+
+> 参数-d 后面跟 MASTER_DATA_DIRECTORY（master 的数据目录），会清除master,segment所有的数据目录
+>
+> 参数-f force， 终止所有进程，进行强制删除
+
+3）GreenPlum 的一些常用启停命令
+
+```bash
+# 关闭 gpstop
+# 启动 gpstart
+# 状态查看 gpstate
+# help 命令查看所有命令
+```
 
 
 
+## 2.3 GreenPlum 登录连接
+
+### 2.3.1 psql 登录
+
+psql 命令登录gp，psql/ 命令用法可以通过 `psql --help` 查看帮助信息
+
+psql 命令格式为：`psql -h hostname -p port -d database -U user -W password`
+
+- -h 后面接对应的master或者segment主机名，默认是本机
+- -p 后面接master或者segment的端口号，默认5432（master节点）
+- 如果登陆segment节点，则需要指定segment端口6000
+- -d 后面接数据库名，默认gpdw，可将上述参数配置到用户环境变量中
+- -U 登陆用户名，默认 gpadmin
+
+直接 `psql` 默认登录就可以
+
+### 2.3.2 远程客户端登录 gp
+
+配置其他用户或者客户端远程登陆 gp，需要配置以下2个文件：
+
+1. 配置 /opt/greenplum/data/master/gpseg-1/pg_hba.conf，新增一条规则，则允许任意ip及密码登陆pg
+   ```bash
+   echo "host all gpadmin 0.0.0.0/0 trust" >> /home/gpadmin/data/master/gpseg-1/pg_hba.conf
+   ```
+
+2. 配置修改完成后，重新加载配置文件
+   ```bash
+   gpstop -u     # 重新加载配置文件 postgresql.conf 和 pg_hba.conf
+   ```
+
+   
+
+# GreenPlum 数据类型
+
+## 3.1 基本数据类型
+
+| **类型**                     | **长度**    | **描述**             | **范围**                                       |
+| ---------------------------- | ----------- | -------------------- | ---------------------------------------------- |
+| **bigint**                   | 8字节       | 大范围整数           | -9223372036854775808  到  +9223372036854775807 |
+| **smallint**                 | 2字节       | 小范围整数           | -32768到+32767                                 |
+| **integer(int)**             | 4字节       | 常用整数             | -2147483648 到  +2147483647                    |
+| **decimal**                  | 可变长      | 用户指定的精度，精确 | 小数点前 131072 位；小数点后 16383 位          |
+| **real**                     | 4字节       | 可变精度，不准确     | 6位十进制数字精度                              |
+| **double** **precision**     | 8字节       | 可变精度，不准确     | 15位十进制数字精度                             |
+| **smallserial**              | 2字节       | 自增的小范围整数     | 1到32767                                       |
+| **serial**                   | 4字节       | 自增整数             | 1到2147483647                                  |
+| **bigserial**                | 8字节       | 自增的大范围整数     | 1到9223372036854775807                         |
+| **character**                | 别名char    | 定长，不足补空白     |                                                |
+| **character varying**        | 别名varchar | 变长，有长度限制     |                                                |
+| **text**                     |             | 变长，无长度限制     |                                                |
+| **timestamp**                | 8字节       | 日期和时间，无时区   | 4713 BC到294276 AD                             |
+| **timestamp with time zone** | 8字节       | 日期和时间，有时区   | 4713 BC到294276 AD                             |
+| **date**                     | 4字节       | 只用于日期           | 4713 BC到5874897 AD                            |
+| **boolean**                  | 1字节       |                      | true/false                                     |
+| **money**                    | 8字节       | 货币金额             | -92233720368547758.08 到 +92233720368547758.07 |
+
+```sql
+# 创建一张student表并加入数据
+--建表语句
+create table student(
+id int, 
+name text, 
+age int, 
+eight double precision);
+# 这里建表时会提示Table doesn't have 'DISTRIBUTED BY' clause -- Using column named 'id' as the Greenplum Database data distribution key for this table.这是提醒建表时指定分布键和分布策略，默认第一个字段（或逐渐）和hash策略。
+
+--插入数据
+insert into test values
+(1,'xiaohaihai',18,75.2),
+(2,'xiaosongsong',16,80.6),
+(3,'xiaohuihui',17,60.3),
+(4,'xiaoyangyang',16,65.8);
+```
+
+## 3.2 复杂数据类型
+
+### 3.2.1 枚举类型
+
+​	枚举类型是一个包含静态和值的有序集合的数据类型，类似于Java中的enum类型，需要使用create type命令创建
+
+```sql
+-- 创建枚举类型
+create type weeks as enum('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+
+-- 建表字段使用枚举类型
+create table user_schedule (
+    user_name varchar(100),
+    available_day weeks
+);
+
+-- 插入数据
+insert into user_schedule (user_name, available_day) values ('Alice', 'Mon');
+insert into user_schedule (user_name, available_day) values ('Bob', 'Fri');
+insert into user_schedule (user_name, available_day) values ('Charlie', 'Sun');
+
+-- 查询结果
+select * from user_schedule;
+```
+
+### 3.2.2 几何类型
+
+​	几何数据类型表示二维的平面物体。下表列出了GreenPlum支持的几何类型。
+
+​	最基本的类型：点。它是其它类型的基础。
+
+| **类型**    | **大小**   | **描述**             | **表现形式**            |
+| ----------- | ---------- | -------------------- | ----------------------- |
+| **point**   | 16字节     | 平面中的点           | (x,y)                   |
+| **line**    | 32字节     | 直线                 | ((x1,y1),(x2,y2))       |
+| **lseg**    | 32字节     | 线段                 | ((x1,y1),(x2,y2))       |
+| **box**     | 32字节     | 矩形                 | ((x1,y1),(x2,y2))       |
+| **path**    | 16+16n字节 | 路径（与多边形相似） | ((x1,y1),...)           |
+| **polygon** | 40+16n字节 | 多边形               | ((x1,y1),...)           |
+| **circle**  | 24字节     | 圆                   | <(x,y),r>  (圆心和半径) |
+
+```sql
+-- 建表 创建一个表 geometric_shapes，它包含点、线和多边形类型的列
+create table geometric_shapes (
+    id serial primary key,
+    point_col point,
+    lseg_col lseg,
+    polygon_col polygon
+);
+
+-- 插入数据
+insert into geometric_shapes (point_col, lseg_col, polygon_col)
+values
+(point(1, 2), lseg '[(0,0),(1,1)]', polygon '((0,0),(1,0),(1,1),(0,1))');
+
+-- 查询数据
+--- 查询所有
+select * from geometric_shapes;
+
+--- 根据点查询
+select * from geometric_shapes where point_col <-> point(1, 2) < 0.0001;
+
+--- 根据线段查询
+select * from geometric_shapes where lseg_col = lseg '[(0,0),(1,1)]';
+
+--- 根据多边形查询
+select * from geometric_shapes where polygon_col ~= polygon '((0,0),(1,0),(1,1),(0,1))';
+```
+
+### 3.2.3 网络地址类型
+
+​	GreenPlum提供用于存储 IPv4、IPv6、MAC 地址的数据类型。用这些数据类型存储网络地址比用纯文本好，因为提供输入错误检查和特殊的操作和功能
+
+| **类型**    | **描述**  | **说明**                 |
+| ----------- | --------- | ------------------------ |
+| **cidr**    | 7或19字节 | IPv4  或 IPv6 网络       |
+| **inet**    | 7或19字节 | IPv4  或 IPv6 主机和网络 |
+| **macaddr** | 6字节     | MAC  地址                |
+
+​	在对 inet 或 cidr 数据类型进行排序的时候， IPv4 地址总是排在 IPv6 地址前面
+
+```sql
+-- 创建包含网络地址数据类型的表
+create table network_addresses (
+    id serial primary key,
+    ip_address inet,
+    network cidr,
+    mac_address macaddr
+);
+
+-- 插入数据
+insert into network_addresses (ip_address, network, mac_address)
+values
+('192.168.1.1/24', '192.168.1.0/24', '08:00:2b:01:02:03');
+
+-- 查询数据
+select * from network_addresses;
+
+-- 查询特定的 IP 地址
+select * from network_addresses where ip_address = inet '192.168.1.1';
+select * from network_addresses where host(ip_address) = '192.168.1.1';
+
+-- 查询特定的网络
+select * from network_addresses where network = cidr '192.168.1.0/24';
+
+-- 查询特定的 MAC 地址
+select * from network_addresses where mac_address = macaddr '08:00:2b:01:02:03';
+
+-- 更新数据
+update network_addresses set ip_address = inet '192.168.1.2' where id = 1;
+
+-- 删除数据
+delete from network_addresses where id = 1;
+```
+
+### 3.2.4 JSON 类型
+
+​	JSON 数据类型可以用来存储 JSON（JavaScript Object Notation）数据， 这样的数据也可以存储为 text，但是 json 数据类型更有利于检查每个存储的数值是可用的 JSON 值
+
+​	此外还有相关的函数来处理 json 数据：
+```sql
+-- 创建一个新表，名为 json_demo，包含一个 json 类型的列
+create table json_demo (
+    id serial primary key,
+    data json
+);
+
+-- 向 json_demo 表插入 json 数据，注意 json 数据必须是单引号的字符串
+-- 并且遵循 json 格式
+insert into json_demo (data) values ('{"name": "张三", "age": 28, "city": "北京"}');
+
+-- 查询 json_demo 表中的 json 数据
+select * from json_demo;
+
+-- 使用 ->> 运算符来提取 json 对象中的 name 字段
+select data->>'name' as name from json_demo;
+```
+
+### 3.2.5 数组类型
+
+​	GreenPlum允许将字段定义成变长的多为数组。数组可以是任何基本类型或用户定义类型，枚举类型或复合类型
+
+```sql
+-- 创建一个新表，名为 array_demo，包含一个 int 类型的数组列
+create table array_demo (
+    id serial primary key,
+    numbers int[]  -- int 数组类型列
+);
+
+-- 向 array_demo 表插入数组数据
+-- 数组使用花括号{}并且元素由逗号分隔
+insert into array_demo (numbers) values ('{1,2,3,4,5}');
+
+-- 查询 array_demo 表中的数组数据
+select * from array_demo;
+
+-- 使用数组下标来获取数组中的特定元素
+-- 注意：Greenplum数组下标从1开始
+select numbers[1] as first_element from array_demo;
+
+-- 使用 unnest 函数来展开数组为一系列行
+select unnest(numbers) as expanded_numbers from array_demo;
+```
+
+### 3.2.6 复合类型
+
+​	复合类型表示一行或者一条记录的结构； 它实际上只是一个字段名和它们的数据类型的列表。GreenPlum允许像简单数据类型那样使用复合类型。比如，一个表的某个字段可以声明为一个复合类型。
+
+​	定义复合类型，语法类似于create table，只是这里可以声明字段名字和类型
+
+```sql
+-- 定义一个复合类型，名为 person_type，包含姓名、年龄和城市
+create type person_type as (
+    name text,
+    age int,
+    city text
+);
+
+-- 创建一个新表，名为 composite_demo，包含一个复合类型的列
+create table composite_demo (
+    id serial primary key,
+    person_info person_type  -- 使用之前定义的复合类型作为列类型
+);
+
+-- 向 composite_demo 表插入复合类型数据
+-- 复合类型数据使用括号，并且属性值由逗号分隔
+insert into composite_demo (person_info) values (ROW('张三', 28, '北京'));
+```
+
+<hr>
 
 
 
+# DDL（Data Definition Language）数据定义
 
+## 4.1 创建数据库 
+
+```sql
+CREATE DATABASE name [ [WITH] [OWNER [=] dbowner]
+[TEMPLATE [=] template]
+[ENCODING [=] encoding]
+[TABLESPAC [=] tablespace]
+[CONNECTIONE LIMIT [=] connlimit ] ]
+
+CREATE DATABASE name：
+
+CREATE DATABASE 是 SQL 命令，用于创建一个新的数据库。
+name 是你要创建的数据库的名称。这个名称是必须的，并且在同一个数据库服务器上必须是唯一的。
+
+[ [WITH] [OWNER [=] dbowner]：
+这是一个可选项。
+OWNER 指定了新数据库的所有者。如果未指定，新数据库的所有者默认是执行该命令的用户。
+dbowner 是数据库所有者的用户名。
+
+[TEMPLATE [=] template]：
+这也是一个可选项。
+TEMPLATE 指定了用于创建新数据库的模板。在 PostgreSQL 和 GreenPlum 中，通常有一个名为 template1 的默认模板。如果不指定，就会使用这个默认模板。
+template 是模板数据库的名称。
+
+[ENCODING [=] encoding]：
+又一个可选项。
+ENCODING 指定了新数据库的字符编码。这个设置决定了数据库可以存储哪些字符。
+encoding 是字符编码的名称，例如 UTF8。
+
+[TABLESPACE [=] tablespace]：
+这是可选的。
+TABLESPACE 指定了新数据库的存储位置。表空间是数据库中存储文件的物理位置。
+tablespace 是表空间的名称。
+
+[CONNECTION LIMIT [=] connlimit ]：
+这也是可选的。
+CONNECTION LIMIT 限制了可以同时连接到数据库的最大客户端数量。
+connlimit 是允许的最大连接数。如果设置为 -1，则表示没有限制。
+ 
+ 
+create database my_db1
+with owner gpadmin
+encoding 'utf-8'
+tablespace pg_default
+connection limit 10; 
+```
+
+**创建 schema**
+
+​	schema 本质上就是一种分组管理工具，它允许您将相关性质或类型的多个表和其他数据库对象（如视图、索引、存储过程等）组织在一起。也可以把 schema 看作是数据库内部的一个“文件夹”或“命名空间”，用于逻辑上组织和隔离数据，以实现更好的数据管理和安全控制。
+
+​	一个 database 下可以有多个 schema。schema 在 gp 中也叫做 namespace
+
+```sql
+-- 连接创建完成的数据库
+\c EmployeeDB
+
+-- 创建schema
+create schema sc_test;
+```
+
+## 4.2 查询数据库
+
+### 4.2.1 显示数据库
+
+```sql
+-- 仅 greenplum 命令行客户端支持
+\l   --查看所有数据库
+\dn  --查看所有schema
+
+-- 可视化客户端中使用以下操作
+-- 列出 PostgreSQL 实例中所有数据库的名称 
+select datname from pg_database;
+
+-- 查询schema 
+SELECT schema_name FROM information_schema.schemata;
+```
+
+### 4.2.2 切换当前数据库
+
+```sql
+-- 仅 greenplum 命令行客户端支持
+
+\c db_gp
+```
+
+
+
+## 4.3 删除数据库
+
+​	DROP DATABASE 会删除数据库的系统目录项并且删除包含数据的文件目录。
+
+​	如果删除的数据库不存在，最好采用 if exists 判断数据库是否存在。
+
+```sql
+drop database if exists db_gp;
+```
+
+## 4.4 创建表
+
+```sql
+CREATE [EXTERNAL] TABLE table_name(
+ column1 datatype [NOT NULL] [DEFAULT] [CHECK] [UNIQUE],
+ column2 datatype,
+ column3 datatype,
+ .....
+ columnN datatype,
+ [PRIMARY KEY()]
+)[ WITH ()]
+ [LOCATION()]
+ [FORMAT]
+ [COMMENT]
+ [PARTITION BY]
+ [DISTRIBUTE BY ()];
+```
+
+> （1）**create table**创建一个指定名字的表。如果相同名字的表已经存在，则抛出异常；
+>
+> （2）**external**关键字可以让用户创建一个外部表，在建表的同时可以指定一个指向实际数据的路径（location）。
+>
+> （3）**comment**：为表和列添加注释。
+>
+> （4）**distributed b****y** 为表添加分布键，其必须为主键的子键。
+>
+> （5）**format** 存储数据的文本类型。
+>
+> （6）**check** 为表字段添加检查约束。
+>
+> （7）**unique** 唯一约束，一个表中唯一和主键只能同时存在一个。
+>
+> （8）**primary key** 主键设置,可以是一个或多个列。
+>
+> （9）**location**：指定外部表数据存储位置。
+>
+> （10）**default**：默认值。
+>
+> （11）**not null**非空约束。
+>
+> （12）**with** 可以添加数据追加方式，压缩格式，压缩级别，行列压缩等。
+>
+> （13）**partiton by** 支持两种分区方式，范围分区（range）和列表分区（list）
+
+**内部表和外部表的介绍**
+
+​	内部表和外部表是两种不同类型的表，它们在数据存储和处理方式上有明显的区别。了解这些区别对于合理地设计和优化 GreenPlum 数据库是非常重要的。
+
+**（1）内部表（Regular Tables）**
+
+**数据存储：**内部表的数据直接存储在 GreenPlum 数据库的数据文件中。这意味着数据被物理存储在数据库服务器上。
+
+**事务管理：**内部表完全支持事务管理。这包括 ACID 属性（原子性、一致性、隔离性和持久性），确保数据完整性和可靠性。
+
+**索引和约束：**你可以在内部表上创建索引和约束，这有助于提高查询性能和维护数据完整性。
+
+**管理和维护：**内部表可以使用数据库的全部管理和维护功能，如备份和恢复。
+
+**适用性：**适用于需要高性能查询和事务完整性的数据。
+
+**（2）外部表（External Tables）**
+
+**数据存储：**外部表的数据存储在数据库外部，如在文件系统、Hadoop HDFS 或任何可通过 SQL/MED（SQL Management of External Data）访问的数据源。外部表仅存储数据的元数据和位置信息。
+
+**事务管理：**外部表不支持事务管理。它们主要用于读取和加载操作，不保证 ACID 属性。
+
+**索引和约束：**由于数据实际存储在外部，你不能在外部表上创建索引或强制执行数据库级别的约束。
+
+**管理和维护：**外部表的管理相对简单，因为它们只是对外部数据源的引用。备份和恢复通常不适用于外部表本身，而是应用于数据源。
+
+**适用性：**适用于 ETL（Extract, Transform, Load）操作，即从外部数据源提取数据，然后可能将其转换和加载到内部表中进行进一步处理。
+
+```sql
+一：内部表操作	
+-- 创建内部表
+CREATE TABLE employees ( employee_id SERIAL PRIMARY KEY, name VARCHAR(100), department VARCHAR(100), hire_date DATE );
+
+-- 插入数据
+INSERT INTO employees (name, department, hire_date) VALUES ('John Doe', 'IT', '2020-01-01');
+INSERT INTO employees (name, department, hire_date) VALUES ('Jane Smith', 'HR', '2020-02-01');
+
+-- 查询结果
+SELECT * FROM employees;
+
+
+二：外部表操作
+# 假设我们有一个 CSV 文件 employee_data.csv，它存储在文件系统中，格式如下：
+employee_id,name,department,hire_date
+1,John Doe,IT,2020-01-01
+2,Jane Smith,HR,2020-02-01
+
+-- 开启一个静态文件服务
+gpfdist -d /home/gpadmin/software/datas/ -p 8081 &
+
+-- 创建外部表
+CREATE EXTERNAL TABLE ext_employees (
+    employee_id varchar(100),
+    name VARCHAR(100),
+    department VARCHAR(100),
+    hire_date varchar(100)
+)
+LOCATION ('gpfdist://hadoop102:8081/employee_data.csv')
+FORMAT 'CSV';
+
+
+SELECT * FROM ext_employees;
+
+体现内外表区别的操作
+
+内部表：
+可以对内部表进行 INSERT, UPDATE, DELETE 等操作，因为数据存储在数据库内部。
+支持事务，可以回滚未提交的更改。
+可以创建索引以提高查询性能。
+
+外部表：
+通常只用于 SELECT 操作，用于读取外部数据源的数据。
+不支持事务。
+不支持索引创建。
+
+内部表和外部表在操作和用途上的主要区别。内部表适合存储和管理数据库内的数据，而外部表适用于从外部数据源临时读取数据。
+```
+
+## 4.5 修改表
+
+1. 重命名表
+
+   ```sql
+   ALTER TABLE table_name RENAME TO new_table_name
+   ```
+
+2. 增加/修改/替换列信息
+
+   ```sql
+   # （1）更新列
+   # 修改列明
+   ALTER TABLE tab_name RENAME old_name TO new_name;
+   # 修改列类型
+   ALTER TABLE tab_name ALTER COLUMN column_name TYPE column_type [USING column_name::column_type];
+   
+   # （2）增加/删除列
+   ALTER TABLE table_name ADD|DROP COLUMN col_name [column_type];
+   ```
+
+   > 注：ADD是代表新增一个字段，需要添加相应的字段类型，DROP是代表删除一个字段
+
+```sql
+（1）查询表结构
+\d arr
+（2）添加列
+alter table arr add column id int;
+（3）更新列
+alter table arr rename sal to salary;
+alter table arr alter column id type double precision;
+（4）删除列
+alter table arr drop column id;
+```
+
+## 4.6 删除表
+
+```sql
+drop table arr;
+```
+
+## 4.7 清除表
+
+```sql
+# 注意：truncate只能删除内部表，不能删除外部表中数据
+truncate table arr;
+```
+
+
+
+# DML（Data Manipulation Language）数据操作
+
+## 5.1 数据导入
+
+1. 向表中装载数据（COPY）
+
+   ```sql
+   COPY table_name FROM file_path DELIMITER ‘字段之间的分隔符’;
+   ```
+
+   （1）copy：表示加载数据，仅追加。
+
+   （2）delimiter：表示读取的数据字段之间的分隔符。
+
+   ```sql
+   # 准备一份文件 在hadoop102的/home/gpadmin/software/datas目录下新建文件
+   vim employees1.txt
+   John,IT,30
+   Jane,HR,25
+   # 创建一张表
+   CREATE TABLE employees1 (
+       name VARCHAR(100),
+       department VARCHAR(50),
+       age INTEGER
+   );
+   # 加载文件到表中
+   COPY employees1 FROM '/home/gpadmin/software/datas/employees1.txt' delimiter ',';
+   ```
+
+2. 通过查询语句向表中插入数据（Insert）
+
+   ```sql
+   # 1）创建一张表
+   CREATE TABLE employees2 (
+       name VARCHAR(100),
+       department VARCHAR(50),
+       age INTEGER
+   );
+   # 2）基本模式插入数据
+   insert into  employees2  values(‘zhangsan’,'IT',18),(‘lisi’,'HR',20);
+   # 3）根据查询结果插入数据
+   insert into  employees2 select * from employees1;
+   ```
+
+   > 注意：insert不支持覆盖数据，仅追加。
+
+3. 查询语句中创建表并加载数据（As Select）
+
+   ```SQL
+   # 根据查询结果创建表（查询的结果会添加到新创建的表中）
+   create table employees3 as select * from employees1 ;
+   ```
+
+
+
+## 5.2 数据更新和删除
+
+1. 数据更新
+
+   ```SQL
+   # 修改数据的通用SQL语法：
+   UPDATE table_name
+   SET column1 = value1, column2 = value2...., columnN = valueN
+   WHERE [condition];
+   
+   # 可以同时更新一个或多个字段，也可以在WHERE子句中指定任何条件。
+   update employees3 set name='haihai' where department = 'HR';
+   ```
+
+2.  数据删除
+
+   ```SQL
+   # 删除指定数据的通用SQL语法：
+   DELETE FROM table_name WHERE [condition];
+   
+   # 如果没有指定 WHERE 子句，GreenPlum对应表中的所有记录将被删除
+   # 一般我们需要在 WHERE 子句中指定条件来删除对应的记录，条件语句可以使用 AND 或 OR 运算符来指定一个或多个
+   delete from gp_test where id =1 or name = 'cangcang';
+   ```
+
+3. 创建外部表时通过Location指定加载数据路径
+
+   ```SQL
+   # 1）数据存储在segment节点，不要在master节点
+   # 2）创建表，并指定文件位置
+   create external table gp_test3 (
+   id int, 
+   name text
+   ) location('file://hadoop103:6000/opt/greenplum/data1/primary/gp_test.txt') 
+   format 'text' (delimiter ',');
+   
+   # 3）查询数据
+   select * from gp_test3;
+   # 后续只需要文件修改，对应查出的数据即会随着改变
+   ```
+
+## 5.3 数据导出
+
+```SQL
+# 无法导出外部表的数据
+
+copy employees3 to '/home/gpadmin/software/datas/test.txt';
+```
+
+<HR>
+
+# 查询
+
+## 6.1 基础语法及执行顺序
+
+```sql
+SELECT [DISTINCT] colum1, column2, ...
+FROM table_name               -- 表
+[WHERE condition]             -- 过滤
+[GROUP BY column_list]        -- 分组查询
+[HAVING column_list]          -- 分组后过滤
+[ORDER BY column_list]        -- 排序
+[LIMIT number]                -- 限制输出的行数
+```
+
+
+
+看起来核 以前的数据库查询差不多 ~
+
+
+
+```sql
+（1）求总行数（count）
+select count(*) from emp;
+（2）求工资的最大值（max）
+select max(sal) max_sal from emp;
+（3）求工资的最小值（min）
+select min(sal) min_sal from emp;
+（4）求工资的总和（sum）
+select sum(sal) sum_sal from emp;
+（5）求工资的平均值（avg）
+select avg(sal) avg_sal from emp;
+```
+
+
+
+# 函数
+
+
+
+## 7.1 单行函数
+
+### 7.1.1 算术运算函数
+
+| **运算符** | **描述**       |
+| ---------- | -------------- |
+| **A+B**    | A和B 相加      |
+| **A-B**    | A减去B         |
+| **A\*B**   | A和B 相乘      |
+| **A/B**    | A除以B         |
+| **A%B**    | A对B取余       |
+| **A&B**    | A和B按位取与   |
+| **A\|B**   | A和B按位取或   |
+| **A^B**    | A和B按位取异或 |
+| **~A**     | A按位取反      |
+
+### 7.1.2 数学函数
+
+| 函数       | 描述                  |
+| ---------- | --------------------- |
+| ceil       | 不小于参数的最小整数  |
+| floor      | 不大于参数的最大整数  |
+| round      | 四舍五入              |
+| round(a,b) | 保留b位小数的四舍五入 |
+| random     | 0到1之间的随机shu'zhi |
+
+### 7.1.3 字符串函数
+
+1）substr 或 substring：截取字符串
+
+​	语法一：substr(text A, int start) 
+
+​	说明：返回字符串A从start位置到结尾的字符串
+
+​	语法二：substr(text A, int start, int len) 
+
+​	说明：返回字符串A从start位置开始，长度为len的字符串
+
+2）replace ：替换
+
+​	语法：replace(text A, text B, text C) 
+
+​	说明：将字符串A中的子字符串B替换为C
+
+3）repeat：重复字符串
+
+​	语法：repeat(textA, int n)
+
+​	说明：将字符串A重复n遍
+
+4）split_part ：字符串切割
+
+​	语法：split_part(text str, text pat,int field) 
+
+​	说明：按照正则表达式pat匹配到的内容分割str，返回分割后的第field个字符。
+
+5）concat ：拼接字符串
+
+​	语法：concat(text A, text B, text C, ……) 
+
+​	说明：将A,B,C……等字符拼接为一个字符串
+
+6）concat_ws：以指定分隔符拼接字符串
+
+​	语法：concat_ws(text A, text…) 
+
+​	说明：使用分隔符A拼接多个字符串，或者一个数组的所有元素。
+
+### 7.1.4 日期函数
+
+1）current_date：当前日期
+
+​	`select current_date;`
+
+2）current_timestamp：当前的日期加时间，并且精确的毫秒 
+
+​	select current_timestamp;
+
+3）date_part(text,timestamp)：根据输入的text获取对应的年月日时分秒
+
+​	select date_part('hour',current_timestamp);
+
+4）age：两个日期相差的天数（结束日期减去开始日期的天数）
+
+​	age(timestamp enddate, timestamp startdate) ,返回值使用年和月，不只是天数
+​	select age(timestamp '2024-03-16', timestamp '2023-02-15');
+
+4）to_char：转换日期格式
+
+​	语法：to_char(timestamp startdate,text ) 
+​	select to_char(now(),'yyyymmdd');
+
+6）日期加减
+
+​	对应的日期 + interval text
+​	select timestamp '203-02-15' + interval '2 days';
+
+## 7.2 窗口函数
+
+​	窗口函数，能为每行数据划分一个窗口，然后对窗口范围内的数据进行计算，最后将计算结果返回给该行数据
+
+![image-20240325162428421](images/image-20240325162428421.png)
+
+​	按照功能，常用窗口可划分为如下几类：聚合函数、跨行取值函数、排名函数
+
+​	**聚合函数**
+
+​		max：最大值
+
+​		min：最小值
+
+​		sum：求和
+
+​		avg：平均值
+
+​		count：计数
+
+​	**跨行取值函数**
+
+​		**lead 和 lag**
+
+​		![image-20240325162710625](images/image-20240325162710625.png)
+
+> 注：lag和lead函数不支持自定义窗口
+
+​		**first_value 和 last_value**
+
+​		![image-20240325162815560](images/image-20240325162815560.png)
+
+​		**排名函数**
+
+​		![image-20240325162839460](images/image-20240325162839460.png)
+
+> 注：**rank 、dense_rank、row_number不支持自定义窗口**

@@ -17,15 +17,7 @@ Spring Boot 优点，如：
 
 
 
-> 简化Spring应用开发的一个框架；
->
-> 整个Spring技术栈的一个大整合；
->
-> J2EE开发的一站式解决方案；
-
 ## 2、微服务
-
-2014，martin fowler
 
 微服务：架构风格（服务微化） 
 
@@ -36,10 +28,6 @@ Spring Boot 优点，如：
 微服务：每一个功能元素最终都是一个可独立替换和独立升级的软件单元； 
 
 [详细参照微服务文档](https://martinfowler.com/articles/microservices.html#MicroservicesAndSoa)
-
-
-
-![image-20220610142132825](../Java/JUC/pics/image-20220610142132825.png)
 
 
 

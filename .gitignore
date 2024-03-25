@@ -19,6 +19,9 @@ Software
 
 ## 资料 文件 ##
 /Datum
+*.doc
+*.docx
+*.txt
 doc
 *.pdf
 !MachineLearning/Tricks/images/*.pdf
@@ -28,9 +31,6 @@ doc
 
 ### git rm --cached -r fold/
 ## 提交 ##
-*.doc
-*.docx
-*.txt
 static/
 Vue_Code/
 vue_basic/

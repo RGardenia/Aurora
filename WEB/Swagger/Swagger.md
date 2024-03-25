@@ -9,8 +9,8 @@
 
 在项目中使用`Swagger`需要使用`springbox`，包括两个组件：
 
-- swagger2
-- ui
+- `swagger2`
+- `ui`
 
 # 2.SpringBoot整合
 
