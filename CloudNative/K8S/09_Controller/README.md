@@ -146,7 +146,8 @@ selector:
 - Deployment 控制器可以部署无状态应用
 - 管理 Pod 和 ReplicaSet
 - 部署，滚动升级等功能
-- 应用场景：web 服务，微服务
+
+<img src="images/bf10ea1e296075ca5e81e77922d91505.png" alt="img" style="zoom:67%;" />
 
 ​	Deployment 表示用户对K8S集群的一次更新操作。Deployment 是一个比 RS( Replica Set, RS) 应用模型更广的 API 对象，可以是创建一个新的服务，更新一个新的服务，也可以是滚动升级一个服务。滚动升级一个服务，实际是创建一个新的RS，然后逐渐将新 RS 中副本数增加到理想状态，将旧 RS 中的副本数减少到 0 的复合操作。
 
@@ -158,7 +159,7 @@ selector:
 kubectrl create deployment web --image=nginx
 ```
 
-但是上述代码不是很好的进行复用，因为每次都需要重新输入代码，所以都是通过YAML进行配置
+但是上述代码不是很好的进行复用，因为每次都需要重新输入代码，所以都是通过 YAML 进行配置
 
 但是可以尝试使用上面的代码创建一个镜像【只是尝试，不会创建】
 
@@ -295,17 +296,42 @@ kubectl get pods,svc
 
 ![image-20201116104131968](images/image-20201116104131968.png)
 
-## 升级回滚和弹性伸缩
+​	注意 ReplicaSet 的名称始终被格式化为 `[Deployment名称]-[随机字符串]`。 其中的随机字符串是使用 pod-template-hash 作为种子随机生成的。
+
+​	Deployment 控制器将 pod-template-hash 标签添加到 Deployment 所创建或收留的 每个 ReplicaSet 。此标签可确保 Deployment 的子 ReplicaSets 不重叠。 标签是通过对 ReplicaSet 的 PodTemplate 进行哈希处理。 所生成的哈希值被添加到 ReplicaSet 选择算符、Pod 模板标签，并存在于在 ReplicaSet 可能拥有的任何现有 Pod 中。
+​	`kubectl get pods --show-labels`
+
+​	当 Deployment 创建或者接管 ReplicaSet 时，Deployment controller 会自动为 Pod 添加 pod-template-hash label。这样做的目的是防止 Deployment 的子 ReplicaSet 的 pod 名字重复。通过将 ReplicaSet 的 PodTemplate 进行哈希散列，使用生成的哈希值作为 label 的值，并添加到 ReplicaSet selector 里、 pod template label 和 ReplicaSet 管理中的 Pod 上。
+
+
+### 升级回滚和弹性伸缩
+
+​	仅当 Deployment Pod 模板（即 `.spec.template`）发生改变时，才会触发Deployment 上线。 其他更新（如对 Deployment 执行扩缩容的操作）不会触发上线动作。
+
+​	如：`kubectl set image deployment/nginx-deployment nginx=nginx:1.16.1 --record`
+​		`kubectl edit deployment.v1.apps/nginx-deployment`
+
+​	Deployment 可确保在更新时仅关闭一定数量的 Pod。默认情况下，它确保至少所需 Pods 75% 处于运行状态（最大不可用比例为 25%）。Deployment 还确保仅所创建 Pod 数量只可能比期望 Pods 数高一点点。 默认情况下，它可确保启动的 Pod 个数比期望个数最多多出 25%（最大峰值 25%）。
+
+
+![img](images/6740edc545dc53888d61bd3ad4658117.png)
+
+​	当第一次创建 Deployment 时，它创建了一个 ReplicaSet 并将其直接扩容至 3 个副本。更新 Deployment 时，它创建了一个新的 ReplicaSet ，并将其扩容为 1，然后将旧 ReplicaSet 缩容到 2， 以便至少有 2 个 Pod 可用且最多创建 4 个 Pod。 然后，它使用相同的滚动更新策略继续对新的 ReplicaSet 扩容并对旧的 ReplicaSet 缩容。 最后，你将有 3 个可用的副本在新的 ReplicaSet 中，旧 ReplicaSet 将缩容到 0
+
+​	每当 Deployment controller 观测到有新的 deployment 被创建时，如果没有已存在的 ReplicaSet 来创建期望个数的 Pod 的话，就会创建出一个新的 ReplicaSet 来做这件事。已存在的 ReplicaSet 控制 label 与 .spec.selector 匹配但是 template 跟 .spec.template 不匹配的 Pod 缩容。最终，新的 ReplicaSet 将会扩容出 .spec.replicas 指定数目的 Pod，旧的 ReplicaSet 会缩容到 0
+
+​	如果您更新了一个的已存在并正在进行中的 Deployment，每次更新 Deployment 都会创建一个新的 ReplicaSet 并扩容它，同时回滚之前扩容的 ReplicaSet —— 将它添加到旧的 ReplicaSet 列表中，开始缩容
+
 
 - 升级：  假设从版本为1.14 升级到 1.15 ，这就叫应用的升级【升级可以保证服务不中断】
 - 回滚：从版本1.15 变成 1.14，这就叫应用的回滚
 - 弹性伸缩：根据不同的业务场景，来改变Pod的数量对外提供服务，这就是弹性伸缩
 
-### 应用升级和回滚
+#### 应用升级
 
 首先先创建一个 1.14版本的Pod
 
-```bash
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -366,7 +392,7 @@ kubectl set image deployment web nginx=nginx:1.15
 
 能够看到，已经成功拉取到了 1.15版本的nginx了
 
-#### 查看升级状态
+**查看升级状态**
 
 下面可以，查看升级状态
 
@@ -376,7 +402,7 @@ kubectl rollout status deployment web
 
 ![image-20201116112139645](images/image-20201116112139645.png)
 
-#### 查看历史版本
+**查看历史版本**
 
 还可以查看历史版本
 
@@ -384,7 +410,7 @@ kubectl rollout status deployment web
 kubectl rollout history deployment web
 ```
 
-#### 应用回滚
+#### 回滚
 
 可以使用下面命令，完成回滚操作，也就是回滚到上一个版本
 
@@ -406,7 +432,25 @@ kubectl rollout status deployment web
 kubectl rollout undo deployment web --to-revision=2
 ```
 
-### 弹性伸缩
+```bash
+# 例如错误的更新到了一个xxx版本
+kubectl set image deploy nginx nginx=nginx:xxx --record
+
+# 查看 kubectl 更新的历史命令
+kubectl rollout history deploy nginx
+
+REVISION  CHANGE-CAUSE
+1         <none>
+2         kubectl set image deploy nginx nginx=nginx:1.15.3 --record=true
+3         kubectl set image deploy nginx nginx=nginx:xxx --record=true
+
+# 回滚到上一个版本
+kubectl rollout undo deploy nginx
+```
+
+
+
+#### 弹性伸缩
 
 弹性伸缩，也就是通过命令一下创建多个副本
 
@@ -507,7 +551,7 @@ kubectl exec -it ds-test-cbk6v bash
 
 
 
-## Job和CronJob
+## Job 和 CronJob
 
 一次性任务 和 定时任务
 

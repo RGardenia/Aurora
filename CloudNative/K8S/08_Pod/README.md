@@ -235,9 +235,9 @@ kubectl get pods -o wide -l app=nginx
 ​	在 Pod 的整个生命周期中，能影响到 Pod 的就只剩下健康检查这一部分了。在 Kubernetes 集群当中，可以通过配置`liveness probe（存活探针`）和`readiness probe（可读性探针）`来影响容器的生命周期：
 
 - kubelet 通过使用 `liveness probe` 来确定你的应用程序是否正在运行，通俗点将就是**是否还活着**。一般来说，如果你的程序一旦崩溃了， Kubernetes 就会立刻知道这个程序已经终止了，然后就会重启这个程序。而的 liveness probe 的目的就是来捕获到当前应用程序还没有终止，还没有崩溃，如果出现了这些情况，那么就重启处于该状态下的容器，使应用程序在存在 bug 的情况下依然能够继续运行下去。
-- kubelet 使用 `readiness probe` 来确定容器是否已经就绪可以接收流量过来了。这个探针通俗点讲就是说**是否准备好了**，现在可以开始工作了。只有当 Pod 中的容器都处于就绪状态的时候 kubelet 才会认定该 Pod 处于就绪状态，因为一个 Pod 下面可能会有多个容器。当然 Pod 如果处于非就绪状态，那么就会将他从 Service 的 Endpoints 列表中移除出来，这样的流量就不会被路由到这个 Pod 里面来了。
+- kubelet 使用 `readiness probe` 来确定容器是否已经就绪可以接收流量过来了。这个探针通俗点讲就是说**是否准备好了**，现在可以开始工作了。只有当 Pod 中的容器都处于就绪状态的时候 kubelet 才会认定该 Pod 处于就绪状态，因为一个 Pod 下面可能会有多个容器。当然 Pod 如果处于非就绪状态，那么就会从 Service 的 Endpoints 列表中移除出来，这样的流量就不会被路由到这个 Pod 里面来了。
 
-和前面的钩子函数一样的，这两个探针的支持下面几种配置方式：
+和钩子函数一样的，这两个探针的支持下面几种配置方式：
 
 - `exec`：执行一段命令，执行 Shell 命令返回状态码是 0 为成功
 - `http`：检测某个 http 请求，发送 HTTP 请求，返回 200 - 400 范围状态码为成功
@@ -754,7 +754,7 @@ FIELDS:
    > 在 Pod 对象定义容忍度的时候支持两种操作：
    > 1.等值密钥：key 和 value 上完全匹配
    > 2.存在性判断：key 和 effect 必须同时匹配，value 可以是空
-   > 在 Pod 上定义的容忍度可能不止一个，在节点上定义的污点可能多个，需要琢个检查容忍度和污点能否匹配，每一个污点都能被容忍，才能完成调度，如果不能容忍怎么办，那就需要看 pod 的容忍度了
+   > 在 Pod 上定义的容忍度可能不止一个，在节点上定义的污点可能多个，需要琢个检查容忍度和污点能否匹配，每一个污点都能被容忍，才能完成调度，如果不能容忍，就需要看 pod 的容忍度了
 
 ```bash
 kubectl describe pods kube-apiserver-k8smaster -n  kube-system
@@ -840,8 +840,8 @@ kubectl get pods -o wide
 # 调度到 node2 & node 上
 
 # 删除污点
-kubectl taint nodes xianchaonode1 node-type:NoExecute-
-kubectl taint nodes xianchaonode2 node-type-
+kubectl taint nodes node1 node-type:NoExecute-
+kubectl taint nodes node2 node-type-
 ```
 
 ### 场景
@@ -971,6 +971,26 @@ kubectl taint node k8snode1 env_role:NoSchedule-
 
 <img src="images/pod-loap.jpg" alt="pod loap" style="zoom:67%;" />
 
+**创建过程**
+1、用户通过 `kubectl` 或其他 `api` 客户端提交需要创建的 `pod` 信息给`apiServer`
+2、`apiServer`开始生成`pod`对象的信息，并将信息存入 `etcd`，然后返回确认信息至客户端
+3、`apiServer`开始反映 `etcd` 中的 `pod` 对象的变化，其它组件使用 `watch` 机制来跟踪检查`apiServer`上的变动
+4、`scheduler` 发现有新的`pod`对象要创建，开始为`pod`分配主机并将结果信息更新至`apiServer`
+5、`node` 节点上的kubelet发现有`pod`调度过来，尝试调用 `docker` 启动容器，并将结果回送至`apiServer`
+6、`apiServer` 将接收到的`pod`状态信息存入etcd中
+
+**终止过程**
+
+1、用户向`apiServer`发送删除 `pod` 对象的命令
+2、`apiServer`中的`pod`信息会随着时间的推移而更新，在宽限期内（默认30s），`pod`被视为 dead
+3、将`pod`标记为 `terminating` 状态
+4、`kubelet` 在监控到`pod`对象转为 `terminating` 状态的同时启动pod关闭过程
+5、端点控制器监控到`pod`对象的关闭行为时将其从所有匹配到此端点的 `service` 资源的端点列表中移除
+6、如果当前`pod`对象定义了 `preStop` 钩子处理器，则在其标记为 `terminating` 后即会以同步的方式启动执行
+7、`pod`对象中的容器进程收到停止信号
+8、宽限期结束后，若`pod`中还存在仍在运行的进程，那么`pod`对象会收到立即终止的信号
+9、`kubelet` 请求`apiServer`将此`pod`资源的宽限期设置为0从而完成删除操作，此时`pod`对于用户已不可见
+
 ### Pod 状态
 
 ​	首先先了解下 Pod 的状态值，可以通过 `kubectl explain pod.status` 命令来了解关于 Pod 状态的一些信息，Pod 的状态定义在 `PodStatus` 对象中，其中有一个 `phase` 字段，下面是 `phase` 的可能取值：
@@ -987,7 +1007,7 @@ kubectl taint node k8snode1 env_role:NoSchedule-
 - lastTransitionTime：上次 Condition 从一种状态转换到另一种状态的时间。
 - message：上次 Condition 状态转换的详细描述。
 - reason：Condition 最后一次转换的原因。
-- status：Condition 状态类型，可以为 “True”, “False”, and “Unknown”.
+- status：Condition 状态类型，可以为 “True”, “False”, and “Unknown”
 - type：Condition 类型，包括以下方面：
   - PodScheduled（Pod 已经被调度到其他 node 里）
   - Ready（Pod 能够提供服务请求，可以被添加到所有可匹配服务的负载平衡池中）
@@ -999,9 +1019,9 @@ kubectl taint node k8snode1 env_role:NoSchedule-
 
 ​	了解了 Pod 状态后，首先来了解下 Pod 中最新启动的 `Init Container`，也就是平时常说的**初始化容器**。`Init Container`就是用来做初始化工作的容器，可以是一个或者多个，如果有多个的话，这些容器会按定义的顺序依次执行。知道一个 Pod 里面的所有容器是共享数据卷和Network Namespace 的，所以`Init Container`里面产生的数据可以被主容器使用到。从上面的 Pod 生命周期的图中可以看出初始化容器是独立与主容器之外的，只有所有的`初始化容器执行完之后，主容器才会被启动。那么初始化容器有哪些应用场景呢：
 
-- 等待其他模块 Ready：这个可以用来解决服务之间的依赖问题，比如有一个 Web 服务，该服务又依赖于另外一个数据库服务，但是在启动这个 Web 服务的时候并不能保证依赖的这个数据库服务就已经启动起来了，所以可能会出现一段时间内 Web 服务连接数据库异常。要解决这个问题的话就可以在 Web 服务的 Pod 中使用一个 `InitContainer`，在这个初始化容器中去检查数据库是否已经准备好了，准备好了过后初始化容器就结束退出，然后主容器的 Web 服务才被启动起来，这个时候去连接数据库就不会有问题了。
-- 做初始化配置：比如集群里检测所有已经存在的成员节点，为主容器准备好集群的配置信息，这样主容器起来后就能用这个配置信息加入集群。
-- 其它场景：如将 Pod 注册到一个中央数据库、配置中心等。
+- 等待其他模块 Ready：这个可以用来解决服务之间的依赖问题，比如有一个 Web 服务，该服务又依赖于另外一个数据库服务，但是在启动这个 Web 服务的时候并不能保证依赖的这个数据库服务就已经启动起来了，所以可能会出现一段时间内 Web 服务连接数据库异常。要解决这个问题的话就可以在 Web 服务的 Pod 中使用一个 `InitContainer`，在这个初始化容器中去检查数据库是否已经准备好了，准备好了过后初始化容器就结束退出，然后主容器的 Web 服务才被启动起来，这个时候去连接数据库就不会有问题了
+- 做初始化配置：比如集群里检测所有已经存在的成员节点，为主容器准备好集群的配置信息，这样主容器起来后就能用这个配置信息加入集群
+- 其它场景：如将 Pod 注册到一个中央数据库、配置中心等
 
 比如现在来实现一个功能，在 Nginx Pod 启动之前去重新初始化首页内容，如下所示的资源清单
 
@@ -1034,6 +1054,26 @@ spec:
     volumeMounts:
     - name: workdir
       mountPath: /usr/share/nginx/html
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-initcontainer
+  namespace: dev
+spec:
+  containers:
+  - name: main-container
+    image: nginx:1.17.1
+    ports: 
+    - name: nginx-port
+      containerPort: 80
+  initContainers:
+  - name: test-mysql
+    image: busybox:1.30
+    command: ['sh', '-c', 'until ping 192.168.90.14 -c 1 ; do echo waiting for mysql...; sleep 2; done;']
+  - name: test-redis
+    image: busybox:1.30
+    command: ['sh', '-c', 'until ping 192.168.90.15 -c 1 ; do echo waiting for reids...; sleep 2; done;']
 ```
 
 ​	上面的资源清单中首先在 Pod 顶层声明了一个名为 workdir 的 `Volume`，前面用了 hostPath 的模式，这里使用的是 `emptyDir{}`，这个是一个临时的目录，数据会保存在 kubelet 的工作目录下面，生命周期等同于 Pod 的生命周期。
@@ -1048,25 +1088,48 @@ kubectl describe pod init-demo
 kubectl get pods -o wide
 ```
 
-​	从上面的描述信息里面可以看到初始化容器已经启动了，现在处于 `Running` 状态，所以还需要稍等，到初始化容器执行完成后退出初始化容器会变成 `Completed` 状态，然后才会启动主容器。待到主容器也启动完成后，Pod 就会变成`Running` 状态，然后去访问下 Pod 主页，验证下是否有初始化容器中下载的页面信息：
+​	从上面的描述信息里面可以看到初始化容器已经启动了，现在处于 `Running` 状态，所以还需要稍等，到初始化容器执行完成后退出初始化容器会变成 `Completed` 状态，然后才会启动主容器。待到主容器也启动完成后，Pod 就会变成`Running` 状态，然后去访问下 Pod 主页，验证下是否有初始化容器中下载的页面信息
 
 
 
 ### Pod Hook
 
-​	知道 Pod 是 Kubernetes 集群中的最小单元，而 Pod 是由容器组成的，所以在讨论 Pod 的生命周期的时候可以先来讨论下容器的生命周期。实际上 Kubernetes 为容器提供了生命周期的钩子，就是说的`Pod Hook`，Pod Hook 是由 kubelet 发起的，当容器中的进程启动前或者容器中的进程终止之前运行，这是包含在容器的生命周期之中。可以同时为 Pod 中的所有容器都配置 hook。
+​	知道 Pod 是 Kubernetes 集群中的最小单元，而 Pod 是由容器组成的，所以在讨论 Pod 的生命周期的时候可以先来讨论下容器的生命周期。实际上 Kubernetes 为容器提供了生命周期的钩子，就是说的`Pod Hook`，Pod Hook 是由 kubelet 发起的，当容器中的进程启动前或者容器中的进程终止之前运行，这是包含在容器的生命周期之中。可以同时为 Pod 中的所有容器都配置 hook
 
 Kubernetes 为提供了两种钩子函数：
 
-- `PostStart`：这个钩子在容器创建后立即执行。但是，并不能保证钩子将在容器 ENTRYPOINT 之前运行，因为没有参数传递给处理程序。主要用于资源部署、环境准备等。不过需要注意的是如果钩子花费太长时间以至于不能运行或者挂起，容器将不能达到 running 状态。
-- `PreStop`：这个钩子在容器终止之前立即被调用。它是阻塞的，意味着它是同步的，所以它必须在删除容器的调用发出之前完成。主要用于优雅关闭应用程序、通知其他系统等。如果钩子在执行期间挂起，Pod 阶段将停留在 running 状态并且永不会达到 failed 状态。
+- `PostStart`：这个钩子在容器创建后立即执行。但是，并不能保证钩子将在容器 ENTRYPOINT 之前运行，因为没有参数传递给处理程序。主要用于资源部署、环境准备等。不过需要注意的是如果钩子花费太长时间以至于不能运行或者挂起，容器将不能达到 running 状态
+- `PreStop`：这个钩子在容器终止之前立即被调用。它是阻塞的，意味着它是同步的，所以它必须在删除容器的调用发出之前完成。主要用于优雅关闭应用程序、通知其他系统等。如果钩子在执行期间挂起，Pod 阶段将停留在 running 状态并且永不会达到 failed 状态
 
-​	如果 PostStart 或者 PreStop 钩子失败， 它会杀死容器。所以应该让钩子函数尽可能的轻量。当然有些情况下，长时间运行命令是合理的， 比如在停止容器之前预先保存状态。
+​	如果 PostStart 或者 PreStop 钩子失败， 它会杀死容器。所以应该让钩子函数尽可能的轻量。当然有些情况下，长时间运行命令是合理的， 比如在停止容器之前预先保存状态
 
 另外有两种方式来实现上面的钩子函数：
 
-- `Exec` - 用于执行一段特定的命令，不过要注意的是该命令消耗的资源会被计入容器。
-- `HTTP` - 对容器上的特定的端点执行 HTTP 请求。
+- `Exec` - 用于执行一段特定的命令，不过要注意的是该命令消耗的资源会被计入容器
+
+- `HTTP` - 对容器上的特定的端点执行 HTTP 请求
+
+  - `TCPSocket`
+
+    ```yaml
+    lifecycle:
+      postStart:
+        tcpSocket:
+          port: 8080
+    ```
+
+  - HTTPGet
+
+    ```yaml
+    lifecycle:
+      postStart:
+        httpGet:
+          path: / 					  # URI地址
+          port: 80 					  # 端口号
+          host: 192.168.5.3 	 # 主机地址
+          scheme: HTTP 				# 支持的协议，http或者https
+    ```
+
 
 以下示例中，定义了一个 Nginx Pod，其中设置了 PostStart 钩子函数，即在容器创建成功后，写入一句话到 `/usr/share/message` 文件中
 
@@ -1084,7 +1147,7 @@ spec:
       postStart:
         exec:
           command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
-          
+
 kubectl apply -f pod-poststart.yaml
 kubectl get pods -o wide
 
@@ -1142,7 +1205,6 @@ spec:
 # 上面定义的两个 Pod，一个是利用 preStop 来进行优雅删除，另外一个是利用 preStop 来做一些信息记录的事情，同样直接创建上面的 Pod
 
 kubectl apply -f pod-prestop.yaml
-
 ```
 
 ​	创建完成后，可以直接删除 hook-demo2 这个 Pod，在容器删除之前会执行 preStop 里面的优雅关闭命令，这个用法在后面的滚动更新的时候用来保证的应用零宕机非常有用。第二个 Pod 声明了一个 hostPath 类型的 Volume，在容器里面声明挂载到了这个 Volume，所以当删除 Pod，退出容器之前，在容器里面输出的信息也会同样的保存到宿主机（一定要是 Pod 被调度到的目标节点）的 `/tmp` 目录下面，可以查看 hook-demo3 这个 Pod 被调度的节点：
@@ -1165,3 +1227,120 @@ cat /tmp/message
 ```
 
 ​	另外 Hook 调用的日志没有暴露个给 Pod，所以只能通过 describe 命令来获取，如果有错误将可以看到 `FailedPostStartHook` 或 `FailedPreStopHook` 这样的 `event`
+
+
+
+## Pod 信息
+
+### 可供使用的 Pod 信息
+
+1）可供 feildRef 设置的元数据如下：
+
+```yaml
+metadate.name					 				 # Pod 名称
+metadate.namespace					   # Pod 所在的命名空间
+metadate.uid									# Pod 的 UID
+metadate.labels								# Pod 的 label
+metadate.labels['key']				# Pod 的某个 Label
+metadate.annotations					# Pod 的 annotation
+metadate.annotations['key']		# Pod 的某个 annotation
+```
+
+2）可以通过 resourceFieldRef 设置的数据如下：
+
+```yaml
+Container 级别的 CPU Limit
+Container 级别的 CPU Request
+Container 级别的 Memory Limit
+Container 级别的 Memory Request
+Container 级别的 临时存储空间 Limit
+Container 级别的 临时存储空间 Request
+```
+
+3）可供 feildRef 设置的其他数据如下：
+
+```yaml
+status.podIP
+spec.serviceAccountName	 # Pod 使用的 ServiceAccount 名称
+spec.nodeName						# Pod 所在的 Node 的名称
+status.hostIP						# Pod 所在的 Node 的 IP 地址
+```
+
+### 环境变量方式
+
+将 pod 信息设置为容器内的环境变量
+
+```yaml
+apiVersion: v1
+kind: pod
+metadate:
+  name: depi-envvars-fieldref
+spec:
+  containers:
+  - name: test-container
+    image: busybox
+    command: [ "sh", "-c" ]
+    args:
+    - while true; do
+	    echo -en '\n';
+	    printenv MY_NODE_NAME MY_POD_NAME MY_POD_IP;
+	    sleep 10;
+	  done;
+	env:
+	  - name: MY_NODE_NAME
+	    valueFrom:
+	      fieldRef:
+	        fieldPath: spec.nodeName
+	  - name: MY_POD_NAME
+	    valueFrom:
+	      fieldRef:
+	        fieldPath: metadate.name
+	  - name: MY_POD_IP
+	    valueFrom:
+	      feildRef:
+	        fieldPath: status.podIP
+	restartPolicy: Never
+```
+
+> 注意：env 不直接设置 value，而是使用 valueFrom 对 Pod 的元数据进行引用
+
+将 Container 信息设置为容器内环境变量
+```yaml
+apiVersion: v1
+kind: pod
+metadate:
+  name: depi-envvars-resourcefieldref
+spec:
+  containers:
+  - name: test-container
+    image: busybox
+    command: [ "sh", "-c" ]
+    args:
+    - while true; do
+	    echo -en '\n';
+	    printenv MY_CPU_REQUEST MY_MEMORY_LIMIT;
+	    sleep 10;
+	  done;
+	resources:
+	  requests:
+	    memory: "1Gi"
+	    cpu: "250m"
+	  limits:
+	    memory: "2Gi"
+	    cpu: "500mi"
+	env:
+	  - name: MY_CPU_REQUEST 
+	    valueFrom:
+	      resourceFieldRef:
+	        containerName: test-container
+	        resource: requests.cpu
+	  - name: MY_MEMORY_LIMIT
+	    valueFrom:
+	      resourceFieldRef:
+	        containerName: test-container
+	        resource: limits.memory
+	restartPolicy: Never
+```
+
+
+
