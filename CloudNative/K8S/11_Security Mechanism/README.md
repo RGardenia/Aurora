@@ -1,8 +1,14 @@
 # Kubernetes 集群安全机制
 
+
+
 ## 概述
 
-访问K8S集群时，需要经过三个步骤完成具体操作
+访问控制是云原生中的一个重要组成部分，也是一个 Kubernetes 集群在多租户环境下必须要采取的一个基本的安全架构手段.
+
+![在这里插入图片描述](images/dbe29f7e9d714b5ab7bb3487fa5dd600.png)
+
+访问 K8S 集群时，需要经过三个步骤完成具体操作
 
 - 认证
 - 鉴权【授权】
@@ -98,7 +104,15 @@ users:
 
 ## RBAC 介绍
 
-基于角色的访问控制，角色拥有权限，从而让用户拥有这样的权限，随后在 授权机制当中，只需要将权限授予某个角色，此时用户将获取对应角色的权限，从而实现角色的访问 控制。如图：
+​	RBAC 鉴权机制使用 rbac.authorization.k8s.io API 组来驱动鉴权决定， 允许你通过 Kubernetes API 动态配置策略。要启用 RBAC，在启动 API 服务器时将 `--authorization-mode` 参数设置为一个逗号分隔的列表并确保其中包含 RBAC
+
+![在这里插入图片描述](images/965e201c25464777a8bee01f54f7f02f.png)
+
+- 第一要素是 Subjects，也就是主体。可以是开发人员、集群管理员这样的自然人，也可以是系统组件进程，或者是 Pod 中的逻辑进程
+- 第二个要素是 API Resource，也就是请求对应的访问目标。在 Kubernetes 集群中也就是各类资源
+- 第三要素是 Verbs，对应为请求对象资源可以进行哪些操作，包括增删改查、list、get、watch 等
+
+​	基于角色的访问控制，角色拥有权限，从而让用户拥有这样的权限，随后在 授权机制当中，只需要将权限授予某个角色，此时用户将获取对应角色的权限，从而实现角色的访问控制。如图：
 
 ![在这里插入图片描述](images/7de355f267b34678966c654aae319c72.png)
 
@@ -108,17 +122,17 @@ users:
 
 ​	另外， Kubernetes 为此还有一种集群级别的授权机制，就是定义一个集群角色（ClusterRole），对集群内的所有资源都有可操作的权限，从而将 User2 通过 ClusterRoleBinding 到 ClusterRole，从而使 User2 拥有集群的操作权限
 
-Kubernetes 中有默认的几个角色
+**角色**
 
 - role：特定命名空间访问权限
 - ClusterRole：所有命名空间的访问权限
 
-角色绑定
+**角色绑定**
 
 - roleBinding：角色绑定到主体
 - ClusterRoleBinding：集群角色绑定到主体
 
-主体
+**主体**
 
 - user：用户
 - group：用户组
@@ -126,9 +140,9 @@ Kubernetes 中有默认的几个角色
 
 Role、RoleBinding、ClusterRole 和 ClusterRoleBinding 的关系如下图：
 
+![在这里插入图片描述](images/3f295871ba1042d48861a93f3b2819f6.png)
+
 ![在这里插入图片描述](images/6a5e2ccbb53f49eda3c74577dd95331d.png)
-
-
 
 通过上图可以看到，可以通过 rolebinding 绑定 role，rolebinding 绑定 clusterrole， clusterrolebinding 绑定 clusterrole
 
@@ -145,6 +159,11 @@ Role、RoleBinding、ClusterRole 和 ClusterRoleBinding 的关系如下图：
 >
 > RoleBinding 仅对当前名称空间有对应的权限
 
+### ServiceAccount
+
+​	K8s 的用户分两种，一种是普通用户，一种是ServiceAccount（服务账户）。普通用户是假定被外部或独立服务管理的。管理员分配私钥。平时常用的 kubectl 命令都是普通用户执行的。如果是用户需求权限，则将 Role 与 User (或 Group )绑定 (这需要创建User/Group)，是给用户使用的。
+
+​	ServiceAccount（服务帐户）是由 Kubernetes API 管理的用户。它们绑定到特定的命名空间，并由 API 服务器自动创建或通过 API 调用手动创建。服务帐户与存储为 Secrets 的一组证书相关联，这些凭据被挂载到 pod 中，以便集群进程与 Kubernetes API 通信。如果是程序需求权限，将 Role 与 ServiceAccount 指定(这需要创建 ServiceAccount 并且在 deployment 中指定 ServiceAccount)，是给程序使用的。相当于 Role 是一个类，用作权限申明，User/Group/ServiceAccount 将成为类的实例
 
 
 ### 认证授权策略
@@ -154,7 +173,7 @@ Role、RoleBinding、ClusterRole 和 ClusterRoleBinding 的关系如下图：
 
 #### Role：角色
 
-​	一组权限的集合，在一个命名空间中，可以用其来定义一个角色，只能对命名空间内的资源进行授权。如果是集群级别的资源，则需要使用 ClusterRole。 
+​	一组权限的集合，在一个命名空间中，可以用其来定义一个角色，只能对命名空间内的资源进行授权。如果是集群级别的资源，则需要使用 ClusterRole
 
 例如：定义一个角色用来读取 Pod 的权限
 
@@ -162,13 +181,13 @@ Role、RoleBinding、ClusterRole 和 ClusterRoleBinding 的关系如下图：
 apiVersion: rbac.authorization.k8s.io/v1		# 认证相关的 api
 kind: Role
 metadata:
-  namespace: rbac 								# 只能对 rbac 这个名称空间才有权限
-  name: pod-read
-rules:											# 策略
-  - apiGroups: [""]								# k8s 所有的 apiversion 都支持 kubectl api-versions 查看
-    resources: ["pods"] 						# 资源名字
-    resourceNames: []							# 如果需要具体的 pod 就写具体的 不写就是所有的
-    verbs: ["get","watch","list"]				# 具体的步骤，获取，查看，以列表形式
+  namespace: rbac 										# 只能对 rbac 这个名称空间才有权限
+  name: pod-role
+rules:															# 策略
+- apiGroups: [""]										 # k8s 所有的 apiversion 都支持 kubectl api-versions 查看
+  resources: ["pods"] 							  # 资源名字
+  resourceNames: []									 # 如果需要具体的 pod 就写具体的 不写就是所有的
+  verbs: ["get","watch","list"]				# 具体的步骤，获取，查看，以列表形式
 ```
 
 rules 中的参数说明：
@@ -177,17 +196,12 @@ rules 中的参数说明：
 3、resourceNames：指定 resource 的名称
 4、verbs：对资源对象的操作方法列表
 
-
-
 #### ClusterRole：集群角色
 
 ​	具有和角色一致的命名空间资源的管理能力，还可用于以下特殊元素的授权
-
-1、集群范围的资源，例如 Node 
-
-2、非资源型的路径，例如：/healthz 
-
-3、包含全部命名空间的资源，例如 Pods
+​		1、集群范围的资源，例如 Node
+​		2、非资源型的路径，例如：/healthz
+​		3、包含全部命名空间的资源，例如 Pods
 
 例如：定义一个集群角色可让用户访问任意 secrets
 
@@ -202,31 +216,62 @@ rules:
     verbs: ["get","watch","list"]
 ```
 
+**Verbs 可配置参数**
+
+```bash
+“get”, “list”, “watch”, “create”, “update”, “patch”, “delete”, “exec”
+```
+
+**Resource 可配置参数**
+
+```bash
+“services”, “endpoints”, “pods”,“secrets”,“configmaps”,“crontabs”,“deployments”,“jobs”,“nodes”,“rolebindings”,“clusterroles”,“daemonsets”,“replicasets”,“statefulsets”,“horizontalpodautoscalers”,“replicationcontrollers”,“cronjobs”
+```
+
+**APIGroup 可配置参数**
+
+```bash
+“”,“apps”, “autoscaling”, “batch”
+```
+
+要确定资源对象API端点请求的动词，请查看HTTP动词以及请求是否对单个资源或资源集合进行操作，参考下表：
+
+| HTTP Verb | Request Verb                                                 |
+| --------- | ------------------------------------------------------------ |
+| POST      | create                                                       |
+| GET, HEAD | get (for individual resources), list (for collections)       |
+| PUT       | update                                                       |
+| PATCH     | patch                                                        |
+| DELETE    | delete (for individual resources), deletecollection (for collections) |
+
+
+
 #### RoleBinding & ClusterRolebinding
 
 ​	角色绑定和集群角色绑定用于把一个角色绑定在一个目标上，可以是 User，Group，Service Account，使用 RoleBinding 为某个命名空间授权，使用 ClusterRoleBinding 为集群范围内授权
 
-例如：将在 rbac 命名空间中把 pod-read 角色授予用户 es
+例如：将在 rbac 命名空间中把 pod-role 角色授予用户 es
 
 ```yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: pod-read-bind
+  name: pod-role-bind
   namespace: rbac
-subjects:									# 主体
+subjects:										# 主体
 - kind: User							
   name: es									# 要对 es 这个用户
+  namespace: rbac
   apiGroup: rbac.authorization.k8s.io
-roleRef:									# 通过 pod-read-bind 绑定到 roleref 上
+roleRef:										# 通过 pod-read-bind 绑定到 roleref 上
 - kind: Role
-  name: pod-read							# 角色名字
+  name: pod-role							# 角色名字
   apiGroup: rbac.authorizatioin.k8s.io
 ```
 
 > 用户 es 在 rbac 这个命名空间下具有 role 设置的权限，比如资源查看
 
-​	RoleBinding 也可以引用 ClusterRole，对属于同一命名空间内的 ClusterRole 定义的资源主体进行授权
+RoleBinding 也可以引用 ClusterRole，对属于同一命名空间内的 ClusterRole 定义的资源主体进行授权
 
 例如：es 能获取到集群中所有的资源信息 
 
@@ -246,7 +291,7 @@ roleRef:
   name: cluster-admin
 ```
 
-​	集群角色绑定的角色只能是集群角色，用于进行集群级别或对所有命名空间都生效的授权
+集群角色绑定的角色**只能是集群角色**，用于进行集群级别或对所有命名空间都生效的授权
 
 例如：允许 manager 组的用户读取所有 namaspace 的 secrets
 
@@ -361,10 +406,6 @@ spec:
 
 5. 为所有 Service Account 授予超级用户权限
    `kubectl create clusterrolebinding serviceaccounts-view --clusterrole=cluster-admin --group=system:serviceaccounts`
-
-
-
-
 
 
 

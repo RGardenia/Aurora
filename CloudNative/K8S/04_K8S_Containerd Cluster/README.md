@@ -347,11 +347,15 @@ sandbox_image="registry.aliyuncs.com/google_containers/pause:3.9"
 
 # Init
 kubeadm init \
---apiserver-advertise-address=192.168.3.4 \
---kubernetes-version=v1.26.0 \
+--kubernetes-version=v1.28.5 \
 --image-repository=registry.aliyuncs.com/google_containers \
+--apiserver-advertise-address=106.14.45.61 \
+--apiserver-cert-extra-sans=106.14.45.61 \
 --pod-network-cidr=10.244.0.0/16 \
 --service-cidr=10.96.0.0/12
+# apiserver-advertise-address 指定为自己内网 IP
+# --control-plane-endpoint=gardenia
+# --cri-socket=unix:///var/run/cri-dockerd.sock
 
 # 通过 配置文件 Init
 kubeadm config print init-defaults --component-configs KubeletConfiguration > kubeadm.yaml

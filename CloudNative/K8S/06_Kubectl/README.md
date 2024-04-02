@@ -2,7 +2,9 @@
 
 ## 概述
 
-kubectl是Kubernetes集群的命令行工具，通过kubectl能够对集群本身进行管理，并能够在集群上进行容器化应用的安装和部署
+`kubectl` 是 `Kubernetes` 集群的命令行工具，通过 `kubectl` 能够对集群本身进行管理，并能够在集群上进行容器化应用的安装和部署
+
+参考：https://github.com/kubernetes/kubectl
 
 ## 命令格式
 
@@ -39,7 +41,7 @@ kubectl get pods
 
 ### kubectl help 获取更多信息
 
-通过 help命令，能够获取帮助信息
+通过 help 命令，能够获取帮助信息
 
 ```bash
 # 获取 kubectl 的命令
@@ -65,11 +67,9 @@ kubectl get --help
 | delete  | 通过文件名，标准输入，资源名称或标签来删除资源 |
 
 ```bash
-
 kubectl expose (-f FILENAME | TYPE NAME | TYPE/NAME) [–port=port] [–protocol=TCP|UDP] [–target-port=number-or-name] [–name=name] [–externalip=external-ip-of-service] [–type=type] [flags]
 
 kubectl explain [–recursive=false] [flags]
-
 ```
 
 
@@ -84,11 +84,9 @@ kubectl explain [–recursive=false] [flags]
 |   autoscale    |       创建一个自动选择扩容或缩容并设置 Pod 数量        |
 
 ```bash
-
 kubectl scale (-f FILENAME | TYPE NAME | TYPE/NAME) --replicas=COUNT [–resource-version=version] [–current-replicas=count] [flags]
 
 kubectl autoscale (-f FILENAME | TYPE NAME | TYPE/NAME) [–min=MINPODS] --max=MAXPODS [–cpu-percent=CPU] [flags]
-
 ```
 
 ### 集群管理命令
@@ -104,9 +102,7 @@ kubectl autoscale (-f FILENAME | TYPE NAME | TYPE/NAME) [–min=MINPODS] --max=M
 |    taint     |       修改节点taint标记        |
 
 ```bash
-
 kubectl cluster-info [flags]
-
 ```
 
 
@@ -125,7 +121,6 @@ kubectl cluster-info [flags]
 |     auth     |                           检查授权                           |
 
 ```bash
-
 kubectl logs POD [-c CONTAINER] [–follow] [flags]
 
 kubectl exec POD-name [-c CONTAINER-name] [-i] [-t] [flags] [-- COMMAND [args…]]
@@ -134,7 +129,6 @@ kubectl exec POD-name [-c CONTAINER-name] [-i] [-t] [flags] [-- COMMAND [args…
 kubectl port-forward POD [LOCAL_PORT:]REMOTE_PORT […[LOCAL_PORT_N:]REMOTE_PORT_N] [flags]
 
 kubectl proxy [–port=PORT] [–www=static-dir] [–www-prefix=prefix] [–apiprefix=prefix] [flags]
-
 ```
 
 
@@ -157,7 +151,6 @@ kubectl proxy [–port=PORT] [–www=static-dir] [–www-prefix=prefix] [–apip
 |   version    |                打印客户端和服务版本信息                |
 
 ```bash
-
 # 更新资源的一个或多个字段
 kubectl patch (-f FILENAME | TYPE NAME | TYPE/NAME) --patch PATCH [flags]
 
@@ -165,11 +158,29 @@ kubectl label (-f FILENAME | TYPE NAME | TYPE/NAME) KEY_1=VAL_1 … KEY_N=VAL_N 
 
 kubectl config SUBCOMMAND [flags]
 
+# 设置 默认命名空间
+kubectl config set-context --current --namespace=garmysql
 ```
 
+#### apply
+
+在使用默认参数执行 apply 时，触发的是 client-side apply。
+首先解析用户提交的数据（YAML/JSON）为一个对象 A；然后调用 Get 接口从 K8s 中查询这个资源对象
+
+- 如果查询结果不存在，kubectl 将本次用户提交的数据记录到对象 A 的 annotation 中（key 为 kubectl.kubernetes.io/last-applied-configuration），最后将对象 A提交给 K8s 创建
+- 如果查询到 K8s 中已有这个资源，假设为对象 B：
+  1. kubectl 尝试从对象 B 的 annotation 中取出 kubectl.kubernetes.io/last-applied-configuration 的值（对应了上一次 apply 提交的内容）
+  2. kubectl 根据前一次 apply 的内容和本次 apply 的内容计算出 diff（默认为 strategic merge patch 格式，如果非原生资源则采用 merge patch）
+  3. 将 diff 中添加本次的 kubectl.kubernetes.io/last-applied-configuration annotation，最后用 patch 请求提交给 K8s 做更新
+
+#### edit
+
+​	在用户执行命令之后，kubectl 从 K8s 中查到当前的资源对象，并打开一个命令行编辑器（默认用 vi）为用户提供编辑界面
+​	当用户修改完成、保存退出时，kubectl 并非直接把修改后的对象提交 update（避免 Conflict，如果用户修改的过程中资源对象又被更新），而是会把修改后的对象和初始拿到的对象计算 diff，最后将 diff 内容用 patch 请求提交给 K8s
 
 
-### 目前使用的命令
+
+### 常用命令
 
 ```bash
 # 创建一个nginx镜像

@@ -70,24 +70,69 @@ Pod 的重启策略包括 Always、OnFailure 和 Never，默认值为 Always
 - `Replication Controller, ReplicaSet, or Deployment`：此类控制器希望 Pod 一直运行下去，它们的重启策略只能是`"Always"`
 - `DaemonSet`：每个节点上启动一个 Pod，很明显此类控制器的重启策略也应该是`"Always"`
 
-
-
 ## Pod 实现机制
 
-主要有以下两大机制
+​	当前，创建 Pod 时其主机名取自 Pod 的 `metadata.name` 值，Pod 规约中包含一个可选的 `hostname` 字段，可以用来指定 Pod 的主机名。 当这个字段被设置时，它将优先于 Pod 的名字成为该 Pod 的主机名。 
 
-- 共享网络
-- 共享存储
+​	Pod 规约还有一个可选的 subdomain 字段，可以用来指定 Pod 的子域名。 举个例子，某 Pod 的 hostname 设置为 “gardenia”，subdomain 设置为 `bar` ， 在名字空间 `my-namespace` 中对应的完全限定域名（FQDN）为 `gardenia.bar.my-namespace.svc.cluster-domain.example`
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: default-subdomain
+spec:
+  selector:
+    name: busybox
+  clusterIP: None
+  ports:
+  - name: foo
+    port: 999
+    targetPort: 999
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busybox1
+  labels:
+    name: busybox
+spec:
+  hostname: busybox-1
+  subdomain: default-subdomain
+  containers:
+  - image: busybox:1.28
+    command:
+      - sleep
+      - "3600"
+    name: busybox
+```
+
+​	如果某无头 Service 与某 Pod 在同一个名字空间中，且它们具有相同的子域名， 集群的 DNS 服务器也会为该 Pod 的全限定主机名返回 A 记录或 AAAA 记录。 例如，在同一个名字空间中，给定一个主机名为 “busybox-1”、 子域名设置为 “default-subdomain” 的 Pod，和一个名称为 “default-subdomain” 的无头 Service，Pod 将看到自己的 FQDN 为 `busybox-1.default-subdomain.my-namespace.svc.cluster-domain.example` 。 DNS 会为此名字提供一个 A 记录或 AAAA 记录，指向该 Pod 的 IP。
+
+> Endpoints 对象可以为任何端点地址及其 IP 指定 hostname
+
+​	说明： 由于不是为 Pod 名称创建 A 或 AAAA 记录的，因此 Pod 的 A 或 AAAA 需要 hostname。 没有设置 hostname 但设置了 subdomain 的 Pod 只会为 无头 Service 创建 A 或 AAAA 记录（default-subdomain.my-namespace.svc.cluster-domain.example） 指向 Pod 的 IP 地址。 另外，除非在服务上设置了 publishNotReadyAddresses=True，否则只有 Pod 进入就绪状态 才会有与之对应的记录
+
+<hr>
+
+​	当 Pod 配置为具有全限定域名 (FQDN) 时，其主机名是短主机名。 例如，如果有一个具有完全限定域名 busybox-1.default-subdomain.my-namespace.svc.cluster-domain.example 的 Pod， 则默认情况下，该 Pod 内的 hostname 命令返回 busybox-1，而 hostname --fqdn 命令返回 FQDN
+
+​	当在 Pod 规约中设置了 `setHostnameAsFQDN: true` 时，kubelet 会将 Pod 的全限定域名（FQDN）作为该 Pod 的主机名记录到 Pod 所在名字空间。 在这种情况下，hostname 和 hostname --fqdn 都会返回 Pod 的全限定域名
+
+> 说明：
+>
+> 在 Linux 中，内核的主机名字段（struct utsname 的 nodename 字段）限定 最多 64 个字符
+>
+> 如果 Pod 启用这一特性，而其 FQDN 超出 64 字符，Pod 的启动会失败。 Pod 会一直出于 Pending 状态（通过 kubectl 所看到的 ContainerCreating）， 并产生错误事件，例如 “Failed to construct FQDN from Pod hostname and cluster domain, FQDN long-FQDN is too long (64 characters is the max, 70 characters requested).” （无法基于 Pod 主机名和集群域名构造 FQDN，FQDN long-FQDN 过长，至多 64 字符，请求字符数为 70）。 对于这种场景而言，改善用户体验的一种方式是创建一个 [准入 Webhook 控制器](https://kubernetes.io/zh-cn/docs/reference/access-authn-authz/extensible-admission-controllers/#admission-webhooks)， 在用户创建顶层对象（如 Deployment）的时候控制 FQDN 的长度
+>
 
 ### 共享网络
 
-容器本身之间相互隔离的，一般是通过 **namespace** 和 **group** 进行隔离，那么 Pod 里面的容器如何实现通信？
-
-- 首先需要满足前提条件，也就是容器都在同一个 **namespace** 之间
+​	容器本身之间相互隔离的，一般是通过 **namespace** 和 **group** 进行隔离，通信首先需要容器都在同一个 **namespace** 之间
 
 ​	关于 Pod 实现原理，首先会在 Pod 会创建一个根容器： `pause 容器`，然后在创建业务容器 【nginx，redis 等】，在创建业务容器的时候，会把它添加到 `info 容器` 中
 
-而在 `info 容器` 中会独立出  `ip` 地址，`mac` 地址，`port` 等信息，然后实现网络的共享
+​	而在 `info 容器` 中会独立出  `ip` 地址，`mac` 地址，`port` 等信息，然后实现网络的共享
 
 ![image-20201114190913859](images/image-20201114190913859.png)
 
@@ -207,7 +252,7 @@ kubectl get pods -o wide -l app=nginx
 
 ![image-20201114194057920](images/image-20201114194057920.png)
 
-### 示例
+### 示例🌰
 
 在下面的地方进行资源的限制
 
@@ -303,7 +348,7 @@ kubectl get pods
 
 同样的，还可以使用`HTTP GET`请求来配置的存活探针，这里使用一个 liveness 镜像来验证演示下
 
-```bash
+```yaml
 vim liveness-http.yaml
 apiVersion: v1
 kind: Pod
@@ -353,7 +398,7 @@ startupProbe:
 
 ## Pod 调度策略
 
-​	Pod 是 Kubernetes 中最基本的部署调度单元，可以包含 Container，逻辑上表示某种应用的一个实例。
+​	Pod 是 Kubernetes 中最基本的部署调度单元，可以包含 Container，逻辑上表示某种应用的一个实例
 
 ### 创建 Pod 流程
 
@@ -407,15 +452,15 @@ Pod 自身的**亲和性调度**有两种表示形式
 ```bash
 kubectl explain pods.spec.affinity.podAffinity
 FIELDS:
-   preferredDuringSchedulingIgnoredDuringExecution	<[]Object>			#软亲和性
-   requiredDuringSchedulingIgnoredDuringExecution	<[]Object>			#硬亲和性
+   preferredDuringSchedulingIgnoredDuringExecution	<[]Object>			# 软亲和性
+   requiredDuringSchedulingIgnoredDuringExecution	<[]Object>				# 硬亲和性
 
 kubectl explain pods.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution
 FIELDS:
    labelSelector	<Object>	# 要判断 pod 跟别的 pod 亲和，跟哪个 pod 亲和，需要靠 labelSelector，通过 labelSelector选则一组能作为亲和对象的 pod 资源
    namespaces	<[]string>	# labelSelector 需要选则一组资源，那么这组资源是在哪个名称空间中呢，通过 namespace 指定，如果不指定 namespaces，那么就是当前创建 pod 的名称空间
    topologyKey	<string> -required-				# 位置拓扑的键，这个是必须字段 
-   
+
 kubectl explain pods.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution.labelSelector
 FIELDS:
    matchExpressions	<[]Object>
@@ -456,7 +501,7 @@ spec:
               - {key: app2, operator: In, values: ["Gardenia2"]}
            topologyKey: kubernetes.io/hostname
 # key 意思是选择 app2=Gardenia2 的标签做亲和性
-# 最后一行直接用 nodes 里的已有标签来位置拓扑的键。kubectl get nodes --show-labels
+# 最后一行直接用 nodes 里的已有标签来位置拓扑的键         kubectl get nodes --show-labels
 # 创建的 pod 必须与拥有 app2=Gardenia2 标签的 pod 在一个节点上 
 kubectl apply -f pod-required-affinity-demo.yaml
 kubectl get pods -o wide
@@ -652,58 +697,82 @@ pod-node-affinity-demo-2      1/1     Running   0          29s     10.244.1.20  
 
 
 
-
-
 ### Node 节点选择器
 
-1. ### nodeName
+​	将 Pod 调度到制定的一些 Node 上，可以通过 Node 的标签和 Pod 的 nodeSelector 属性相匹配
 
-   ```yml
-   apiVersion: v1 
-   kind: Pod 
-   metadata: 
-     name: demo-pod
-     namespace: default 
-     labels: 
-       app: myapp 
-       env: dev 
-   spec: 
-     nodeName: k8snode
-     containers: 
-     - name: tomcat-pod-java 
-       ports: 
-       - containerPort: 8080 
-       image: tomcat
-       imagePullPolicy: IfNotPresent 
-     - name: busybox 
-       image: busybox:latest 
-       command: 
-       - "/bin/sh" 
-       - "-c" 
-       - "sleep 3600" 
-   ```
+```bash
+# 打标签
+kubelet labels nodes <node-name> <label-key>=<label-value>
 
-2. ### nodeSelector
+# 支持打多个标签，用逗号隔开
+# 如果要更新标签，加上 --overwrite         如果要删除标签
+kubelet labels nodes <node-name> <label-key>-
 
-   ```yml
-   apiVersion: v1 
-   kind: Pod 
-   metadata: 
-     name: demo-pod-1 
-     namespace: default 
-     labels: 
-       app: myapp 
-       env: dev 
-   spec: 
-     nodeSelector:
-       disk: ceph
-     containers: 
-     - name: tomcat-pod-java 
-       ports: 
-       - containerPort: 8080 
-       image: tomcat
-       imagePullPolicy: IfNotPresent 
-   ```
+# 如果是查看标签
+kubectl get node --show-labels=true
+
+# Kubernetes 预定义标签
+kubernetes.io/hostname
+beta.kubernetes.io/os（到 1.18 版本删除）
+beta.kubernetes.io/arch（到1.18 版本删除）
+kubernetes.io/arch
+kubernetes.io/os
+```
+
+#### NodeName
+
+```yml
+apiVersion: v1 
+kind: Pod 
+metadata: 
+  name: demo-pod
+  namespace: default 
+  labels: 
+    app: myapp 
+    env: dev 
+spec: 
+  nodeName: k8snode
+  containers: 
+  - name: tomcat-pod-java 
+    ports: 
+    - containerPort: 8080 
+    image: tomcat
+    imagePullPolicy: IfNotPresent 
+  - name: busybox 
+    image: busybox:latest 
+    command: 
+    - "/bin/sh"
+    - "-c"
+    - "sleep 3600"
+```
+
+#### NodeSelector
+
+```yml
+apiversion: v1
+kind: deployment
+metadate:
+  name: nginx
+  labels:
+    name: nginx
+spec:
+  replicas: 1
+  selector:
+    name: nginx
+  template:
+    metadate:
+      labels:
+        name: nginx
+    spec:
+      containers:
+      - name: master
+        image: nginx
+        ports: 
+        - containerPorts: 80
+      nodeSelector:
+        zone: gardenia
+```
 
 
 
@@ -711,7 +780,11 @@ pod-node-affinity-demo-2      1/1     Running   0          29s     10.244.1.20  
 
 ### 概述
 
-污点容忍度：节点选择的主动权，给节点打一个污点，不容忍的 Pod 就运行不上来，污点就是定义在节点上的键值属性数据，可以定决定拒绝那些 Pod 
+​	在 Kubernetes 中，节点亲和性 NodeAffinity 是 Pod 上定义的一种属性，能够使 Pod 按我们的要求调度到某个节点上，Taints(污点) 则恰恰相反，它是 Node 上的一个属性，可以让 Pod 不能调度到带污点的节点上，甚至会对带污点节点上已有的 Pod 进行驱逐。当然，对应的 Kubernetes 可以给 Pod 设置 Tolerations(容忍) 属性来让 Pod 能够容忍节点上设置的污点，这样在调度时就会忽略节点上设置的污点，将 Pod 调度到该节点。一般时候 Taints 通常与 Tolerations 配合使用。
+
+​	污点容忍度：节点选择的主动权，给节点打一个污点，不容忍的 Pod 就运行不上来，污点就是定义在节点上的键值属性数据，可以定决定拒绝那些 Pod 
+
+![在这里插入图片描述](images/e39701fac81f4e1b8e8db972d39a48a5.png)
 
 - `taints` 是键值数据，用在节点上，定义污点，节点属性
 - `tolerations` 是键值数据，用在 Pod 上，定义容忍度，能容忍哪些污点
@@ -742,18 +815,22 @@ FIELDS:
 # taints 的 effect 用来定义对 pod 对象的排斥等级（效果） 
 ```
 
+### 污点
+
 1. `NoSchedule`
-   仅影响 Pod 调度过程，当 Pod 能容忍这个节点污点，就可以调度到当前节点，后来这个节点的污点改了，加了一个新的污点，使得之前调度的 Pod 不能容忍了，那这个 Pod 会怎么处理，对现存的 Pod 对象不产生影响
+   	设置污点并不允许 Pod 调度到该节点，仅影响 Pod 调度过程，当 Pod 能容忍这个节点污点，就可以调度到当前节点，后来这个节点的污点改了，加了一个新的污点，使得之前调度的 Pod 不能容忍了，那这个 Pod 会怎么处理，对现存的 Pod 对象不产生影响
 
 2. `NoExecute`
-   既影响调度过程，又影响现存的 Pod 对象，如果现存的 Pod 不能容忍节点后来加的污点，这个 Pod 就会被驱逐
+   	设置污点，不允许普通 Pod 调度到该节点，且将该节点上已经存在的 Pod 进行驱逐，既影响调度过程，又影响现存的 Pod 对象，如果现存的 Pod 不能容忍节点后来加的污点，这个 Pod 就会被驱逐
 
 3. `PreferNoSchedule`
-   最好不，也可以，是 NoSchedule 的柔性版本，如果没有定义容忍度会到这里
+   	设置污点尽量阻止污点调度到该节点，最好不，也可以，是 NoSchedule 的柔性版本，如果没有定义容忍度会到这里
 
    > 在 Pod 对象定义容忍度的时候支持两种操作：
-   > 1.等值密钥：key 和 value 上完全匹配
-   > 2.存在性判断：key 和 effect 必须同时匹配，value 可以是空
+   >
+   > 1. 等值密钥：key 和 value 上完全匹配
+   > 2. 存在性判断：key 和 effect 必须同时匹配，value 可以是空
+   >
    > 在 Pod 上定义的容忍度可能不止一个，在节点上定义的污点可能多个，需要琢个检查容忍度和污点能否匹配，每一个污点都能被容忍，才能完成调度，如果不能容忍，就需要看 pod 的容忍度了
 
 ```bash
@@ -844,27 +921,17 @@ kubectl taint nodes node1 node-type:NoExecute-
 kubectl taint nodes node2 node-type-
 ```
 
-### 场景
-
 - 专用节点【限制 `ip`】
 - 配置特定硬件的节点【固态硬盘】
 - 基于 `Taint` 驱逐【在 Node1 不放，在 Node2 放】
 
-### 查看污点情况
+#### 查看污点情况
 
 ```bash
 kubectl describe node k8smaster | grep Taint
 ```
 
-![image-20201114204124819](images/image-20201114204124819.png)
-
-污点值有三个
-
-- `NoSchedule`：一定不被调度
-- `PreferNoSchedule`：尽量不被调度【也有被调度的几率】
-- `NoExecute`：不会调度，并且还会驱逐 Node 已有 Pod
-
-### 未节点添加污点
+#### 未节点添加污点
 
 ```bash
 kubectl taint node [node] key=value:污点的三个值
@@ -876,13 +943,13 @@ kubectl taint node [node] key=value:污点的三个值
 kubectl taint node k8snode1 env_role=yes:NoSchedule
 ```
 
-### 删除污点
+#### 删除污点
 
 ```bash
 kubectl taint node k8snode1 env_role:NoSchedule-
+# 也可以根据 key 直接将该 key 的所有 [effect] 都删除
+kubectl taint node gardenia key-
 ```
-
-![image-20201114210022883](images/image-20201114210022883.png)
 
 ### 演示
 
@@ -961,9 +1028,255 @@ kubectl taint node k8snode1 env_role:NoSchedule-
 
 ### 污点容忍
 
-污点容忍就是某个节点可能被调度，也可能不被调度
+​	为了使某些 `Pod` 禁止调度到某些特定节点上，就可以对节点设置污点 `taints`。当然，如果希望有些 `Pod` 能够忽略节点的污点，继续能够调度到该节点，就可以对 `Pod` 设置容忍，让 `Pod` 能够容忍节点上设置的污点
 
-![image-20201114210146123](images/image-20201114210146123.png)
+```yaml
+# 容忍的 key、value 和对应 effect 也必须和污点 taints 保持一致
+......
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "NoSchedule"
+# 容忍 tolerations 的 key 和要污点 taints 的 key 一致，且设置的 effect 也相同，不需要设置 value
+......
+tolerations:
+- key: "key"
+  operator: "Exists"
+  effect: "NoSchedule"
+
+# 如果不指定 operator，则 operator 默认为 equal
+# 空的 key 配合 Exist 操作符可以匹配所有的键值对
+# 空的 effect 匹配所有的 effect
+```
+
+🌰
+
+```yaml
+apiVersion: apps/vl
+kind: Deployment
+metadata:
+  name: example
+spec:
+  replicas: 5
+  template:
+    spec:
+      ......
+      tolerations:
+      - key: "key"
+        operator: "Equal"
+        value: "value"
+        effect: "NoSchedule"
+```
+
+`Operator` 默认是 `Equal`，可设置为 `Equal` 与 `Exists` 两种
+
+- **容忍任何污点**
+
+  一个空的 key，将匹配所有的 key、value、effect
+
+  ```yaml
+  tolerations:
+  - operator: "Exists"
+  ```
+
+- **容忍某 key 值的污点**
+
+  一个空的 effect，并且 key 不为空，那么将匹配所有与 key 相同的 effect
+
+  ```yaml
+  tolerations:
+  - key: "key"
+    operator: "Exists"
+  ```
+
+- **Node 上有一个污点**
+
+  Node 和 Pod 的 key 为 key1、value1 与 effect 相同则能调度
+
+  ```yaml
+  # 污点
+  key1=value1:NoSchedule
+  
+  # Pod 设置
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoSchedule"
+  ```
+
+- **Node 上有多个污点**
+
+  Node 的污点的 key、value、effect 和 Pod 容忍都相同则能调度
+
+  ```yaml
+  # 设置污点
+  key1=value1:NoSchedule
+  key2=value2:NoExecute
+  
+  # Pod 设置容忍
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoSchedule"
+  - key: "key2"
+    operator: "Equal"
+    value: "value2"
+    effect: "NoExecute"
+  ```
+
+- Node 的污点和 Pod 的大部分都相同，不同的是 Node 污点 effect 为 PreferNoSchedule 的，可能会调度
+
+  ```yaml
+  # 污点
+  key1=value1:NoSchedule
+  key2=value2:NoExecute
+  key3=value3:PreferNoSchedule
+  
+  # Pod 设置容忍
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoSchedule"
+  - key: "key2"
+    operator: "Equal"
+    value: "value2"
+    effect: "NoExecute"
+  ```
+
+- Node 的污点和 Pod 的大部分都相同，不同的是 Node 污点 effect 为 NoSchedule 和 NoExecute 的，不会被调度
+
+  ```yaml
+  # 污点
+  key1=value1:NoSchedule
+  key2=value2:NoExecute
+  key3=value3:PreferNoSchedule
+  
+  # Pod 设置容忍
+  tolerations:
+  - key: "key1"
+    operator: "Equal"
+    value: "value1"
+    effect: "NoSchedule"
+  - key: "key3"
+    operator: "Equal"
+    value: "value3"
+    effect: "PreferNoSchedule"
+  ```
+
+### 节点自污染
+
+当某些条件为 true 时，节点控制器会自动污染节点。内置以下污点：
+
+| Key                                            | 注释                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| node.kubernetes.io/not-ready                   | 节点尚未准备好。这对应于 NodeCondition Ready 为 false        |
+| node.kubernetes.io/unreachable                 | 无法从节点控制器访问节点。这对应于 NodeCondition Ready 为 Unknown |
+| node.kubernetes.io/out-of-disk                 | 节点磁盘不足                                                 |
+| node.kubernetes.io/memory-pressure             | 节点有内存压力                                               |
+| node.kubernetes.io/disk-pressure               | 节点有磁盘压力                                               |
+| node.kubernetes.io/network-unavailable         | 节点的网络不可用                                             |
+| node.kubernetes.io/unschedulable               | 节点不可调度                                                 |
+| node.cloudprovider.kubernetes.io/uninitialized | 当 kubelet 从 “外部” 云提供程序开始时，此污点在节点上设置为将其标记为不可用。来自 cloud-controller-manager 的控制器初始化此节点后，kubelet 删除此污点 |
+
+当一个节点宕机时，kubernetes 集群会给它打上什么样的污点呢 ？
+
+```bash
+# 一个 Ready 状态的节点
+kubectl get node gardenia -o go-template={{.spec.taints}}
+
+# 一个 NotReady 状态的节点
+$ kubectl get node gardenia -o go-template={{.spec.taints}}
+[map[effect:NoSchedule key:node.kubernetes.io/unreachable timeAdded:2022-07-0423T13:49:58Z] 
+map[effect:NoExecute key:node.kubernetes.io/unreachable timeAdded:2021-07-04T13:50:03Z]]
+
+# 处于 NotReady 状态的节点被打上了下面两个污点
+Taints:             node.kubernetes.io/unreachable:NoExecute
+                    node.kubernetes.io/unreachable:NoSchedule
+```
+
+
+
+```bash
+kubectl get po mysql-fdd58cd88-pk65q -o yaml
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+```
+
+​	当 Node 节点处于 NotReady 状态或者 unreachable 状态时，Pod 会容忍它 5 分钟，然后被驱逐。而这 5 分钟内就算 Pod 处于 running 状态，也是无法正常提供服务的。因此，可以在 yaml 清单中 手动指明 0 容忍
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginx
+  name: nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/not-ready
+        operator: Exists
+        tolerationSeconds: 0
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 0
+      containers:
+      - image: nginx:alpine
+        name: nginx
+```
+
+​	在 Node 节点转为 NotReady 状态后，Pod 立刻进行了转移。这是通过 在 yaml 清单文件中明确指定 容忍时间。还可以直接修改 apiserver 配置来修改默认容忍时间
+
+```bash
+vim /etc/kubernetes/manifests/kube-apiserver.yaml
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --advertise-address=192.168.1.11
+    - --default-not-ready-toleration-seconds=1    # 新增行
+    - --default-unreachable-toleration-seconds=1  # 新增行
+
+# 修改保存后， kube-apiserver-k8s-masterpod 会自动重载最新配置
+```
+
+ 
+
+**设置容忍时间**
+
+​	正常情况下， 如果一个污点带有 effect=NoExecute 被添加到了这个 Node。那么不能容忍这个污点的所有 Pod 就会立即被踢掉。而带有容忍标签的 Pod 就不会踢掉。然而，一个带有 effect=Noexecute 的容忍可以指定一个 tolerationSeconds 来指定当这个污点被添加的时候在多长时间内不被踢掉
+
+```yaml
+tolerations:
+- key: "key"
+  operator: "Equal"
+  value: "value"
+  effect: "Noexecute"
+  tolerationSeconds: 3600
+```
+
+​	如果这个 Pod 已经在这个带污点且 effect 为 NoExecute 的 node 上。这个 pod 可以一直运行到 3600s 后再被踢掉。如果这时候 Node 的污点被移除了，这个 Pod 就不会被踢掉
 
 
 
@@ -1344,3 +1657,51 @@ spec:
 
 
 
+## InitContainers
+
+​	InitContainers 与应用容器在本质上是一样的，但是它们仅是运行一次就结束的任务，并且必须在成功运行完成后，系统才能继续执行下一个容器
+​	InitContainers 的重启策略建议设置为 OnFailure
+
+通过初始化容器 busybox 为 Nginx 创建一个 index.html 主页文件，这里为 busybox 和Nginx 设置了一个共享的 Volume，以供 Nginx 访问 init container 设置的 index.html
+
+```yaml
+apiVersion: v1
+kind: Pod
+meatdate:
+  name: nginx
+spec:
+  initContainers:
+  - name: busybox
+    image: busybox:latest
+    command:
+    - wget
+    - "-o"
+    - "/work-dir/index.html"
+    - http://kubernetes.io
+    volumeMounts:
+    - name: workdir
+      mountPath: "/work-dir"
+  containers:
+  - name: nginx
+    image: nginx
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: workdir
+      mountPath: "/usr/share/nginx/html"
+  dnsPolicy: Default
+  volumes:
+  - name: workdir
+    emptyDir: {}
+```
+
+InitContainers 与普通应用容器
+1） InitContainers 必须先于应用容器执行完成，当设置了多个 InitContainers 时，将按照顺序逐个执行，并且只有前一个 InitContainers 执行成功了才能运行下一个
+2）在 InitContainers 的定义中也可以设置资源限制、Volume 的使用和安全策略等
+3） InitContainers 不能设置 readinessProbe 探针
+
+InitContainers 中的资源请求 / 限制
+1）如果多个 InitContainers 都设置了资源请求/限制，则以最大的为准
+2）如果上一条存在，则 Pod 中的最大资源请求 / 限制为：所有普通容器资源请求 / 限制之和和上面的大的为准
+3）依据上两条，所以 InitContainers 可以为初始化操作预留系统资源，即使后续容器无需使用这些资源
+4）Pod 的有效 QoS 等级适用于 InitContainers 和 应用容器

@@ -2,7 +2,7 @@
 
 ## 概述
 
-​	k8s 集群中对资源管理和资源对象编排部署都可以通过声明样式（YAML）文件来解决，也就是可以把需要对资源对象操作编辑到YAML 格式文件中，这种文件叫做资源清单文件，通过kubectl 命令直接使用资源清单文件就可以实现对大量的资源对象进行编排部署了。一般在开发的时候，都是通过配置YAML文件来部署集群的。
+​	k8s 集群中对资源管理和资源对象编排部署都可以通过声明样式（YAML）文件来解决，也就是可以把需要对资源对象操作编辑到YAML 格式文件中，这种文件叫做资源清单文件，通过kubectl 命令直接使用资源清单文件就可以实现对大量的资源对象进行编排部署了。一般在开发的时候，都是通过配置YAML文件来部署集群的
 
 YAML文件：就是资源清单文件，用于资源编排
 
@@ -29,22 +29,41 @@ YAML 是一个可读性高，用来表达数据序列的格式。
 单个的、不可再分的值，也就是指的一个简单的值，字符串、布尔值、整数、浮点数、Null、时间、日期。
 
 ```yml
-# 1 布尔类型
-c1: true (或者True)
-# 2 整型
-c2: 234
-# 3 浮点型
-c3: 3.14
-# 4 null类型 
-c4: ~  # 使用~表示null
-# 5 日期类型
-c5: 2018-02-17    # 日期必须使用ISO 8601格式，即 yyyy-MM-dd
-# 6 时间类型
-c6: 2018-02-17T15:02:31+08:00  # 时间使用ISO 8601格式，时间和日期之间使用T连接，最后使用+代表时区
-# 7 字符串类型
-c7: heima     # 简单写法，直接写值 , 如果字符串中间有特殊字符，必须使用双引号或者单引号包裹 
-c8: line1
-    line2     # 字符串过多的情况可以拆成多行，每一行会被转化成一个空格
+boolean: 
+    - TRUE  # “true”、“True”、“TRUE”、“yes”、“Yes” 和 “YES” 皆为真
+    - FALSE  # “false”、“False”、“FALSE”、“no”、“No” 和 “NO” 皆为假
+float:
+    - 3.14
+    - 6.8523015e+5  # 可以使用科学计数法
+int:
+    - 123
+    - 0b1010_0111_0100_1010_1110    # 0b 前缀，二进制表示
+    - 010    											# 0  前缀，八进制
+    - 0x10   											# 0x 前缀，十六进制
+nulls:
+  - 
+  - null
+  - Null
+  - NULL
+  - ~
+strings:
+  - Hello without quote        # 不用引号包裹
+  - Hello
+    world                      # 拆成多行后会自动在中间添加空格
+  - 'Hello with single quotes' # 单引号包裹
+  - "Hello with double quotes" # 双引号包裹
+  - "I am fine. \u263A"        # 使用双引号包裹时支持 Unicode 编码
+  - "\x0d\x0a is \r\n"         # 使用双引号包裹时还支持 Hex 编码
+  - 'He said: "Hello!"'        # 单双引号支持嵌套"
+  - \n \r             
+  - '\n \r'                    
+  - "\n \r"
+date:
+    - 2018-02-17     # 日期必须使用ISO 8601格式，即yyyy-MM-dd
+datetime: 
+    - 2018-02-17T15:02:31+08:00    # 时间使用ISO 8601格式，时间和日期之间使用 T 连接，最后使用 + 代表时区
+    - 2020-05-20 13:14:00.820  		 # 不加时区默认本初子母线的时间
+    - 2020-05-20 13:14:00.820+8
 ```
 
 #### 对象
@@ -73,11 +92,202 @@ People
 People: [Tom, Jack]
 ```
 
+### 类型转换
+
+YAML 支持使用严格类型标签!!（双感叹号+目标类型）来强制转换类型，下面是内置类型
+
+```yaml
+!!int ：整数类型
+!!float ：浮点类型
+!!bool：布尔类型
+!!str：字符串类型
+!!binary：也是字符串类型
+!!timestamp ：日期时间类型
+!!null：空值
+!!set：集合
+!!omap,!!pairs ：键值列表或对象列表
+!!seq：序列，也是列表
+!!map：键值表
+
+a: !!float '666' 	 # !! 为严格类型标签
+b: '666' 					# 其实双引号也算是类型转换符
+c: !!str 666 			# 整数转为字符串
+d: !!str 666.66 	# 浮点数转为字符串
+e: !!str true 		# 布尔值转为字符串
+f: !!str yes 			# 布尔值转为字符串
+```
+
+### Newlines
+
+**保留换行(Newlines preserved)**
+
+​	使用**竖线符“ | ”**来表示该语法，每行的缩进和行尾空白都会被去掉，而额外的缩进会被保留
+
+```yaml
+lines: |
+  我是第一行
+  我是第二行
+    我是gardenia
+      我是第四行
+  我是第五行
+```
+
+```json
+{'lines': '我是第一行\n我是第二行\n 我是gardenia\n 我是第四行\n我是第五行'}
+```
+
+**折叠换行(Newlines folded)**
+
+​	使用**右尖括号“ > ”**来表示该语法，只有空白行才会被识别为换行，原来的换行符都会被转换成空格
+
+```yaml
+lines: >
+  我是第一行
+  我也是第一行
+  我仍是第一行
+  我依旧是第一行
+
+  我是第二行
+  这么巧我也是第二行
+```
+
+```json
+{'lines': '我是第一行 我也是第一行 我仍是第一行 我依旧是第一行\n我是第二行 这么巧我也是第二行'}
+```
+
+可以用 `+` 和 `-` 来选择是否保留文字块末尾的换行符
+
+```yaml
+s1: |
+  Foo
+s2: |+
+  Foo
+s3: |-
+  Foo
+```
+
+```JSON
+{'s1': 'Foo\n', 's2': 'Foo\n', 's3': 'Foo'}
+```
+
+### 数据重用与合并
+
+YAML 提供了由锚点标签“&”和引用标签“*”组成的语法，利用这套语法可以快速引用相同的一些数据…
+
+```yaml
+a: &anchor # 设置锚点
+  one: 1
+  two: 2
+  three: 3
+b: *anchor # 引用锚点
+```
+
+配合合并标签“<<”使用可以与任意数据进行合并
+
+```yaml
+human: &base # 添加名为 base 的锚点
+    body: 1
+    hair: 999
+singer:
+    <<: *base # 引用 base 锚点，实例化时会自动展开
+    skill: sing # 添加额外的属性
+programer:
+    <<: *base # 引用 base 锚点，实例化时会自动展开
+    hair: 6 # 覆写 base 中的属性
+    skill: code # 添加额外的属性
+```
+
+```JSON
+{ 
+human: { body: 1, hair: 999 },
+singer: { body: 1, hair: 999, skill: 'sing' },
+programer: { body: 1, hair: 6, skill: 'code' }
+}
+```
+
 
 
 ## YAML 文件组成部分
 
 主要分为了两部分，一个是 **控制器的定义** 和 **被控制的对象**
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadate: 
+  name: string
+  namespace: string
+  labels:
+    - name: string
+  annotations:
+    - name: string
+spce:
+  containers:
+  - name: string
+    image: string
+    imagePullPolicy: [Always | Never | IfNotPresent]
+    command: [string]
+    args: [string]
+    workingDir: string
+    vilumnMounts:
+    - name: string
+      mountsPath: string
+      readOnly: boolean
+    ports:
+    - name: string
+      containerPort: int
+      hostPort: int
+      protocol: string
+    env:
+    - name: string
+      value: string
+    resource:
+      limits:
+        cpu: string
+        memory: string
+      requests:
+        cpu: string
+        memory: string
+    livenessProbe:
+      exec:
+        command: [string]
+      httpGet:
+        path: string
+        port: string
+        host: string
+        scheme: string
+        httpHeaders:
+        - name: string
+          values: string
+      tcpSocket:
+        port: number
+      initialDelaySeconds: 0
+      timeoutSeconds: 0
+      successThreshold: 0
+      failureThreshold: 0
+    securityContext:
+      privileged: false
+  restartPolicy: [Always | Never | OnFailure]
+  nodeSelector: object
+  imagePullSecrets:
+  - name: string
+  hostNetwork: false
+  Volumes:
+  - name: string
+    emptyDir: {}
+    hostPath:
+      path: string
+    secret:
+      secretName: string
+      items:
+      - key:string
+        path: string
+    configMap:
+      name: string
+      items:
+      - key: string
+        path: string
+```
 
 **控制器的定义**
 
@@ -91,22 +301,66 @@ People: [Tom, Jack]
 
 ### 属性说明
 
-在一个 YAML 文件的控制器定义中，有很多属性名称
+| 属性名称             | 取值类型 | 是否必选 | 取值说明                                                    | 备注                                                    |
+| -------------------- | -------- | -------- | ----------------------------------------------------------- | ------------------------------------------------------- |
+| apiVersion           | string   | Required | 版本号                                                      |                                                         |
+| kind                 | string   | Required | 资源类型                                                    |                                                         |
+| meatdate             | object   | Required | 元数据                                                      |                                                         |
+| m.namespace          | string   | Required | pod 所属命名空间                                            | 默认为 default                                          |
+| m.labels             | list     |          | 自定义标签列表                                              |                                                         |
+| m.annotations        | list     |          | 自定义注解列表                                              |                                                         |
+| spec                 | object   | Required | pod 中容器的详细定义                                        |                                                         |
+| s.containers         | list     | Required | pod 中的容器列表                                            |                                                         |
+| s.c.name             | string   | Required | 容器名称                                                    |                                                         |
+| s.c.image            | string   | Required | 容器镜像                                                    |                                                         |
+| s.c.imagePullPolicy  | string   |          | 容器拉取策略                                                | Always(默认) \| IfNotPresent \| Never                   |
+| s.c.command          | list     |          | 容器启动命令列表                                            | 如果不指定，则使用镜像打包时设定的启动命令              |
+| s.c.args             | list     |          | 容器启动命令参数列表                                        |                                                         |
+| s.c.workingDir       | string   |          | 容器的工作目录                                              |                                                         |
+| s.c.volumeMounts     | list     |          | 挂载到容器内部的存储卷配置                                  |                                                         |
+| s.c.v.name           | string   |          | 引用 pod 定义的共享存储卷名称                               |                                                         |
+| s.c.v.mountPath      | string   |          | 存储卷在容器内挂载的绝对路径                                |                                                         |
+| s.c.v.readOnly       | boolean  |          | 是否为只读模式                                              | 默认为读写模式                                          |
+| s.c.ports            | list     |          | 容器的端口号列表                                            |                                                         |
+| s.c.p.name           | string   |          | 端口的名称                                                  |                                                         |
+| s.c.p.containerPort  | string   |          | 容器需要监听的端口号                                        |                                                         |
+| s.c.p.hostPost       | string   |          | 容器所在的主机需要监听的端口号                              | 设置该项，同一台宿主机将无法启动该容器的第二份副本      |
+| s.c.p.protocol       | string   |          | 端口协议，支持 TCP 和 UDP，默认使用 TCP                     |                                                         |
+| s.c.env              | list     |          | 容器运行前虚设置的环境变量列表                              |                                                         |
+| s.c.e.name           | string   |          | 环境变量的名称                                              |                                                         |
+| s.c.e.value          | string   |          | 环境变量的值                                                |                                                         |
+| s.c.resources        | object   |          | 资源限制和资源请求的设置                                    |                                                         |
+| s.c.r.limits         | object   |          | 资源限制的设置                                              |                                                         |
+| s.c.r.l.cpu          | string   |          | CPU 限制，单位为 core 核数                                  |                                                         |
+| s.c.r.l.memory       | string   |          | 内存限制，单位可以为 MiB，GiB 等                            |                                                         |
+| s.c.r.requests       | object   |          | 资源请求的设置                                              |                                                         |
+| s.c.r.r.cpu          | string   |          | CPU 请求                                                    |                                                         |
+| s.c.r.r.memory       | string   |          | 内存请求                                                    |                                                         |
+| s.volumes            | list     |          | 在该 pod 上定义的共享存储列表                               |                                                         |
+| s.v.name             | string   |          | 共享存储卷的名称                                            |                                                         |
+| s.v.emptyDir         | object   |          | 类型为 emptyDir 的存储卷                                    |                                                         |
+| s.v.hostPath         | object   |          | 类型为 hostPath 的存储卷                                    |                                                         |
+| s.v.h.path           | string   |          | Pod 容器挂载的宿主机目录                                    |                                                         |
+| s.v.secret           | object   |          | 类型为 secret 的存储卷                                      | 表示挂载集群预定义的 Secret 到容器内部                  |
+| s.v.configMap        | object   |          | 类型为 configMap 的存储卷                                   | 表示挂载集群预定义的 ConfigMap 到容器内部               |
+| s.livenessProbe      | object   |          | 对 Pod 内各容器健康检查的设置                               | 当探测几次无反应后，将依据重启策略干活                  |
+| s.l.exec             | object   |          | 对 Pod 内各容器健康检查的设置，exec 方式                    |                                                         |
+| s.l.e.command        | string   |          | exec 方式需要制定的命令或脚本                               |                                                         |
+| s.l.httpGet          | object   |          | 对 Pod 内各容器健康检查的设置，httpGet 方式                 |                                                         |
+| s.l.tcpSocket        | object   |          | 对 Pod 内各容器健康检查的设置，tcpSocket 方式               |                                                         |
+| s.l.initDelaySeconds | number   |          | 容器启动完成后首次探测的时间                                |                                                         |
+| s.l.timeoutSeconds   | number   |          | 对容器健康检查的探测等待超时时间，默认为1s                  |                                                         |
+| s.l.periodSeconds    | number   |          | 对容器健康的定期探测时间设置，默认 10 s 一次                |                                                         |
+| s.restartPolicy      | string   |          | Pod 的重启方式                                              | Always \| Never \| OnFailure，默认为 Always             |
+| s.nodeSelector       | object   |          | 设置 node 的 label，pod 将被指定到具有这些 Label 的 node 上 |                                                         |
+| s.imagePullSecrets   | object   |          | pull 推送镜像时使用的 Secret 名称                           |                                                         |
+| s.hostNetwork        | boolean  |          | 是否使用主机网络模式，默认为false                           | 使用主机网络模式，该 Pod 将无法在宿主机上启动第二个副本 |
 
-|  属性名称  |    介绍    |
-| :--------: | :--------: |
-| apiVersion |  API 版本  |
-|    kind    |  资源类型  |
-|  metadata  | 资源元数据 |
-|    spec    |  资源规格  |
-|  replicas  |  副本数量  |
-|  selector  | 标签选择器 |
-|  template  |  Pod 模板  |
-|  metadata  | Pod 元数据 |
-|    spec    |  Pod 规格  |
-| containers |  容器配置  |
-
-
+```bash
+#   kubectl explain 资源类型         查看某种资源可以配置的一级属性
+#   kubectl explain 资源类型.属性     查看属性的子属性
+kubectl explain pod
+```
 
 ## 快速编写 YAML 文件
 
@@ -195,8 +449,6 @@ for i in $(seq 1 1 3); do kubectl apply -f nginx.yaml; done
 
 ## 资源配额及标签
 
-
-
 ```bash
 # 切换命名空间	kubectl get pods 不指定默认为切换的命名空间
 kubectl config set-context --current --namespace=kube-system
@@ -207,7 +459,7 @@ kubectl api-resources --namespaced=true
 
 
 
-### namespace 资源限额
+### Namespace 资源限额
 
 namespace 作为命名空间，有很多资源，那么可以对命名空间资源做限制，防止该命名空间部署的资源超过限制。
 
