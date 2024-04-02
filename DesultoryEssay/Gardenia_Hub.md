@@ -47,6 +47,8 @@
 6. Code HighLight
 
    https://github.com/ParryQiu/highlight.js
+   
+7. https://github.com/practical-tutorials/project-based-learning?tab=readme-ov-file#go
 
 
 

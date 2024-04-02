@@ -144,6 +144,3 @@ class Swagger3Config {
 
 ![image-20200907164332769](images/image-20200907164332769.png)
 
-## 参考
-
-https://blog.csdn.net/qq_15973399/article/details/107436089
