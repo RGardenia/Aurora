@@ -21,7 +21,7 @@
 Software
 
 ## 资料 文件 ##
-/Datum
+Datum
 *.doc
 *.docx
 *.txt
@@ -43,6 +43,7 @@ springboot-kafka/
 Interview/JUC/Code
 Languages/Python/Django/Code
 Languages/Golang/Gin/Code
+Languages/Java/JVM/Code
 WEB/CSS/Shopping
 
 # BlueJ files

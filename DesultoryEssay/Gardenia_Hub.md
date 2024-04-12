@@ -8,6 +8,18 @@
 
 
 
+[**国家哲学社会科学文献中心**](https://www.ncpssd.org/)
+
+**[国家职业教育智慧教育平台](https://vocational.smartedu.cn/index.html)**
+
+[终身教育平台](https://le.ouchn.cn/)
+
+
+
+
+
+
+
 # 文献 阅读 工具
 
 1. ReadPaper
