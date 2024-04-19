@@ -1,14 +1,10 @@
-### 为什么要学习Linux
+# Linux
 
-linux诞生了这么多年，从前还喊着怎么能替代windows体系，现在这个口号现已小多了，用习气了windows操作体系，再让大家切换到其他操作体系根本上是不可能的作业，改动一个人现已养成的习气太难。没有办法深化到普通老百姓的日子中，并不意味着linux就没有用武之地了。在服务器端，在开发范畴linux却是越来越受欢迎，许多程序员都觉得不明白点linux都觉得不好意思，linux在开源社区的位置仍然岿然不动，从前订阅过linux内核的邮件，每天收到的更新信息不计其数，活泼程度无与伦比。
-
-尤其是作为一个后端程序员，是必须要掌握Linux的，因为这都成为了你找工作的基础门槛了，所以不得不学习！
-
-### Linux简介
+### Linux 简介
 
 Linux，全称GNU/Linux，是一种免费使用和自由传播的类UNIX操作系统，其内核由林纳斯·本纳第克特·托瓦兹于1991年10月5日首次发布，它主要受到Minix和Unix思想的启发，是一个基于POSIX的多用户、多任务、支持多线程和多CPU的操作系统。它能运行主要的Unix工具软件、应用程序和网络协议。它支持32位和64位硬件。Linux继承了Unix以网络为核心的设计思想，是一个性能稳定的多用户网络操作系统。Linux有上百种不同的发行版，如基于社区开发的debian、archlinux，和基于商业开发的Red Hat Enterprise Linux、SUSE、Oracle Linux等。
 
-![图片](Linux基础.assets/640)
+
 
 目前市面上较知名的发行版有：Ubuntu、RedHat、CentOS、Debian、Fedora、SuSE、OpenSUSE、Arch Linux、SolusOS 等。
 
@@ -293,16 +289,6 @@ ls /
 **Linux快捷键总结：**  **结束运行中的程序：ctrl+c**     **退出终端：ctrl+d**   **清空屏幕：ctrl+L**
 
 **打开历史命令收索：ctrl+r**    **命令补全：tab键**    **vi编辑文件的时候，快速定位光标到最后一行：G**
-
-
-
-
-
-![](D:\Zhangyu\IT 自学笔记\计算机\Linux\images\Base01.png)
-
-
-
-![权限基础](D:\Zhangyu\IT 自学笔记\计算机\Linux\images\jurisdiction.png)
 
 
 

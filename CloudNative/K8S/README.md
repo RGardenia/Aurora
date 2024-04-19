@@ -143,13 +143,13 @@ metadata:
 spec:
   selector:
     app: mysql
+  type: NodePort
   ports:
   - name: mysql
     protocol: TCP
     port: 3306
     targetPort: 3306
     nodePort: 30169
-  type: NodePort
 
 kubectl apply -f mysql-service.yaml
 kubectl get svc -n garmysql
@@ -184,6 +184,95 @@ kubectl get pods -n kuboard
 kubectl get all -n kube-system | grep kuboard
 
 echo $(kubectl -n kube-system get secret $(kubectl -n kube-system get secret | grep kuboard-user | awk '{print $1}') -o go-template='{{.data.token}}' | base64 -d)
+```
+
+
+
+
+
+# Nginx
+
+## Download
+
+```bash
+vim default.conf
+server {
+    listen       80;
+    server_name gardenia.com;
+    error_page 500  502 504 503  /50x.html;
+    
+    location /download {
+          alias  /usr/local/webapp/download/;
+          sendfile on;
+          autoindex on;  # 开启目录文件列表
+          autoindex_exact_size on;  # 显示出文件的确切大小，单位是bytes
+          autoindex_localtime on;  # 显示的文件时间为文件的服务器时间
+          charset utf-8,gbk;  # 避免中文乱码
+    }
+}
+kubectl create configmap nginx-config --from-file=./default.conf
+kubectl describe pod/nginxsvcdp-57b9f6b5df-cfjf4
+
+mkdir -p /mnt/nginx
+kubectl apply -f deploy.yaml
+```
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginxsvcdp
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  minReadySeconds: 1
+  strategy:
+      rollingUpdate:
+          maxSurge: 1
+          maxUnavailable: 0
+      type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        -  mountPath: /etc/nginx/conf.d
+           name: config
+        -  mountPath: /usr/local/webapp/download/
+           name: data
+      volumes:
+        - name: data
+          hostPath:
+            path: /mnt/nginx
+            type: Directory
+        -  name: config
+           configMap:
+              name: nginx-config
+              items:
+              -  key: default.conf
+                 path: ./default.conf
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+    name: nginxdpsvc
+spec:
+    type: NodePort
+    selector:
+        app: nginx
+    ports:
+    -  port: 80
+       targetPort: 80
+       nodePort: 30001
 ```
 
 
