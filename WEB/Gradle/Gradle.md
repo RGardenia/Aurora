@@ -17,6 +17,8 @@
 > Gradle 是一款Google 推出的**基于JVM、**通用灵活的**项目构建工具，**支持 Maven，JCenter多种第三方仓库;支持传递性依赖管理、废弃了繁杂的 xml 文件，转而使用**简洁的**、**支持多种语言**(例如：java、groovy 等)的**build 脚本文件**。
 >
 > 官网地址 : [[https://gradle.org/]](https://gradle.org/)
+>
+> ​		https://www.yuque.com/youyi-ai1ik/emphm9/kyhenl?#M9sJo
 
 ![](./media/image2.jpeg){width="5.815161854768154in"
 height="2.57125in"}
@@ -115,7 +117,7 @@ height="1.7083333333333333in"}
 
 > **需要注意的是：gradle 的指令要在含有build.gradle 的目录执行**。
 
-### 1.5.2 修改maven 下载源
+### 1.5.2 修改 maven 下载源
 
 Gradle 自带的Maven 源地址是国外的，该Maven源在国内的访问速度是很慢的，除非使用了特别的手段。一般情况下，建议使用国内的第三方开放的Maven 源或企业内部自建Maven 源。
 
@@ -135,10 +137,24 @@ Gradle 自带的Maven 源地址是国外的，该Maven源在国内的访问速�
 ![](./media/image12.jpeg){width="5.10123687664042in"
 height="2.3516655730533684in"}
 
-在 gradle 中的使用说明：
-
-![](./media/image13.jpeg){width="5.75588801399825in"
-height="2.6365616797900264in"}
+```groovy
+allprojects {
+    repositories {
+        mavenLocal()
+        maven { name "Alibaba" ; url "https://maven.aliyun.com/repository/public" } 
+        maven { name "Bstek" ; url "https://nexus.bsdn.org/content/groups/public/" } 
+        mavenCentral()
+    }
+    
+    buildscript {
+        repositories {
+            maven { name "Alibaba" ; url 'https://maven.aliyun.com/repository/public' } 
+            maven { name "Bstek" ; url 'https://nexus.bsdn.org/content/groups/public/' } 
+            maven { name "M2" ; url 'https://plugins.gradle.org/m2/' }
+        }
+    }
+}
+```
 
 ### 1.5.3 Wrapper 包装器
 

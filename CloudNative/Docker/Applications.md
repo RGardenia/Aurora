@@ -95,7 +95,7 @@ sudo systemctl start docker
 
 ## 前言
 
-​	原来我都是将镜像推送到Dockerhub中的，因为Dockerhub是国外的软件，所以经常会各种超时的问题，这阵子研究了一下阿里云容器镜像服务，发现可以把一些常用的镜像推送到自己的容器镜像仓库里，然后就可以快速的进行拉取了~，所以我也打算将蘑菇博客的镜像也推送到阿里云，提高后面镜像拉取的速度。
+​	原来我都是将镜像推送到Dockerhub中的，因为Dockerhub是国外的软件，所以经常会各种超时的问题，这阵子研究了一下阿里云容器镜像服务，发现可以把一些常用的镜像推送到自己的容器镜像仓库里，然后就可以快速的进行拉取了~，所以我也打算将博客的镜像也推送到阿里云，提高后面镜像拉取的速度。
 
 ## 阿里云容器镜像服务
 
@@ -148,19 +148,19 @@ docker push registry.cn-shenzhen.aliyuncs.com/mogublog/mogu_blog_nacos:latest
 
 
 
-# 六、使用GithubAction构建蘑菇博客镜像提交DockerHub
+# 六、使用GithubAction构建博客镜像提交DockerHub
 
 ## 前言
 
-​	这阵子使用DockerCompose部署蘑菇博客， 但是还存在一些问题，就是每次我们需要下载 [蘑菇博客](https://gitee.com/moxi159753/mogu_blog_v2) 源码，然后进行编译，打包，部署。而因为蘑菇博客还是前后端分离项目，因此为了完成这一系列的操作，就需要在环境中安装maven、node、git 等环境。但是因为这些环境只是在我们项目的构建阶段才会使用，而构建项目完成后，就不需要使用了，因此就打算使用Github Actions在代码提交的后，我们提前把蘑菇博客的镜像给构建完成，然后上传到DockerHub上，最后在其它人需要使用的时候，就不需要自己重新构建镜像了，而是直接拉取线上的镜像，完成项目的部署。
+​	这阵子使用DockerCompose部署博客， 但是还存在一些问题，就是每次我们需要下载 [博客](https://gitee.com/moxi159753/mogu_blog_v2) 源码，然后进行编译，打包，部署。而因为博客还是前后端分离项目，因此为了完成这一系列的操作，就需要在环境中安装maven、node、git 等环境。但是因为这些环境只是在我们项目的构建阶段才会使用，而构建项目完成后，就不需要使用了，因此就打算使用Github Actions在代码提交的后，我们提前把博客的镜像给构建完成，然后上传到DockerHub上，最后在其它人需要使用的时候，就不需要自己重新构建镜像了，而是直接拉取线上的镜像，完成项目的部署。
 
-如果你想了解Github Actions的使用，参考：[使用Github Action完成蘑菇博客持续集成](http://www.moguit.cn/#/info?blogUid=0762bfb392c2cf0a94c8a7934fe46f8f)
+如果你想了解Github Actions的使用，参考：[使用Github Action完成博客持续集成](http://www.moguit.cn/#/info?blogUid=0762bfb392c2cf0a94c8a7934fe46f8f)
 
 如果你想知道更多的官方Actions，参考：[Build and push Docker images](https://github.com/marketplace/actions/build-and-push-docker-images)
 
-如果想了解蘑菇博客镜像构建和部署，参考： [使用DockerCompose制作蘑菇博客YAML镜像文件](http://www.moguit.cn/#/info?blogOid=567)
+如果想了解博客镜像构建和部署，参考： [使用DockerCompose制作博客YAML镜像文件](http://www.moguit.cn/#/info?blogOid=567)
 
-如果想快速一键部署蘑菇博客，参考：[DockerCompose一键部署蘑菇博客(Nacos版)](http://www.moguit.cn/#/info?blogOid=565)
+如果想快速一键部署博客，参考：[DockerCompose一键部署博客(Nacos版)](http://www.moguit.cn/#/info?blogOid=565)
 
 ## 环境准备
 
@@ -708,6 +708,25 @@ jobs:
 ![image-20201202091542735](images/image-20201202091542735.png)
 
 到目前为止，自动化镜像制作已经完成了~
+
+
+
+
+
+# 七、PostgreSQL
+
+```bash
+docker run -d --name some-postgres \
+	-v "/etc/postgres/my-postgres.conf":/etc/postgresql/postgresql.conf \
+	-e POSTGRES_PASSWORD=151613 \
+  -e PGDATA=/var/lib/postgresql/data/pgdata \
+	-v /var/lib/postgresql/data:/var/lib/postgresql/data \
+	-p 9009:5432 \
+	postgres
+#	-c 'config_file=/etc/postgresql/postgresql.conf'
+```
+
+
 
 
 
