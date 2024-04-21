@@ -1,5 +1,28 @@
 # Git
 
+
+
+```config
+# ZC~Reunion
+Host		gitcode.net
+Hostname		gitcode.net
+User		@Lifereunion
+IdentityFile	~/.ssh/id_com
+IdentitiesOnly	yes
+
+# Gardenia
+Host github.com
+    port		22
+    HostName	github.com
+    User		RGardenia
+    PreferredAuthentications	publickey
+    IdentityFile	~/.ssh/id_gardenia
+    ProxyCommand connect -S 127.0.0.1:7890 -a none %h %p
+    IdentitiesOnly	yes
+```
+
+
+
 ## 版本控制
 
 版本控制（Revision control）是一种在开发的过程中用于管理我们对文件、目录或工程等内容的修改历史，方便查看更改历史记录，备份以便恢复以前的版本的软件工程技术。

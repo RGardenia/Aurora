@@ -1,8 +1,8 @@
 # 1.SpringBoot 入门
 
-## 1.1.POM文件
+## 1.1. POM文件
 
-### 1.1.1.父项目
+### 1.1.1. 父项目
 
 ```xml
 <!--1、SpringBoot的pom文件中导入父项目-->
@@ -23,10 +23,10 @@ spring-boot-dependencies 定义很多jar的版本，它是真正来管理SpringB
 </parent>
 ```
 
-- `spring-boot-dependencies`是SpringBoot应用版本仲裁中心！以后我们导入依赖默认是不需要写版本的！
-- 没有在`spring-boot-dependencies`管理的依赖我们自然需要声明版本号。
+- `spring-boot-dependencies`是SpringBoot应用版本仲裁中心！以后导入依赖默认是不需要写版本的！
+- 没有在`spring-boot-dependencies`管理的依赖自然需要声明版本号。
 
-### 1.1.1.启动器(starter)
+### 1.1.1. 启动器(starter)
 
 ```xml
 <dependency>
@@ -39,7 +39,7 @@ spring-boot-dependencies 定义很多jar的版本，它是真正来管理SpringB
 
 - **一句话：SpringBoot将所有的功能场景都抽取出来，做成一个个的starter(启动器)，只需要在项目中引入这些starter相关场景的所有依赖都会导入进来！要用什么功能就导入什么starter(启动器)即可。**
 
-## 1.2.自动配置
+## 1.2. 自动配置
 
 ### 1.2.1.@SpringBootApplication
 
@@ -101,7 +101,7 @@ public @interface SpringBootConfiguration {
 ```java
 /**
  * @EnableAutoConfiguration：开启自动配置功能
- * 以前我们需要配置的东西,SpringBoot帮我们配置,@EnableAutoConfiguration告诉SpringBoot开启自动配置功能,这样自动置才能生效。
+ * 以前需要配置的东西,SpringBoot帮配置,@EnableAutoConfiguration告诉SpringBoot开启自动配置功能,这样自动置才能生效。
  * @EnableAutoConfiguration 由 @AutoConfigurationPackage 和 @Import(AutoConfigurationImportSelector.class)组成。
  */
 @Target(ElementType.TYPE)
@@ -141,15 +141,15 @@ public @interface AutoConfigurationPackage {
     - `@AutoConfigurationPackage`：包扫描。
     - `@Import(AutoConfigurationImportSelector.class)`：**SpringBoot在启动时从类路径下的`META-INF/spring.factories`中获取EnableAutoConfiguration指定的值，再将这些值作为自动配置类导入到容器中，自动配置类就生效了。**
 
-# 2.配置文件
+# 2. 配置文件
 
-## 2.1.配置文件介绍 
+## 2.1. 配置文件介绍 
 
 - SpringBoot使用一个全局的配置文件，配置文件的名字是固定的：`application.properties`和`application.yml`。
 - 配置文件的作用：修改SpringBoot自动配置的默认值。
 - `application.properties`和`application.yml`一般都放在src/main/resources目录下。
 
-## 2.2.YAML语法
+## 2.2. YAML 语法
 
 > 基本语法
 
@@ -194,7 +194,7 @@ pets:
 		name: ErHa
 ```
 
-## 2.3.配置文件值的注入
+## 2.3. 配置文件值的注入
 
 ### 2.3.1.@ConfigurationProperties
 
@@ -363,9 +363,9 @@ public class Person {
 
 松散绑定：firstName可以在配置文件中使用first-name。
 
-**一句话：如果我们只是在某个业务逻辑中需要获取配置文件中的某项值，就使用@Value。如果我们专门编写了一个JavaBean来和配置文件进行映射，那么就直接使用@ConfigurationProperties。**
+**一句话：如果只是在某个业务逻辑中需要获取配置文件中的某项值，就使用@Value。如果专门编写了一个JavaBean来和配置文件进行映射，那么就直接使用@ConfigurationProperties。**
 
-### 2.3.4.JSR303数据校验
+### 2.3.4.JSR303 数据校验
 
 ```java
 @Component
@@ -418,7 +418,7 @@ public class Person {
 
 **@ImportResource：导入Spring的配置文件，让配置文件里面的内容生效。**
 
-SpringBoot中没有Spring的配置文件，我们自己编写的配置文件，SpringBoot也不能自动识别。想让Spring的配置文件加载进SpringBoot中，使用@ImportResource标注在配置上即可。
+SpringBoot中没有Spring的配置文件，自己编写的配置文件，SpringBoot也不能自动识别。想让Spring的配置文件加载进SpringBoot中，使用@ImportResource标注在配置上即可。
 
 ==这种为SpringBoot添加组件的方式SpringBoot并不推荐。==
 
@@ -450,7 +450,7 @@ public class AppMainConf {
 }
 ```
 
-## 2.4.配置文件占位符
+## 2.4. 配置文件占位符
 
 ```yaml
 # 1、占位符可以使用随机数
@@ -462,14 +462,14 @@ person:
     name: ${person.name} # 引用上面的值
 ```
 
-## 2.5.profile多环境支持
+## 2.5. Profile 多环境支持
 
 profile是Spring対不同环境提供不同配置功能的支持，可以通过激活、指定参数等方式快速切换环境。
 
 > 多Profile文件
 
 ```yaml
-# 我们在主配置文件编写的时候，文件名可以是 application-{profile}.properties/yml
+# 在主配置文件编写的时候，文件名可以是 application-{profile}.properties/yml
 # 在默认情况下使用的application.yml的配置
 
 # application-dev.yml开发环境配置
@@ -515,7 +515,7 @@ spring:
 java -jar [jar的名字] --spring.profiles.active=dev
 ```
 
-## 2.6.配置文件的加载顺序
+## 2.6. 配置文件的加载顺序
 
 ```shell
 # 1、配置文件的优先级从高到低
@@ -531,9 +531,39 @@ classpath:/application.yml         # resources目录下的配置文件
 java -jar [jar的名字] --spring.config.location=C:\Users\14666\Desktop
 ```
 
-# 3.自动配置
+![properties_sort](images/properties_sort.png)
 
-## 3.1.自动配置原理
+
+
+## 2.7. Banner
+
+> 这里有几个定制banner的网站，文字、图片。
+>
+> ​	http://patorjk.com/software/taag
+>
+> 　　http://www.network-science.de/ascii/
+>
+> 　　http://www.degraeve.com/img2txt.php
+
+　banner.txt配置
+
+```properties
+${AnsiColor.BRIGHT_RED}：设置控制台中输出内容的颜色
+
+${application.version}：用来获取`MANIFEST.MF`文件中的版本号
+
+${application.formatted-version}：格式化后的`${application.version}`版本信息
+
+${spring-boot.version}：Spring Boot的版本号
+
+${spring-boot.formatted-version}：格式化后的`${spring-boot.version}`版本信息
+```
+
+# 3. 自动配置
+
+![image-20240421160841172](images/image-20240421160841172.png)
+
+## 3.1. 自动配置原理
 
 ```java
 //以HttpEncodingAutoConfiguration为例来学习SpringBoot的自动配置
@@ -551,7 +581,7 @@ public class HttpEncodingAutoConfiguration {
 - 所有在配置文件中能配置的属性都是在【xxxProperties】类中封装，配置文件能配置什么就可以参照某个功能对应的这个属性类。
 - **XXXAutoConfiguration是自动配置类，它会给容器中添加组件，然后也会对应的XXXProperties，封装配置文件的相关属性。**
 
-## 3.2.@Conditional
+## 3.2. @Conditional
 
 **@Conditional是Spring中的注解，作用是@Conditional指定的条件成立，才给容器中添加组件，配置类里面的所有内容才会生效。**
 
@@ -571,7 +601,7 @@ public class HttpEncodingAutoConfiguration {
 
 **一句话：自动配置类必须在一定条件下才能生效。**
 
-> 我们怎么知道哪些自动配置类生效？？
+> 怎么知道哪些自动配置类生效？？
 
 ```yaml
 # 1、在SpringBoot的配置文件中加入如下配置就可以打印出自动配置报告
@@ -602,6 +632,10 @@ Positive matches:
       - Default DispatcherServlet did not find dispatcher servlet beans (DispatcherServletAutoConfiguration.DefaultDispatcherServletCondition)
 
 ```
+
+![image-20240421173529104](images/image-20240421173529104.png)
+
+
 
 # 4.日志
 
@@ -659,9 +693,9 @@ public class HelloWorld {
 
 2、用中间的jar来替换原有的日志框架。
 
-3、我们再来导入SLF4j其他的日志实现。
+3、再来导入SLF4j其他的日志实现。
 
-## 4.4.SpringBoot日志关系
+## 4.4.SpringBoot 日志关系
 
 > SpringBoot日志依赖
 
@@ -670,11 +704,11 @@ public class HelloWorld {
 - `log4j-to-slf4j`、`logback-classic`、`jul-to-slf4j`把其他的日志框架转成`slf4j`。
 - `slf4j-api`是SpringBoot导入了日志抽象层SLF4J。
 
-**如果我们要引入其他框架？一个要把这个框架默认的日志依赖移除掉？**
+**如果要引入其他框架？一个要把这个框架默认的日志依赖移除掉？**
 
 **SpringBoot能自动适配所有的日志，而且底层使用slf4j + logback的方式记录日志，引入其他框架的时候，只需要把这个框架依赖的日志框架排除掉即可。**
 
-## 4.5.SpringBoot日志使用
+## 4.5.SpringBoot 日志使用
 
 > 日志级别
 
@@ -718,11 +752,11 @@ logging:
     path: C:/Users/14666/Desktop/log/
 ```
 
-# 5.Web开发
+# 5. Web开发
 
-## 5.1.静态资源映射规则
+## 5.1. 静态资源映射规则
 
-### 5.1.1.webjars静态资源的映射
+### 5.1.1. webjars 静态资源的映射
 
 关于SpringBoot静态资源的映射规则在`WebMvcAutoConfiguration`中。
 
@@ -753,7 +787,7 @@ public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
 - 所有`/webjars/**`的请求都去`classpath:/META-INF/resources/webjars/`这个目录下找资源。webjars就是以jar的方式引入静态资源。可以百度搜索webjars，在pom中添加相应的依赖就可以了。
 
-### 5.1.2.ResourceProperties静态资源映射
+### 5.1.2.ResourceProperties 静态资源映射
 
 > ResourceProperties
 
@@ -789,9 +823,9 @@ public class ResourceProperties {
 
 所有的`**/favicon.ico`都是在静态资源文件夹下找。
 
-## 5.2.thymeleaf
+## 5.2. thymeleaf
 
-### 5.2.1.引入thymeleaf
+### 5.2.1.引入 thymeleaf
 
 ```xml
 <dependency>
@@ -800,7 +834,7 @@ public class ResourceProperties {
 </dependency>
 ```
 
-### 5.2.2.thymeleaf的使用
+### 5.2.2.thymeleaf 的使用
 
 **ThymeleafProperties可以修改thymeleaf的配置。**
 
@@ -810,7 +844,7 @@ public class ThymeleafProperties {
 
 	private static final Charset DEFAULT_ENCODING = StandardCharsets.UTF_8;
 
-    // 只要我们把HTML页面放到"classpath:/templates/"下，thymeleaf就能找到
+    // 只要把HTML页面放到"classpath:/templates/"下，thymeleaf就能找到
 	public static final String DEFAULT_PREFIX = "classpath:/templates/";
 
     // 并且配置了默认的后缀是.html
@@ -826,7 +860,7 @@ public class ThymeleafProperties {
 <!--2、thymeleaf语法-->
 
 <!--
-th:text 将div里面的文本内容设置为我们指定的值;
+th:text 将div里面的文本内容设置为指定的值;
 可以使用[th:任意属性]来替换原生HTML属性的值.
 -->
 <div th:text="${hello}"></div>
@@ -939,7 +973,7 @@ th:remove
 	8.1No-Operation: _
 ```
 
-## 5.3.SpringMVC自动配置原理
+## 5.3. SpringMVC自动配置原理
 
 **官网链接：https://docs.spring.io/spring-boot/docs/2.2.4.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-auto-configuration**
 
@@ -951,7 +985,7 @@ The auto-configuration adds the following features on top of Spring’s defaults
 
   - SpringBoot自动配置了ViewResolver，视图解析器，根据方法的返回值得到视图对象，决定如何渲染(转发、重定向)。
   - `ContentNegotiatingViewResolver`：作用就是组合所有的视图解析器。
-  - 如何定制视图解析器：我们可以在容器中添加一个`ViewResolver`视图解析器，`ContentNegotiatingViewResolver` 就会自动的将我们的视图解析器组合进来
+  - 如何定制视图解析器：可以在容器中添加一个`ViewResolver`视图解析器，`ContentNegotiatingViewResolver` 就会自动的将的视图解析器组合进来
 
 - Support for serving static resources, including support for WebJars (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.4.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-static-content))).
 
@@ -976,7 +1010,7 @@ The auto-configuration adds the following features on top of Spring’s defaults
 
 - Automatic use of a `ConfigurableWebBindingInitializer` bean (covered [later in this document](https://docs.spring.io/spring-boot/docs/2.2.4.RELEASE/reference/html/spring-boot-features.html#boot-features-spring-mvc-web-binding-initializer)).
 
-  - 我们可以配置一个`ConfigurableWebBindingInitializer` 添加到容器来替换默认的。
+  - 可以配置一个`ConfigurableWebBindingInitializer` 添加到容器来替换默认的。
 
     ```java
     @Override
@@ -1001,9 +1035,9 @@ The auto-configuration adds the following features on top of Spring’s defaults
 
 If you want to provide custom instances of `RequestMappingHandlerMapping`, `RequestMappingHandlerAdapter`, or `ExceptionHandlerExceptionResolver`, and still keep the Spring Boot MVC customizations, you can declare a bean of type `WebMvcRegistrations` and use it to provide custom instances of those components.
 
-## 5.4.国际化
+## 5.4. 国际化
 
-### 5.4.1.编写国际化配置文件
+### 5.4.1. 编写国际化配置文件
 
 ![国际化配置文件](https://img-blog.csdnimg.cn/20200709124522243.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70)
 
@@ -1027,7 +1061,7 @@ public class MessageSourceAutoConfiguration {
 	@ConfigurationProperties(prefix = "spring.messages")
 	public MessageSourceProperties messageSourceProperties() {
         /* MessageSourceProperties中的basename默认是"message"
-        * 我们项目中的basename就是login，去掉后面的"语言名"和"国家名"
+        * 项目中的basename就是login，去掉后面的"语言名"和"国家名"
         */
 		return new MessageSourceProperties();
 	}
@@ -1142,7 +1176,7 @@ public LocaleResolver localeResolver() {
 }
 ```
 
-## 5.5.登录拦截器
+## 5.5. 登录拦截器
 
 > 拦截器
 
@@ -1189,7 +1223,7 @@ public class WebMvcConf implements WebMvcConfigurer {
 }
 ```
 
-## 5.6.RESTfulAPI
+## 5.6. RESTfulAPI
 
 > 基本请求模板
 
@@ -1212,9 +1246,9 @@ public class WebMvcConf implements WebMvcConfigurer {
 | 修改某个员工 | PUT      | /emp/{id} |
 | 删除员工     | DELETE   | /emp/{id} |
 
-## 5.7.数据列表展示
+## 5.7. 数据列表展示
 
-### 5.7.1.thymeleaf公共元素抽取
+### 5.7.1. thymeleaf公共元素抽取
 
 ```html
 <!--1、抽取公共片段-->
@@ -1307,9 +1341,9 @@ spring:
     date-format: yyyy-MM-dd
 ```
 
-# 6.错误处理机制
+# 6. 错误处理机制
 
-## 6.1.SpringBoot默认错误处理机制
+## 6.1.SpringBoot 默认错误处理机制
 
 - 浏览器访问，默认返回一个错误页面。
 - 如果是APP访问，默认响应一个json数据
@@ -1317,7 +1351,7 @@ spring:
 - 原理：参照`ErrorMvcAutoConfiguration`。给容器添加了以下组件
 
      ```java
-     // DefaultErrorAttributes 帮我们在页面共享信息
+     // DefaultErrorAttributes 帮在页面共享信息
      @Bean
      @ConditionalOnMissingBean(value = ErrorAttributes.class, search = SearchStrategy.CURRENT)
      public DefaultErrorAttributes errorAttributes() {
@@ -1458,7 +1492,7 @@ spring:
 
 - 有模板引擎的情况下，直接在`templates`下创建`error`文件夹。`error`文件夹下面的`HttpStatus.html`(需要用状态码给错误页面命名)就可以被解析返回给浏览器。
 
-  - 错误页面可以获取到的信息？`DefaultErrorAttributes`可以帮我们在页面获取信息！
+  - 错误页面可以获取到的信息？`DefaultErrorAttributes`可以帮在页面获取信息！
 
      ```java
      @Override
@@ -1490,7 +1524,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotExistException.class)
     public String handelException(HttpServletRequest request, Exception ex) {
-        // 传入我们自己的状态码，这个一定要写
+        // 传入自己的状态码，这个一定要写
         request.setAttribute("javax.servlet.error.status_code", 400);
         Map<String, Object> map = new HashMap<>();
         map.put("tip", "自定义的全局异常处理器");
@@ -1501,7 +1535,7 @@ public class GlobalExceptionHandler {
 }
 ```
 
-> 将我们定制的错误信息携带出去
+> 将定制的错误信息携带出去
 
 ```java
 package com.ymy.spring.boot.web.component;
@@ -1526,15 +1560,13 @@ public class MyErrorAttribute extends DefaultErrorAttributes {
 }
 ```
 
-# 7.数据访问
+# 7. 数据访问
 
-## 7.1.Spring Data简介
+## 7.1. Spring Data 简介
 
-对于数据访问层，无论是`SQL`还是`NoSQL` ，`Spring Boot`默认采用整合`Spring Data`的方式进行统一管理，添加大量自动配置，屏蔽了很多设置。引入各种`Template`，`Repository`来简化我们対数据访问层的操作。对我们来说只需要进行简单的设置即可。
+对于数据访问层，无论是`SQL`还是`NoSQL` ，`Spring Boot`默认采用整合`Spring Data`的方式进行统一管理，添加大量自动配置，屏蔽了很多设置。引入各种`Template`，`Repository`来简化対数据访问层的操作。对来说只需要进行简单的设置即可。
 
-## 7.2.JDBC
-
-> 依赖
+## 7.2. JDBC
 
 ```xml
 <!--jdbc-->
@@ -1550,7 +1582,7 @@ public class MyErrorAttribute extends DefaultErrorAttributes {
 </dependency>
 ```
 
-> application.yml配置
+> application.yml 配置
 
 ```yaml
 spring:
@@ -1562,9 +1594,9 @@ spring:
     type: com.mysql.cj.jdbc.MysqlConnectionPoolDataSource
 ```
 
-## 7.3.Druid
+## 7.3. Druid
 
-> 依赖
+
 
 ```xml
 <!--druid-->
@@ -1694,9 +1726,9 @@ public class DruidConf {
 }
 ```
 
-## 7.4.MyBatis
+## 7.4. MyBatis
 
-> 依赖
+
 
 ```xml
 <properties>
@@ -1740,13 +1772,13 @@ mybatis:
 </mapper>
 ```
 
-## 7.5.JPA
+## 7.5. JPA
 
-### 7.5.1.SpringData
+### 7.5.1. SpringData
 
-![SpringData](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1594486501695&di=eca71fc70413dacf866ad83a32a8c25e&imgtype=0&src=http%3A%2F%2Ft8.baidu.com%2Fit%2Fu%3D3931991969%2C3971569297%26fm%3D193)
 
-### 7.5.2.整合JPA
+
+### 7.5.2. 整合 JPA
 
 > 实例类和数据表进行映射
 
@@ -1842,7 +1874,7 @@ public class UserController {
 }
 ```
 
-# 8.SpringBoot事件监听
+# 8. SpringBoot 事件监听
 
 配置四个监听器：
 
@@ -1939,7 +1971,7 @@ public class HelloSpringApplicationRunListener implements SpringApplicationRunLi
 *****SpringApplicationRunListener*****running
 ```
 
-# 9.自定义Starter
+# 9. 自定义 Starter
 
 ## 9.1.基本介绍
 
@@ -2072,7 +2104,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConditionalOnWebApplication // web应用才生效
+@ConditionalOnWebApplication // web 应用才生效
 @EnableConfigurationProperties(value = HelloProperties.class)
 public class HelloServiceAutoConfiguration {
 
@@ -2092,16 +2124,20 @@ public class HelloServiceAutoConfiguration {
 > spring.factories
 
 ```properties
-# 在resources目录下创建spring.factories文件
+# 在 resources 目录下创建 spring.factories 文件
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.ymy.spring.boot.service.HelloServiceAutoConfiguration
 ```
 
 ## 9.4.自定义starter
 
-自定义starter需要把我们写的自动配置模块导入进来并且安装到本地仓库，就可以让其他项目来使用了！
+依赖 SpringBoot 的 SPI 机制
 
-# 10.SpringBoot与缓存
+`META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 文件中编写好我们自动配置类的全类名即可
+
+项目启动，自动加载自动配置类
+
+# 10. SpringBoot 与缓存
 
 ![缓存](https://img-blog.csdnimg.cn/20200712201214264.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70)
 
@@ -2122,8 +2158,8 @@ com.ymy.spring.boot.service.HelloServiceAutoConfiguration
 
 > 步骤
 
-- 开启注解的缓存`@EnableCaching`。
-- 在方法上标注缓存注解`@Cacheable`、`@CacheEvict`、`@CachePut`。
+- 开启注解的缓存`@EnableCaching`
+- 在方法上标注缓存注解`@Cacheable`、`@CacheEvict`、`@CachePut`
 
 > 缓存的SpEL表达式
 
@@ -2273,7 +2309,7 @@ ConcurrentMapCacheManager可以获取和创建ConcurrentMapCache类型的组件
 (4)将目标方法返回的结果放到缓存中。
 ```
 
-## 10.4.自定义KeyGenerator
+## 10.4.自定义 KeyGenerator
 
 > 定义KeyGenerator
 
@@ -2373,7 +2409,7 @@ public class RedisConf {
 }
 ```
 
-# 11.定时任务
+# 11. 定时任务
 
 ```java
 @Service
@@ -2435,7 +2471,7 @@ public class SpringBoot10TaskApplication {
 
 
 
-# 12.邮件任务
+# 12. 邮件任务
 
 ## 12.1. 依赖和配置
 
@@ -2516,7 +2552,7 @@ public void senderEmail() throws Exception{
 
 
 
-## 12.4. Thymeleaf邮件模板
+## 12.4. Thymeleaf 邮件模板
 
 **（1）依赖**
 
@@ -2636,4 +2672,172 @@ public class MainTest {
     }
 }
 ```
+
+
+
+# 13. Unit Tests
+
+
+
+## 13.1 注解
+
+- **@Test :**表示方法是测试方法。但是与JUnit4的@Test不同，他的职责非常单一不能声明任何属性，拓展的测试将会由Jupiter提供额外测试
+- **@ParameterizedTest :**表示方法是参数化测试，下方会有详细介绍
+- **@RepeatedTest :**表示方法可重复执行，下方会有详细介绍
+- **@DisplayName :**为测试类或者测试方法设置展示名称
+- **@BeforeEach :**表示在每个单元测试之前执行
+- **@AfterEach :**表示在每个单元测试之后执行
+- **@BeforeAll :**表示在所有单元测试之前执行
+- **@AfterAll :**表示在所有单元测试之后执行
+- **@Tag :**表示单元测试类别，类似于JUnit4中的@Categories
+- **@Disabled :**表示测试类或测试方法不执行，类似于JUnit4中的@Ignore
+- **@Timeout :**表示测试方法运行如果超过了指定时间将会返回错误
+- **@ExtendWith :**为测试类或测试方法提供扩展类引用
+
+
+
+## 13.2 断言
+
+
+
+| 方法              | 说明                                 |
+| ----------------- | ------------------------------------ |
+| assertEquals      | 判断两个对象或两个原始类型是否相等   |
+| assertNotEquals   | 判断两个对象或两个原始类型是否不相等 |
+| assertSame        | 判断两个对象引用是否指向同一个对象   |
+| assertNotSame     | 判断两个对象引用是否指向不同的对象   |
+| assertTrue        | 判断给定的布尔值是否为 true          |
+| assertFalse       | 判断给定的布尔值是否为 false         |
+| assertNull        | 判断给定的对象引用是否为 null        |
+| assertNotNull     | 判断给定的对象引用是否不为 null      |
+| assertArrayEquals | 数组断言                             |
+| assertAll         | 组合断言                             |
+| assertThrows      | 异常断言                             |
+| assertTimeout     | 超时断言                             |
+| fail              | 快速失败                             |
+
+
+
+## 13.3 嵌套测试
+
+JUnit 5 可以通过 Java 中的内部类和@Nested 注解实现嵌套测试，从而可以更好的把相关的测试方法组织在一起。在内部类中可以使用@BeforeEach 和@AfterEach 注解，而且嵌套的层次没有限制。
+
+```java
+@DisplayName("A stack")
+class TestingAStackDemo {
+
+    Stack<Object> stack;
+
+    @Test
+    @DisplayName("is instantiated with new Stack()")
+    void isInstantiatedWithNew() {
+        new Stack<>();
+    }
+
+    @Nested
+    @DisplayName("when new")
+    class WhenNew {
+
+        @BeforeEach
+        void createNewStack() {
+            stack = new Stack<>();
+        }
+
+        @Test
+        @DisplayName("is empty")
+        void isEmpty() {
+            assertTrue(stack.isEmpty());
+        }
+
+        @Test
+        @DisplayName("throws EmptyStackException when popped")
+        void throwsExceptionWhenPopped() {
+            assertThrows(EmptyStackException.class, stack::pop);
+        }
+
+        @Test
+        @DisplayName("throws EmptyStackException when peeked")
+        void throwsExceptionWhenPeeked() {
+            assertThrows(EmptyStackException.class, stack::peek);
+        }
+
+        @Nested
+        @DisplayName("after pushing an element")
+        class AfterPushing {
+
+            String anElement = "an element";
+
+            @BeforeEach
+            void pushAnElement() {
+                stack.push(anElement);
+            }
+
+            @Test
+            @DisplayName("it is no longer empty")
+            void isNotEmpty() {
+                assertFalse(stack.isEmpty());
+            }
+
+            @Test
+            @DisplayName("returns the element when popped and is empty")
+            void returnElementWhenPopped() {
+                assertEquals(anElement, stack.pop());
+                assertTrue(stack.isEmpty());
+            }
+
+            @Test
+            @DisplayName("returns the element when peeked but remains not empty")
+            void returnElementWhenPeeked() {
+                assertEquals(anElement, stack.peek());
+                assertFalse(stack.isEmpty());
+            }
+        }
+    }
+}
+```
+
+
+
+## 13.4 参数化测试
+
+​	参数化测试是JUnit5很重要的一个新特性，它使得用不同的参数多次运行测试成为了可能，也为的单元测试带来许多便利。
+
+​	利用**@ValueSource**等注解，指定入参，将可以使用不同的参数进行多次单元测试，而不需要每新增一个参数就新增一个单元测试，省去了很多冗余代码。
+
+
+
+**@ValueSource**: 为参数化测试指定入参来源，支持八大基础类以及String类型,Class类型
+
+**@NullSource**: 表示为参数化测试提供一个null的入参
+
+**@EnumSource**: 表示为参数化测试提供一个枚举入参
+
+**@CsvFileSource**：表示读取指定CSV文件内容作为参数化测试入参
+
+**@MethodSource**：表示读取指定方法的返回值作为参数化测试入参(注意方法返回需要是一个流)
+
+```java
+@ParameterizedTest
+@ValueSource(strings = {"one", "two", "three"})
+@DisplayName("参数化测试1")
+public void parameterizedTest1(String string) {
+    System.out.println(string);
+    Assertions.assertTrue(StringUtils.isNotBlank(string));
+}
+
+
+@ParameterizedTest
+@MethodSource("method")    //指定方法名
+@DisplayName("方法来源参数")
+public void testWithExplicitLocalMethodSource(String name) {
+    System.out.println(name);
+    Assertions.assertNotNull(name);
+}
+
+static Stream<String> method() {
+    return Stream.of("apple", "banana");
+}
+```
+
+
 
