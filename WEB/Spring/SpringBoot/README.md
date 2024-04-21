@@ -1,3 +1,46 @@
+# Spring Boot
+
+# 一、Spring Boot 3
+
+**特性：**
+
+- 快速创建独立 Spring 应用
+
+- SSM：导包、写配置、启动运行
+
+- 直接嵌入Tomcat、Jetty or Undertow（无需部署 war 包）【Servlet容器】
+
+- linux  java tomcat mysql： war 放到 tomcat 的 webapps下
+- jar： java环境；  java -jar
+
+- **重点**：提供可选的starter，简化应用**整合**
+
+- **场景启动器**（starter）：web、json、邮件、oss（对象存储）、异步、定时任务、缓存 ...
+- 导包一堆，控制好版本
+- 为每一种场景准备了一个依赖； **web-starter、mybatis-starter**
+
+- **重点：**按需自动配置 Spring 以及 第三方库
+
+- 如果这些场景我要使用（生效） 这个场景的所有配置都会自动配置好
+- **约定大于配置**：每个场景都有很多默认配置
+- 自定义：配置文件中修改几项就可以
+
+- 提供生产级特性：如 监控指标、健康检查、外部化配置等
+
+- 监控指标、健康检查（k8s）、外部化配置
+
+- 无代码生成、无xml
+
+总结：简化开发，简化配置，简化整合，简化部署，简化监控，简化运维
+
+> `pom.xml`：https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.build-systems.starters
+
+> `application.properties`：https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#appendix.application-properties
+
+![image-20240121134841368](images/image-20240121134841368.png)
+
+
+
 ## 1、Spring Boot 简介
 
 Spring Boot 是 Spring 开源组织下的子项目，是 Spring 组件一站式解决方案，它的产⽣简化了框架的使⽤，所谓简化，是指简化了 使用 Spring 的难度，简省了繁重的配置，提供了各种启动器，开发者能快速上手，所以SpringBoot 是⼀个服务于框架的框架，服务范围是简化配置⽂件。
@@ -3250,13 +3293,11 @@ public ConfigurableApplicationContext run(String... args) {
 
 ## 1、简介
 
-**Docker**是一个开源的应用容器引擎；是一个轻量级容器技术；
+**Docker **是一个开源的应用容器引擎；是一个轻量级容器技术
 
-Docker支持将软件编译成一个镜像；然后在镜像中各种软件做好配置，将镜像发布出去，其他使用者可以直接使用这个镜像；
+Docker 支持将软件编译成一个镜像；然后在镜像中各种软件做好配置，将镜像发布出去，其他使用者可以直接使用这个镜像
 
-运行中的这个镜像称为容器，容器启动是非常快速的。
-
-![](images/搜狗截图20180303145450.png)
+运行中的这个镜像称为容器，容器启动是非常快速的
 
 
 
@@ -3264,25 +3305,23 @@ Docker支持将软件编译成一个镜像；然后在镜像中各种软件做�
 
 ## 2、核心概念
 
-docker主机(Host)：安装了Docker程序的机器（Docker直接安装在操作系统之上）；
+Docker 主机(Host)：安装了Docker程序的机器（Docker直接安装在操作系统之上）；
+Docker 客户端(Client)：连接docker主机进行操作；
+Docker 仓库(Registry)：用来保存各种打包好的软件镜像；
+Docker 镜像(Images)：软件打包好的镜像；放在docker仓库中；
+Docker 容器(Container)：镜像启动后的实例称为一个容器；
 
-docker客户端(Client)：连接docker主机进行操作；
-
-docker仓库(Registry)：用来保存各种打包好的软件镜像；
-
-docker镜像(Images)：软件打包好的镜像；放在docker仓库中；
-
-docker容器(Container)：镜像启动后的实例称为一个容器；容器是独立运行的一个或一组应用
+容器是独立运行的一个或一组应用
 
 ![](images/搜狗截图20180303165113.png)
 
-使用Docker的步骤：
+使用 Docker 的步骤：
 
-1）、安装Docker
+1）、安装 Docker
 
-2）、去Docker仓库找到这个软件对应的镜像；
+2）、去 Docker 仓库找到这个软件对应的镜像；
 
-3）、使用Docker运行这个镜像，这个镜像就会生成一个Docker容器；
+3）、使用 Docker 运行这个镜像，这个镜像就会生成一个Docker容器；
 
 4）、对容器的启动停止就是对软件的启动停止；
 
@@ -3308,15 +3347,15 @@ docker容器(Container)：镜像启动后的实例称为一个容器；容器是
 service network restart
 ```
 
-​	7）、查看linux的ip地址
+​	7）、查看 linux 的 ip 地址
 
 ```shell
 ip addr
 ```
 
-​	8）、使用客户端连接linux；
+​	8）、使用客户端连接 linux
 
-#### 2）、在linux虚拟机上安装docker
+#### 2）、在 linux 虚拟机上安装docker
 
 步骤：
 
@@ -4135,13 +4174,6 @@ https://github.com/spring-projects/spring-boot/tree/master/spring-boot-samples
 
 
 
+**Reference**：https://www.bilibili.com/video/BV1Es4y1q7Bf
 
-
-
-
-
-
-
-
-
-
+**Code**：https://gitee.com/leifengyang/spring-boot-3
