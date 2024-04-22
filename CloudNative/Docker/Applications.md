@@ -1,4 +1,4 @@
-# 一、nginx
+# 一、Nginx
 ```shell
 # nginx 
 docker pull nginx:1.21.1-alpine
@@ -25,7 +25,7 @@ docker run --name nginx --net host \
 
 
 
-# 二、mysql
+# 二、Mysql
 
 ```shell
 # mysql8
@@ -148,7 +148,7 @@ docker push registry.cn-shenzhen.aliyuncs.com/mogublog/mogu_blog_nacos:latest
 
 
 
-# 六、使用GithubAction构建博客镜像提交DockerHub
+# 六、使用 GithubAction 构建博客镜像提交 DockerHub
 
 ## 前言
 
@@ -792,12 +792,14 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+      ALLOW_ANONYMOUS_LOGIN: yes
     networks:
       - backend
 
   kafka:
     image: bitnami/kafka:3.4.0
     container_name: kafka
+    hostname: kafka
     restart: always
     depends_on:
       - zookeeper
@@ -856,6 +858,8 @@ docker compose -f docker-compose.yml up -d
 ```
 
 > https://redis.io/insight/#insight-form
+
+
 
 
 
