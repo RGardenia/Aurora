@@ -24,7 +24,7 @@ spring-boot-dependencies 定义很多jar的版本，它是真正来管理SpringB
 ```
 
 - `spring-boot-dependencies`是SpringBoot应用版本仲裁中心！以后导入依赖默认是不需要写版本的！
-- 没有在`spring-boot-dependencies`管理的依赖自然需要声明版本号。
+- 没有在`spring-boot-dependencies`管理的依赖自然需要声明版本号
 
 ### 1.1.1. 启动器(starter)
 
@@ -37,7 +37,7 @@ spring-boot-dependencies 定义很多jar的版本，它是真正来管理SpringB
 
 - **spring-boot-starter**-==web==：spring-boot-starter是SpringBoot场景启动器。`spring-boot-starter-web`帮我导入了Web模块需要正常运行的组件。
 
-- **一句话：SpringBoot将所有的功能场景都抽取出来，做成一个个的starter(启动器)，只需要在项目中引入这些starter相关场景的所有依赖都会导入进来！要用什么功能就导入什么starter(启动器)即可。**
+- **一句话：SpringBoot将所有的功能场景都抽取出来，做成一个个的starter(启动器)，只需要在项目中引入这些starter相关场景的所有依赖都会导入进来！要用什么功能就导入什么starter(启动器)即可**
 
 ## 1.2. 自动配置
 
@@ -267,7 +267,7 @@ public class Dog {
 }
 ```
 
-> 依赖
+
 
 ```xml
  <!--导入配置文件处理器-->
@@ -2341,9 +2341,9 @@ public SimpleResponse getEmployeeById(Integer id) {
 }
 ```
 
-## 10.5.Redis缓存
+## 10.5.Redis 缓存
 
-> 依赖
+
 
 ```xml
 <!--redis-->
@@ -2353,9 +2353,7 @@ public SimpleResponse getEmployeeById(Integer id) {
 </dependency>
 ```
 
-导入Redis依赖，SpringBoot缓存就使用了Redis。
-
-
+导入 Redis 依赖，SpringBoot 缓存就使用了 Redis
 
 > 配置RedisCacheManager
 
