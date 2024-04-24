@@ -315,7 +315,7 @@ flux.subscribe(new BaseSubscriber<String>() {
 
 ## 2.2 流
 
-消费者调用 cancle() 取消流的订阅； 
+消费者调用 cancle() 取消流的订阅
 
 ```java
 Flux<String> flux = Flux.range(1, 10)
@@ -422,7 +422,40 @@ Flux.range(1, 1000)
 
 Sink.next  
 
-Sink.complete  
+Sink.complete
+
+```java
+// 单播   只能一个消费者
+Sinks.many().unicast();
+// 多播   多个消费者
+Sinks.many().multicast();
+// 重放   多个消费者，且消费者可以重复消费数据
+Sinks.many().replay().all();
+
+//  限流   只能有一个消费者，且消费者可以重复消费数据
+Sinks.Many<Object> objectMany = Sinks.many().unicast().onBackpressureBuffer(new LinkedBlockingQueue<>(9));
+new Thread(() -> {
+    for (int i = 0; i < 10; i++) {
+        objectMany.tryEmitNext(i);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}).start();
+objectMany.asFlux().subscribe(System.out::println);
+
+// 默认订i阅者,从订阅的那一刻开始接元素
+Sinks.Many<Object> objectManyMulticast = Sinks.many().multicast().onBackpressureBuffer();
+
+// 发布者 数据 重放
+Sinks.Many<Object> limit = Sinks.many().replay().limit(3);
+
+System.in.read();
+```
+
+
 
 ## 2.5 handle()
 
@@ -430,9 +463,9 @@ Sink.complete
 Flux.range(1,10)
         .handle((value,sink)->{
             System.out.println("拿到的值："+value);
-            sink.next("张三："+value); //可以向下发送数据的通道
+            sink.next("张三："+value); // 可以向下发送数据的通道
         })
-        .log() //日志
+        .log() // 日志
         .subscribe();
 ```
 
@@ -460,8 +493,6 @@ public void thread1(){
     new Thread(() -> flux.subscribe(System.out::println)).start();
 }
 ```
-
-
 
 
 
@@ -588,7 +619,7 @@ public void thread1(){
    - 不影响异常继续顺着流水线传播
    - 不吃掉异常，只在异常发生的时候做一件事，消费者有感知 
 
-6. Use the finally block to clean up resources or a Java 7 “try-with-resource” construct.
+6. Use the finally block to clean up resources or a Java 7 “try-with-resource” construct.         finally 都会执行的操作
    ```java
    Flux.just(1, 2, 3, 4)
            .map(i -> "100 / " + i + " = " + (100 / i))
@@ -613,11 +644,107 @@ public void thread1(){
                    err-> System.out.println("err = " + err));
    ```
 
+8. onErrorComplete() 将错误信号转为 正常结束信号，但流仍被打断
+   ```java
+   Flux.just(1, 0, 3)
+           .map(i -> 100 / i)
+           .onErrorReturn(NullPointerException.class, 0)
+           .onErrorResume(err -> Mono.just(0))
+           .onErrorComplete()
+           .doFinally(signalType -> {
+               System.out.println("流信号：" + signalType);
+           })
+           .subscribe(v -> System.out.println("v : " + v),
+                   err -> System.out.println("err : " + err),
+                   () -> System.out.println("complete ~"));
+   ```
+
+9. onErrorStop()         错误停止流，从源头 打断流，所有订阅者全部停止订阅
+   ```java
+   Flux<Integer> map = Flux.just(1, 0, 3)
+                   .map(i -> 100 / i);
+   
+   map.onErrorReturn(NullPointerException.class, 0)
+           .onErrorStop()
+           .doOnError(err -> {
+               System.out.println("\ndoOnError:\nerr 已被记录 = " + err);
+           })
+           .onErrorContinue((err, val) -> {
+               System.out.println("\nonErrorContinue:\nerr = " + err);
+               System.out.println("val = " + val);
+               System.out.println("发现 " + val + " 有问题了，继续执行其他的，我会记录这个问题 \n");
+           })
+           .doFinally(signalType -> {
+               System.out.println("流信号：" + signalType);
+           })
+           .subscribe(v -> System.out.println("v : " + v),
+                   err -> System.out.println("err : " + err),
+                   () -> System.out.println("complete ~"));
+   
+   map.onErrorReturn(NullPointerException.class, 0)
+           .onErrorResume(err -> Mono.just(0))
+           .onErrorMap(err -> new NullPointerException(err.getMessage() + ": 又炸了..."))
+           .onErrorComplete()
+           .subscribe(v -> System.out.println("v : " + v),
+                   err -> System.out.println("err : " + err),
+                   () -> System.out.println("complete ~"));
+   
+   System.in.read();
+   ```
+
+   
+
 
 
 ## 2.8 常用操作
 
 ​	filter、flatMap、concatMap、flatMapMany、transform、defaultIfEmpty、switchIfEmpty、concat、concatWith、merge、mergeWith、mergeSequential、zip、zipWith...
+
+```java
+@DisplayName("测试 WebFlux 接口🌰")
+@Test
+void testWebFlux() {
+    AtomicInteger atomicInteger = new AtomicInteger();
+    Flux<Integer> flux = Flux.just(1, 2, 3, 4, 5, 6)
+            .transformDeferred(v -> atomicInteger.incrementAndGet() == 1 ? v : v.delayElements(Duration.ofMillis(100)));
+    flux.subscribe(v -> System.out.println("接收到的数据：" + v));
+
+    Flux.just("gardenia_zy", "asd_asd")
+            .flatMap(v -> {
+                String[] s = v.split("_");
+                return Flux.fromArray(s);
+            })
+            .zipWith(Flux.just(1, 2, 3, 4))
+            .log()
+            .map(tuple -> tuple.getT1() + " " + tuple.getT2())
+            .log()
+            .subscribe();
+
+    Flux.just(1, 2, 3, 4, 5, 6)
+            .concatMap(s -> Flux.just(s * 10, 1) )
+            .log()
+            .subscribe();
+}
+```
+
+## 2.9 Context
+
+> https://projectreactor.io/docs/core/release/reference/#context
+
+行动算子触发
+
+```java
+Flux.just(1, 2, 3)
+        .transformDeferredContextual((flux, context) -> {
+            System.out.println("context = " + context.get("prefix"));
+            return flux.map(i -> i + "==>" + context.get("prefix"));
+        })
+//                , context -> context.put("key", "value"))
+        .contextWrite(Context.of("prefix", "Gardenia_"))
+        .subscribe(v -> System.out.println("接收到的数据：" + v));
+```
+
+
 
 # 三、Spring Webflux
 
@@ -643,11 +770,11 @@ WebFlux：底层完全基于netty+reactor+springweb 完成一个全异步非阻�
 | 返回结果     | 任意                                    | **Mono、Flux**、任意                                         |
 | 发送REST请求 | RestTemplate                            | WebClient                                                    |
 
+<img src="images/image-20240423224439375.png" alt="image-20240423224439375" style="zoom:67%;" />
 
+> **WebFlux**
 
-> WebFlux
-
-> 底层基于Netty实现的Web容器与请求/响应处理机制
+> 底层基于 Netty 实现的 Web 容器与请求/响应处理机制
 >
 > 参照：https://docs.spring.io/spring-framework/reference/6.0/web/webflux.html
 
@@ -678,15 +805,15 @@ WebFlux：底层完全基于netty+reactor+springweb 完成一个全异步非阻�
 1、HttpHandler、HttpServer 
 
 ```java
-    public static void main(String[] args) throws IOException {
-        //快速自己编写一个能处理请求的服务器
+public static void main(String[] args) throws IOException {
+    //快速自己编写一个能处理请求的服务器
 
-        //1、创建一个能处理Http请求的处理器。 参数：请求、响应； 返回值：Mono<Void>：代表处理完成的信号
-        HttpHandler handler = (ServerHttpRequest request,
-                                   ServerHttpResponse response)->{
-            URI uri = request.getURI();
-            System.out.println(Thread.currentThread()+"请求进来："+uri);
-            //编写请求处理的业务,给浏览器写一个内容 URL + "Hello~!"
+    //1、创建一个能处理Http请求的处理器。 参数：请求、响应； 返回值：Mono<Void>：代表处理完成的信号
+    HttpHandler handler = (ServerHttpRequest request,
+                               ServerHttpResponse response)->{
+        URI uri = request.getURI();
+        System.out.println(Thread.currentThread()+"请求进来："+uri);
+        //编写请求处理的业务,给浏览器写一个内容 URL + "Hello~!"
 //            response.getHeaders(); //获取响应头
 //            response.getCookies(); //获取Cookie
 //            response.getStatusCode(); //获取响应状态码；
@@ -694,41 +821,39 @@ WebFlux：底层完全基于netty+reactor+springweb 完成一个全异步非阻�
 //            response.writeWith() //把xxx写出去
 //            response.setComplete(); //响应结束
 
-            //数据的发布者：Mono<DataBuffer>、Flux<DataBuffer>
+        //数据的发布者：Mono<DataBuffer>、Flux<DataBuffer>
 
-            //创建 响应数据的 DataBuffer
-            DataBufferFactory factory = response.bufferFactory();
+        //创建 响应数据的 DataBuffer
+        DataBufferFactory factory = response.bufferFactory();
 
-            //数据Buffer
-            DataBuffer buffer = factory.wrap(new String(uri.toString() + " ==> Hello!").getBytes());
-
-
-            // 需要一个 DataBuffer 的发布者
-            return response.writeWith(Mono.just(buffer));
-        };
-
-        //2、启动一个服务器，监听8080端口，接受数据，拿到数据交给 HttpHandler 进行请求处理
-        ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
+        //数据Buffer
+        DataBuffer buffer = factory.wrap(new String(uri.toString() + " ==> Hello!").getBytes());
 
 
-        //3、启动Netty服务器
-        HttpServer.create()
-                .host("localhost")
-                .port(8080)
-                .handle(adapter) //用指定的处理器处理请求
-                .bindNow(); //现在就绑定
+        // 需要一个 DataBuffer 的发布者
+        return response.writeWith(Mono.just(buffer));
+    };
 
-        System.out.println("服务器启动完成....监听8080，接受请求");
-        System.in.read();
-        System.out.println("服务器停止....");
+    //2、启动一个服务器，监听8080端口，接受数据，拿到数据交给 HttpHandler 进行请求处理
+    ReactorHttpHandlerAdapter adapter = new ReactorHttpHandlerAdapter(handler);
 
+    //3、启动Netty服务器
+    HttpServer.create()
+            .host("localhost")
+            .port(8080)
+            .handle(adapter) //用指定的处理器处理请求
+            .bindNow(); //现在就绑定
 
-    }
+    System.out.println("服务器启动完成....监听8080，接受请求");
+    System.in.read();
+    System.out.println("服务器停止....");
+
+}
 ```
 
 2、DispatcherHandler
 
-SpringMVC： DispatcherServlet；
+SpringMVC： DispatcherServlet
 
 SpringWebFlux： DispatcherHandler
 
@@ -736,11 +861,11 @@ SpringWebFlux： DispatcherHandler
 
 - HandlerMapping：**请求映射处理器**； 保存每个请求由哪个方法进行处理
 - HandlerAdapter：**处理器适配器**；反射执行目标方法
-- HandlerResultHandler：**处理器结果**处理器；
+- HandlerResultHandler：**处理器结果**处理器
 
-SpringMVC： DispatcherServlet 有一个 doDispatch() 方法，来处理所有请求；
+SpringMVC： DispatcherServlet 有一个 `doDispatch()` 方法，来处理所有请求
 
-WebFlux： DispatcherHandler 有一个 handle() 方法，来处理所有请求；
+WebFlux： DispatcherHandler 有一个 `handle()` 方法，来处理所有请求
 
 ```java
 public Mono<Void> handle(ServerWebExchange exchange) { 
@@ -753,33 +878,34 @@ public Mono<Void> handle(ServerWebExchange exchange) {
 		return Flux.fromIterable(this.handlerMappings) //拿到所有的 handlerMappings
 				.concatMap(mapping -> mapping.getHandler(exchange)) //找每一个mapping看谁能处理请求
 				.next() //直接触发获取元素； 拿到流的第一个元素； 找到第一个能处理这个请求的handlerAdapter
-				.switchIfEmpty(createNotFoundError()) //如果没拿到这个元素，则响应404错误；
+				.switchIfEmpty(createNotFoundError()) //如果没拿到这个元素，则响应404错误
 				.onErrorResume(ex -> handleDispatchError(exchange, ex)) //异常处理，一旦前面发生异常，调用处理异常
 				.flatMap(handler -> handleRequestWith(exchange, handler)); //调用方法处理请求，得到响应结果
 	}
 ```
 
-- 1、请求和响应都封装在 ServerWebExchange 对象中，由handle方法进行处理
-- 2、如果没有任何的请求映射器； 直接返回一个： 创建一个未找到的错误； 404； 返回Mono.error；终结流
-- 3、跨域工具，是否跨域请求，跨域请求检查是否复杂跨域，需要预检请求；
-- 4、Flux流式操作，先找到HandlerMapping，再获取handlerAdapter，再用Adapter处理请求，期间的错误由onErrorResume触发回调进行处理；
+- 1、请求和响应都封装在 ServerWebExchange 对象中，由 `handle` 方法进行处理
+- 2、如果没有任何的请求映射器； 直接返回一个： 创建一个未找到的错误； 404； 返回 Mono.error；终结流
+- 3、跨域工具，是否跨域请求，跨域请求检查是否复杂跨域，需要预检请求
+- 4、Flux 流式操作，先找到 `HandlerMapping` ，再获取 `handlerAdapter` ，再用 `Adapter` 处理请求，期间的错误由 `onErrorResume` 触发回调进行处理
 
 源码中的核心两个：
 
-- **handleRequestWith**： 编写了handlerAdapter怎么处理请求
+- **handleRequestWith**： 编写了 `handlerAdapter` 怎么处理请求
 - **handleResult**： String、User、ServerSendEvent、Mono、Flux ...
 
 concatMap： 先挨个元素变，然后把变的结果按照之前元素的顺序拼接成一个完整流
 
 ```java
 private <R> Mono<R> createNotFoundError() {
-		Exception ex = new ResponseStatusException(HttpStatus.NOT_FOUND);
-		return Mono.error(ex);
-	}
+  Exception ex = new ResponseStatusException(HttpStatus.NOT_FOUND);
+  return Mono.error(ex);
+}
+
 Mono.defer(() -> {
-			Exception ex = new ResponseStatusException(HttpStatus.NOT_FOUND);
-			return Mono.error(ex);
-		}); //有订阅者，且流被激活后就动态调用这个方法； 延迟加载；
+  Exception ex = new ResponseStatusException(HttpStatus.NOT_FOUND);
+  return Mono.error(ex);
+}); // 有订阅者，且流被激活后就动态调用这个方法； 延迟加载；
 ```
 
 
@@ -814,7 +940,32 @@ https://docs.spring.io/spring-framework/reference/6.0/web/webflux/controller/ann
 | UriComponentsBuilder                                         | For preparing a URL relative to the current request’s host, port, scheme, and context path. See [URI Links](https://docs.spring.io/spring-framework/reference/6.0/web/webflux/uri-building.html). |
 | @SessionAttribute                                            |                                                              |
 | @RequestAttribute                                            | 转发请求的请求域数据                                         |
-| Any other argument                                           | 所有对象都能作为参数：1、基本类型 ，等于标注@RequestParam 2、对象类型，等于标注 @ModelAttribute |
+| Any other argument                                           | 所有对象都能作为参数：<br />1、基本类型 ，等于标注 @RequestParam <br />2、对象类型，等于标注 @ModelAttribute |
+
+```java
+@Operation(summary = "用户表-通过id查询", description = "用户表-通过id查询")
+@GetMapping(value = "/queryById")
+public Flux<Object> queryById(@RequestParam(name = "id", required = true) String id,
+                              ServerWebExchange exchange,
+                              WebSession webSession,
+                              HttpMethod method,
+                              HttpEntity<String> entity,
+                              @RequestBody String s){
+    SysUser sysUser = sysUserService.getById(id);
+    if (sysUser == null) {
+        return Flux.just("未找到对应数据");
+    }
+
+    ServerHttpRequest request = exchange.getRequest();
+    ServerHttpResponse response = exchange.getResponse();
+    String name = method.name();
+
+    Object gardenia = webSession.getAttribute("Gardenia");
+    webSession.getAttributes().put("Gardenia", "zy");
+
+    return Flux.just(sysUser);
+}
+```
 
 
 
@@ -831,15 +982,15 @@ sse 和 websocket 区别：
 | HttpEntity<B>, ResponseEntity<B>                             | ResponseEntity：支持快捷自定义响应内容                       |
 | HttpHeaders                                                  | 没有响应内容，只有响应头                                     |
 | ErrorResponse                                                | 快速构建错误响应                                             |
-| ProblemDetail                                                | SpringBoot3；                                                |
-| String                                                       | 就是和以前的使用规则一样；forward: 转发到一个地址redirect: 重定向到一个地址配合模板引擎 |
+| ProblemDetail                                                | SpringBoot 3                                                 |
+| String                                                       | 就是和以前的使用规则一样<br />forward: 转发到一个地址<br />redirect: 重定向到一个地址配合模板引擎 |
 | View                                                         | 直接返回视图对象                                             |
-| java.util.Map, org.springframework.ui.Model                  | 以前一样                                                     |
-| @ModelAttribute                                              | 以前一样                                                     |
-| Rendering                                                    | 新版的页面跳转API； 不能标注 @ResponseBody 注解              |
+| java.util.Map, org.springframework.ui.Model                  | 和以前一样                                                   |
+| @ModelAttribute                                              | As 以前一样                                                  |
+| Rendering                                                    | 新版的页面跳转 API<br />不能标注 @ResponseBody 注解          |
 | void                                                         | 仅代表响应完成信号                                           |
 | Flux<ServerSentEvent>, Observable<ServerSentEvent>, or other reactive type | 使用  text/event-stream 完成SSE效果                          |
-| Other return values                                          | 未在上述列表的其他返回值，都会当成给页面的数据；             |
+| Other return values                                          | 未在上述列表的其他返回值，都会当成给页面的数据               |
 
 
 
@@ -862,7 +1013,7 @@ public String handle(@RequestPart("meta-data") Part metadata,
 ```java
 @ExceptionHandler(ArithmeticException.class)
 public String error(ArithmeticException exception){
-    System.out.println("发生了数学运算异常"+exception);
+    System.out.println("发生了数学运算异常" + exception);
 
     //返回这些进行错误处理；
 //        ProblemDetail：  建造者：声明式编程、链式调用
@@ -878,9 +1029,9 @@ public String error(ArithmeticException exception){
 
 ```java
 @Configuration
-public class MyWebConfiguration {
+public class WebConfiguration {
 
-    //配置底层
+    // 配置底层
     @Bean
     public WebFluxConfigurer webFluxConfigurer(){
 
@@ -903,32 +1054,28 @@ public class MyWebConfiguration {
 
 ```java
 @Component
-public class MyWebFilter implements WebFilter {
+public class GardeniaWebFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         ServerHttpResponse response = exchange.getResponse();
 
         System.out.println("请求处理放行到目标方法之前...");
-        Mono<Void> filter = chain.filter(exchange); //放行
+        Mono<Void> filter = chain.filter(exchange); // 放行
 
-
-        //流一旦经过某个操作就会变成新流
-
+        // 流一旦经过某个操作就会变成新流
         Mono<Void> voidMono = filter.doOnError(err -> {
                     System.out.println("目标方法异常以后...");
                 }) // 目标方法发生异常后做事
                 .doFinally(signalType -> {
                     System.out.println("目标方法执行以后...");
-                });// 目标方法执行之后
+                }); // 目标方法执行之后
 
-        //上面执行不花时间。
+        // 上面执行不花时间
         return voidMono; //看清楚返回的是谁！！！
     }
 }
 ```
-
-
 
 
 
@@ -945,15 +1092,21 @@ Web、网络、IO（存储）、中间件（Redis、MySQL）
 
 数据库：
 
-- **导入驱动**； 以前：JDBC（jdbc、各大驱动mysql-connector）； 现在：r2dbc（[r2dbc-spi](https://github.com/r2dbc/r2dbc-spi)、各大驱动 r2dbc-mysql）
+- **导入驱动**； 以前：JDBC（jdbc、各大驱动 `mysql-connector`）； 现在：r2dbc（[r2dbc-spi](https://github.com/r2dbc/r2dbc-spi)、各大驱动 `r2dbc-mysql`）
 
 - **驱动**：
+- 获取连接
+  
+- 发送 SQL、执行
+  
+- 封装数据库返回结果
 
-  - 获取连接
-
-  - 发送SQL、执行
-
-  - 封装数据库返回结果
+> - r2dbc 原生API：https://r2dbc.io
+> - boot 整合 spring data r2dbc：spring-boot-starter-data-r2dbc
+> - 三大组件：R2dbcRepository、R2dbcEntityTemplate 、DatabaseClient
+> - RBAC 权限模型导入，基础 CRUD 练习；SQL 文件在附录
+> - 1-1，1-N 关系处理
+> - 扩展：导入接口文档进行测试： 访问 项目 `/doc.html`
 
 ```xml
 <dependency>
@@ -990,7 +1143,6 @@ MySqlConnectionConfiguration configuration = MySqlConnectionConfiguration.builde
 //1、获取连接工厂
 MySqlConnectionFactory connectionFactory = MySqlConnectionFactory.from(configuration);
 
-
 //2、获取到连接，发送sql
 
 // JDBC： Statement： 封装sql的
@@ -1024,7 +1176,7 @@ Mono.from(connectionFactory.create())
     <artifactId>r2dbc-mysql</artifactId>
     <version>1.0.5</version>
 </dependency>
-<!--    响应式 Spring Data R2dbc -->
+<!--    响应式 Spring Data R2dbc  -->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-r2dbc</artifactId>
@@ -1052,22 +1204,22 @@ public interface AuthorRepositories extends R2dbcRepository<TAuthor,Long> {
 
     //默认继承了一堆CRUD方法； 像mybatis-plus
 
-    //QBC： Query By Criteria
-    //QBE： Query By Example
+    // QBC： Query By Criteria
+    // QBE： Query By Example
 
-    //成为一个起名工程师  where id In () and name like ?
-    //仅限单表复杂条件查询
+    // 成为一个起名工程师  where id In () and name like ?
+    // 仅限单表复杂条件查询
     Flux<TAuthor> findAllByIdInAndNameLike(Collection<Long> id, String name);
 
     //多表复杂查询
 
-    @Query("select * from t_author") //自定义query注解，指定sql语句
+    @Query("select * from t_author") //自定义 query 注解，指定 sql 语句
     Flux<TAuthor> findHaha();
 
 
     // 1-1：关联
     // 1-N：关联
-    //场景：
+    // 场景：
     // 1、一个图书有唯一作者； 1-1
     // 2、一个作者可以有很多图书： 1-N
 
@@ -1077,29 +1229,21 @@ public interface AuthorRepositories extends R2dbcRepository<TAuthor,Long> {
 自定义 Converter
 
 ```java
-package com.gardenia.r2dbc.config.converter;
-
-import com.gardenia.r2dbc.entity.TAuthor;
-import com.gardenia.r2dbc.entity.TBook;
-import io.r2dbc.spi.Row;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.convert.ReadingConverter;
-
 import java.time.Instant;
 
 /**
- * @author lfy
+ * @author gardenia
  * @Description
  * @create 2023-12-23 22:04
  *
- * 告诉Spring Data 怎么封装Book对象
+ * 告诉 Spring Data 怎么封装 Book 对象
  */
-@ReadingConverter //读取数据库数据的时候,把row转成 TBook
+@ReadingConverter // 读取数据库数据的时候,把 row 转成 TBook
 public class BookConverter implements Converter<Row, TBook> {
     @Override
     public TBook convert(Row source) {
         if(source == null) return null;
-        //自定义结果集的封装
+        // 自定义结果集的封装
         TBook tBook = new TBook();
 
         tBook.setId(source.get("id", Long.class));
@@ -1107,8 +1251,7 @@ public class BookConverter implements Converter<Row, TBook> {
 
         Long author_id = source.get("author_id", Long.class);
         tBook.setAuthorId(author_id);
-        //        tBook.setPublishTime(source.get("publish_time", Instant.class));
-
+        //  tBook.setPublishTime(source.get("publish_time", Instant.class));
 
         TAuthor tAuthor = new TAuthor();
         tAuthor.setId(author_id);
@@ -1116,7 +1259,7 @@ public class BookConverter implements Converter<Row, TBook> {
 
         tBook.setAuthor(tAuthor);
 
-        return null;
+        return tBook;
     }
 }
 ```
@@ -1124,21 +1267,38 @@ public class BookConverter implements Converter<Row, TBook> {
 配置生效
 
 ```java
-@EnableR2dbcRepositories //开启 R2dbc 仓库功能；jpa
+@EnableR2dbcRepositories // 开启 R2dbc 仓库功能；jpa
 @Configuration
 public class R2DbcConfiguration {
 
-    @Bean //替换容器中原来的
+    @Bean // 替换容器中原来的
     @ConditionalOnMissingBean
     public R2dbcCustomConversions conversions(){
-
-        //把的转换器加入进去； 效果新增了的 Converter
+        // 把的转换器加入进去； 效果新增了的 Converter
         return R2dbcCustomConversions.of(MySqlDialect.INSTANCE,new BookConverter());
     }
 }
 ```
 
+1、Spring Data R2DBC，基础的CRUD用 **R2dbcRepository** 提供好了
 
+2、自定义复杂的SQL（**单表**）： **@Query**
+
+3、**多表查询复杂结果集**： **DatabaseClient** 自定义SQL及结果封装
+
+- **@Query + 自定义 Converter 实现结果封装**
+
+**经验：**
+
+- **1-1:1-N 关联关系的封装都需要自定义结果集的方式**
+
+  - **Spring Data R2DBC：** 
+
+    - **自定义Converter指定结果封装**
+
+    - **DatabaseClient：贴近底层的操作进行封装; 见下面代码**
+
+  - **MyBatis：  自定义 ResultMap 标签去来封装**
 
 # 五、**Spring Security Reactive**
 
@@ -1173,31 +1333,13 @@ public class R2DbcConfiguration {
 ```
 
 ```java
-package com.gardenia.security.config;
-
-import com.gardenia.security.component.AppReactiveUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.reactive.PathRequest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-
 /**
- * @author lfy
+ * @author gardenia
  * @Description
  * @create 2023-12-24 21:39
  */
 @Configuration
-@EnableReactiveMethodSecurity //开启响应式 的 基于方法级别的权限控制
+@EnableReactiveMethodSecurity // 开启响应式 的 基于方法级别的权限控制
 public class AppSecurityConfiguration {
 
     @Autowired
@@ -1241,7 +1383,7 @@ public class AppSecurityConfiguration {
 
 //        http.addFilterAt()
 
-        //构建出安全配置
+        // 构建出安全配置
         return http.build();
     }
 
@@ -1257,25 +1399,12 @@ public class AppSecurityConfiguration {
 
 
 ```java
-package com.gardenia.security.component;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.r2dbc.core.DatabaseClient;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
-
 /**
- * @author lfy
+ * @author gardenia
  * @Description
  * @create 2023-12-24 21:57
  */
-@Component  // 来定义如何去数据库中按照用户名查用户
+@Component  // 定义如何去数据库中按照用户名查用户
 public class AppReactiveUserDetailsService implements ReactiveUserDetailsService {
 
 
@@ -1301,19 +1430,19 @@ public class AppReactiveUserDetailsService implements ReactiveUserDetailsService
                         "where u.username = ? limit 1")
                 .bind(0, username)
                 .fetch()
-                .one()// all()
+                .one() // all()
                 .map(map -> {
                     UserDetails details = User.builder()
                             .username(username)
                             .password(map.get("password").toString())
-                            //自动调用密码加密器把前端传来的明文 encode
-//                            .passwordEncoder(str-> passwordEncoder.encode(str)) //为啥？？？
-                            //权限
-//                            .authorities(new SimpleGrantedAuthority("ROLE_delete")) //默认不成功
-                            .roles("admin", "sale","haha","delete") //ROLE成功
+                            // 自动调用密码加密器把前端传来的明文 encode
+//                            .passwordEncoder(str-> passwordEncoder.encode(str)) // 为啥？？？
+                            // 权限
+//                            .authorities(new SimpleGrantedAuthority("ROLE_delete")) // 默认不成功
+                            .roles("admin", "sale","haha","delete") // ROLE 成功	这里 请求时加上了 role_ 前缀
                             .build();
 
-                    //角色和权限都被封装成 SimpleGrantedAuthority
+                    // 角色和权限都被封装成 SimpleGrantedAuthority
                     // 角色有 ROLE_ 前缀， 权限没有
                     // hasRole：hasAuthority
                     return details;
@@ -1327,15 +1456,8 @@ public class AppReactiveUserDetailsService implements ReactiveUserDetailsService
 
 
 ```java
-package com.gardenia.security.controller;
-
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
-
 /**
- * @author lfy
+ * @author gardenia
  * @Description
  * @create 2023-12-24 21:31
  */
