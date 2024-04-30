@@ -1184,15 +1184,36 @@ Kafka 中提供的日志清理策略有 <span style="color:red">delete</span> �
 
 ## 消费者
 
+![image-20240426233732730](images/image-20240426233732730.png)
+
+![image-20240426233755943](images/image-20240426233755943.png)
+
+**消费者组**
 
 
 
+![image-20240426233938760](images/image-20240426233938760.png)
 
 
 
+![image-20240426234124233](images/image-20240426234124233.png)
+
+如果向消费组中添加更多的消费者，超过主题分区数量，则有一部分消费者就会闲置，不会接收任何消息。
+
+消费者组之间互不影响。所有的消费者都属于某个消费者组，即消费者组是逻辑上的一个订阅者。
 
 
 
-
-
-
+| **参数名**                    | **参数作用**                                                 | **类型** | **默认值**        | **推荐值**                                    |
+| ----------------------------- | ------------------------------------------------------------ | -------- | ----------------- | --------------------------------------------- |
+| bootstrap.servers             | 集群地址，格式为：  brokerIP1:端口号,brokerIP2:端口号        | 必须     |                   |                                               |
+| key.deserializer              | 对数据Key进行反序列化的类完整名称                            | 必须     |                   | Kafka提供的字符串反序列化类：StringSerializer |
+| value.deserializer            | 对数据Value进行反序列化的类完整名称                          | 必须     |                   | Kafka提供的字符串反序列化类：ValueSerializer  |
+| group.id                      | 消费者组ID，用于标识完整的消费场景，一个组中可以包含多个不同的消费者对象。 | 必须     |                   |                                               |
+| auto.offset.reset             |                                                              |          |                   |                                               |
+| group.instance.id             | 消费者实例ID，如果指定，那么在消费者组中使用此ID作为memberId前缀 | 可选     |                   |                                               |
+| partition.assignment.strategy | 分区分配策略                                                 | 可选     |                   |                                               |
+| enable.auto.commit            | 启用偏移量自动提交                                           | 可选     | true              |                                               |
+| auto.commit.interval.ms       | 自动提交周期                                                 | 可选     | 5000ms            |                                               |
+| fetch.max.bytes               | 消费者获取服务器端一批消息最大的字节数。如果服务器端一批次的数据大于该值（50m）仍然可以拉取回来这批数据，因此，这不是一个绝对最大值。一批次的大小受message.max.bytes  （broker  config）or  max.message.bytes （topic  config）影响 | 可选     | 52428800（50  m） |                                               |
+| offsets.topic.num.partitions  | 偏移量消费主题分区数                                         | 可选     | 50                |                                               |

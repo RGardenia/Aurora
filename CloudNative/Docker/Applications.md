@@ -49,45 +49,198 @@ docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=333 -p 3309:3306 \
 
 
 
-# 三、zookeeper
+# 三、Zookeeper
 
 ```shell
 # zookeeper
 docker pull zookeeper:3.7.0
 
 docker run --name zookeeper -p 2181:2181 -d zookeeper:3.7.0
+
+
+
 ```
 
 
 
-# 四、离线安装docker
+# 四、Kafka
 
 [参考](https://zhuanlan.zhihu.com/p/109480358)
 
 ```shell
-# 1、环境
-sudo yum install -y yum-utils
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
-sudo yum-config-manager \
-    --add-repo \   
-    http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-    
-# 2、下载安装包（参考官方文档）
-yumdownloader --resolve docker-ce docker-ce-cli containerd.io
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
 
-# 3、打包
-tar cf docker-ce.offline.tar *.rpm
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
 
-# 4、上传到离线的主机上，解压
-tar xf docker-ce.offline.tar
-
-# 5、安装Docker
-sudo rpm -ivh --replacefiles --replacepkgs *.rpm
-# 如果提示缺依赖，要么在本地装，要么传上去，例如container-selinux
-
-# 6、启动Dokcer
-sudo systemctl start docker 
+  - job_name: 'kafka'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['kafka1:9081', 'kafka2:9082', 'kafka3:9083']
+      labels:
+        instance: kafka
 ```
+
+```yaml
+version: '3.9'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ALLOW_ANONYMOUS_LOGIN: yes
+    networks:
+      - backend
+
+  kafka1:
+    image: bitnami/kafka
+    container_name: kafka1
+    hostname: kafka1
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9081:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_LISTENERS: CLIENT://:9092,EXTERNAL://:9081
+      KAFKA_CFG_LISTENERS: CLIENT://:9092,EXTERNAL://:9081
+      KAFKA_INTER_BROKER_LISTENER_NAME: CLIENT
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: CLIENT://kafka1:9092,EXTERNAL://localhost:9081
+    networks:
+      - backend
+
+  kafka2:
+    image: bitnami/kafka
+    container_name: kafka2
+    hostname: kafka2
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9082:9092"
+    environment:
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+    networks:
+      - backend
+  kafka3:
+    image: bitnami/kafka
+    container_name: kafka3
+    hostname: kafka3
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9083:9092"
+    environment:
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      ALLOW_PLAINTEXT_LISTENER: yes
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 3
+    networks:
+      - backend
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name:  kafka-ui
+    restart: always
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: kafka1
+      KAFKA_CLUSTERS_1_NAME: kafka2
+      KAFKA_CLUSTERS_2_NAME: kafka3
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092
+      KAFKA_CLUSTERS_1_BOOTSTRAPSERVERS: kafka2:9092
+      KAFKA_CLUSTERS_2_BOOTSTRAPSERVERS: kafka3:9092
+    networks:
+      - backend
+	
+  kafka-eagle:
+    image: nickzurich/efak:latest
+    container_name: kafka-eagle
+    ports:
+      - "9048:8048"
+    depends_on:
+      - zookeeper
+    environment:
+      EFAK_CLUSTER_ZK_LIST: zookeeper:2181
+      EFAK_LOGIN_USERNAME: "admin"
+      EFAK_LOGIN_PASSWORD: "151613"
+    restart: always
+    networks:
+      - backend
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - backend
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: backend
+```
+
+
+
+```bash
+docker compose -f docker-compose.yml up -d
+
+docker compose -f kafka_env.yml up -d --no-deps --force-recreate kafka1 kafka2 kafka3
+```
+
+> https://redis.io/insight/#insight-form
 
 
 
@@ -730,6 +883,54 @@ docker run -d --name some-postgres \
 
 
 
+
+
+# 八、Hive
+
+```bash
+export HIVE_VERSION=4.0.0
+
+docker run -d -p 10000:10000 -p 10002:10002 --env SERVICE_NAME=hiveserver2 \
+  --env SERVICE_OPTS="-Dhive.metastore.uris=thrift://metastore:9083" \
+  --mount source=warehouse,target=/opt/hive/data/warehouse \
+  --env IS_RESUME="true" \
+  --name hiveserver2 apache/hive:${HIVE_VERSION}
+
+
+docker run -d -p 9083:9083 --env SERVICE_NAME=metastore --env DB_DRIVER=postgres \
+ --env SERVICE_OPTS="-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore_db -Djavax.jdo.option.ConnectionUserName=hive -Djavax.jdo.option.ConnectionPassword=password" \
+	-v /opt/hive/conf:/hive_custom_conf --env HIVE_CUSTOM_CONF_DIR=/hive_custom_conf \
+  --mount source=warehouse,target=/opt/hive/data/warehouse \
+  --name metastore-standalone apache/hive:${HIVE_VERSION}
+```
+
+
+
+```bash
+docker network create hadoop-network
+```
+
+
+
+```bash
+version: '3.9'
+
+services:
+
+
+networks:
+  hadoop-network:
+    external: true
+```
+
+
+
+
+
+
+
+
+
 # 九、ENV
 
 ```bash
@@ -749,115 +950,9 @@ docker ps
 docker compose  
 ```
 
-prometheus.yml
 
-```yml
-global:
-  scrape_interval: 15s
-  evaluation_interval: 15s
 
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['localhost:9090']
 
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis:6379']
-
-  - job_name: 'kafka'
-    static_configs:
-      - targets: ['kafka:9092']
-```
-
-docker-compose.yml
-
-```yml
-version: '3.9'
-
-services:
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: always
-    ports:
-      - "6379:6379"
-    networks:
-      - backend
-
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    container_name: zookeeper
-    restart: always
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-      ALLOW_ANONYMOUS_LOGIN: yes
-    networks:
-      - backend
-
-  kafka:
-    image: bitnami/kafka:3.4.0
-    container_name: kafka
-    hostname: kafka
-    restart: always
-    depends_on:
-      - zookeeper
-    ports:
-      - "9092:9092"
-    environment:
-      ALLOW_PLAINTEXT_LISTENER: yes
-      KAFKA_CFG_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - backend
-  
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name:  kafka-ui
-    restart: always
-    depends_on:
-      - kafka
-    ports:
-      - "8080:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: dev
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-    networks:
-      - backend
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    restart: always
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    ports:
-      - "9090:9090"
-    networks:
-      - backend
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    restart: always
-    depends_on:
-      - prometheus
-    ports:
-      - "3000:3000"
-    networks:
-      - backend
-
-networks:
-  backend:
-    name: backend
-```
-
-```bash
-docker compose -f docker-compose.yml up -d
-```
-
-> https://redis.io/insight/#insight-form
 
 
 
