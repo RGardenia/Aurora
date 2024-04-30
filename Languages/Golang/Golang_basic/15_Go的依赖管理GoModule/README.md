@@ -62,9 +62,9 @@ Go1.5 版本之后开始支持，能够控制 Go语言程序编译时依赖包�
 
 ## go module
 
-`go module`是Go1.11版本之后官方推出的版本管理工具，并且从 Go1.13 版本开始，`go module`将是 Go语言默认的依赖管理工具
+`go module`是 Go1.11 版本之后官方推出的版本管理工具，并且从 Go1.13 版本开始，`go module`将是 Go语言默认的依赖管理工具
 
-### GO111MODULE
+### GO 111 MODULE
 
 ​	要启用`go module`支持首先要设置环境变量`GO111MODULE`，通过它可以开启或关闭模块支持，它有三个可选值：`off`、`on`、`auto`，默认值是`auto`
 
