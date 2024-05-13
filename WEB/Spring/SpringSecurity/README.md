@@ -1,4 +1,6 @@
-# 初识SpringSecurity
+# SpringSecurity
+
+> https://github.com/spring-projects/spring-security-samples
 
 ## 权限管理概念
 

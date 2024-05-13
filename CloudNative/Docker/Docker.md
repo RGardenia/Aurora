@@ -44,7 +44,7 @@ REDHAT_SUPPORT_PRODUCT="centos"
 REDHAT_SUPPORT_PRODUCT_VERSION="7"
 ```
 
-**安装 Docker**
+### 1.1.1 Centos **安装 Docker**
 
 帮助文档：https://docs.docker.com/engine/install/centos/
 
@@ -132,7 +132,9 @@ sudo rm -rf /var/lib/docker
 # /var/lib/docker 是 Docker 默认的工作路径！！！
 ```
 
-## 1.2 Win 10 安装 Docker DeskTop
+
+
+### 1.1.2 Win 10 安装 Docker DeskTop
 
 下载 msi 安装，安装完成后，将镜像等文件移至 别 盘
 
@@ -188,9 +190,33 @@ Windows Registry Editor Version 5.00
   ○ 鼠标右击，选择合并，完成后重启 Docker
 ```
 
+### 1.1.3 Ubuntu **安装 Docker**
+
+```bash
+apt-get install ca-certificates curl gnupg lsb-release software-properties-common
+
+curl -fsSL http://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+
+sudo add-apt-repository "deb [arch=amd64] http://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+
+sudo add-apt-repository multiverse
+sudo add-apt-repository restricted
+
+sudo apt install nvidia-driver-535
+
+sudo apt-get update
+
+apt-get install docker-ce docker-ce-cli containerd.io
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+```
 
 
-## 1.3 Link Security
+
+
+
+## 1.2 Link Security
 
 ```bash
 # 配置外部访问
@@ -370,7 +396,7 @@ systemctl daemon-reload && systemctl restart docker
 
 
 
-## 1.4.阿里云镜像加速
+## 1.3.阿里云镜像加速
 
 > 设置阿里云镜像步骤
 
@@ -400,17 +426,13 @@ sudo systemctl restart docker
 
 
 
-> docker run 的运行流程图
+**底层原理**
 
-![docker运行流程](https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=4261535913,3068120869&fm=26&gp=0.jpg)
+> Docker 是怎么工作的？
 
-## 1.5.底层原理
+Docker 是一个 Client-Server 结构的系统，Docker的守护进程运行在主机上，通过Socket从客户端访问
 
-> docker是怎么工作的？
-
-Docker是一个Client-Server结构的系统，Docker的守护进程运行在主机上，通过Socket从客户端访问。
-
-Docker-Server接收到Docker-Client的指令，就会执行这个命令。
+Docker-Server 接收到Docker-Client的指令，就会执行这个命令
 
 ![docker底层原理](https://img-blog.csdnimg.cn/20181105081912304.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2thaXp1aWRlYmFubGk=,size_16,color_FFFFFF,t_70)
 
@@ -418,7 +440,7 @@ Docker-Server接收到Docker-Client的指令，就会执行这个命令。
 
 1、Docker有着比虚拟机更少的抽象层。
 
-2、Docker利用的是宿主机的内核。所以说新建一个容器的时候，docker不需要像虚拟机一样重新加载个操作系统内核。
+2、Docker利用的是宿主机的内核。所以说新建一个容器的时候，docker不需要像虚拟机一样重新加载个操作系统内核
 
 
 

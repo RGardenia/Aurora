@@ -25,7 +25,7 @@ Go 语言中数据类型分为：基本数据类型和复合数据类型
 
 > 可以通过 unsafe.Sizeof 查看不同长度的整型，在内存里面的存储空间
 >
-> ```
+> ```go
 > var num2 = 12
 > fmt.Println(unsafe.Sizeof(num2))
 > ```
@@ -95,7 +95,7 @@ fmt.Printf("%.2f\n", pi)
 
 ```go
 d := 1129.6
-fmt.Println(d*100) //输出112959.99999999
+fmt.Println(d*100) // 输出 112959.99999999
 ```
 
 解决方法，使用第三方包来解决精度损失的问题	http://github.com/shopspring/decimal
