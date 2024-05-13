@@ -1,10 +1,10 @@
 # Golang map详解
 
-## map的介绍
+## map 的介绍
 
-map 是一种无序的基于 key-value 的数据结构，Go语言中的map是引用类型，必须初始化才能使用。
+map 是一种无序的基于 key-value 的数据结构，Go 语言中的 map 是引用类型，必须初始化才能使用
 
-Go语言中map的定义语法如下：
+Go语言中 map 的定义语法如下：
 
 ```go
 map[KeyType]ValueType
@@ -17,7 +17,7 @@ map[KeyType]ValueType
 
 map类型的变量默认初始值为 nil，需要使用 `make()` 函数来分配内存。语法为：
 
-> make：用于slice、map和channel的初始化
+> make：用于 slice、map 和 channel 的初始化
 
 示例如下所示：
 
@@ -62,7 +62,7 @@ fmt.Println(value, ok)
 
 使用`delete()` 内建函数从 map 中删除一组键值对，delete 函数的格式如下所示
 
-```bash
+```go
 delete(map 对象, key)
 ```
 
@@ -72,7 +72,7 @@ delete(map 对象, key)
 - key：表示要删除的键值对的键
 
 ```go
-// 删除map数据里面的key，以及对应的值
+// 删除 map 数据里面的 key，以及对应的值
 delete(userInfo2, "sex")
 ```
 
