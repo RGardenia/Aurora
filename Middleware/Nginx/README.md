@@ -1197,7 +1197,7 @@ server {
 
 ### proxy_cache_key
 
-设置缓存文件的 `key` 。
+设置缓存文件的 `key` 
 
 ```
 语法：proxy_cache_key
@@ -1209,7 +1209,7 @@ server {
 
 ### proxy_cache_valid
 
-配置什么状态码可以被缓存，以及缓存时长。
+配置什么状态码可以被缓存，以及缓存时长
 
 ```
 语法：proxy_cache_valid [code...] time;
@@ -1221,7 +1221,7 @@ server {
 
 ### proxy_no_cache
 
-定义相应保存到缓存的条件，如果字符串参数的至少一个值不为空且不等于“ 0”，则将不保存该响应到缓存。
+定义相应保存到缓存的条件，如果字符串参数的至少一个值不为空且不等于“ 0”，则将不保存该响应到缓存
 
 ```
 语法：proxy_no_cache string;

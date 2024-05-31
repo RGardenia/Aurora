@@ -14,18 +14,15 @@
     <a href=""> <img src="https://badgen.net/badge/icon/docker?icon=docker&label" height="25px"/> </a>
     <a href="https://gitee.com/CapeJasmine"> <img src="https://img.shields.io/badge/GIT-E44C30?style=for-the-badge&logo=git&logoColor=white" height="25px"/> </a>
     <a href="https://gitee.com/CapeJasmine"> <img src="https://img.shields.io/badge/--F05032?logo=git&logoColor=ffffff" height="25px"/> </a>
-
 </p>
 
-## 关于我
+## 关于
 
-[**栀**](https://gitee.com/moxi159753/LearningNotes/raw/master/doc/images/qq/添加栀.png) 是一个从二本院校的见习程序员。目前还是就读。
-
-这两天创建了一个 **微信公众号【[栀 - CodeGardenia](https://cdn.jsdelivr.net/gh/Rainbow503/PicGo/img/qrcode_for_gh_a26309d973dd_860.jpg)】**，未来将会在公众号上持续性的输出很多原创小知识以及学习资源，欢迎各位小伙伴关注我，和我一起共同学习，同时我也希望各位小伙伴能够给 **LearningNotes** 项目多多 **Star** 支持，您的**点赞**就是我维护的动力！
+> zrgardenia	x.com
 
 ## 项目介绍
 
-个人学习笔记，主要来源于B站上视频的学习，同时会记录平时一些学习和项目中遇到的问题。
+个人学习笔记，主要来源于B站上视频的学习，同时会记录一些学习和项目中遇到的问题。
 
 
 
