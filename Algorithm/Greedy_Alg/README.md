@@ -84,3 +84,42 @@ if __name__ == '__main__':
 
 
 
+
+
+## 小Ａ的糖果
+
+题目要求：
+
+小 A 有 n 个糖果盒，第 i 个盒中有 ai 颗糖果。
+
+小 A 每次可以从其中一盒糖果中吃掉一颗，他想知道，要让任意两个相邻的盒子中糖的个数之和都不大于 x，至少得吃掉几颗糖。
+
+```c++
+#include<bits/stdc++.h>
+using namespace std;
+long long sum;
+int n,x,a[100010];
+int main()
+{
+	cin>>n>>x;
+	for(int i=1;i<=n;i++)
+	{
+		cin>>a[i];	
+	}
+	for(int i=1;i<n;i++)
+	{
+	    if(a[i]+a[i+1]>x)
+		{
+        	sum += a[i+1] - x+a[i];
+        	a[i+1] = x-a[i];
+    	}
+	}
+	cout<<sum;
+	return 0;   
+}
+```
+
+
+
+
+

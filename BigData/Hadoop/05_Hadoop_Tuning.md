@@ -1,6 +1,6 @@
 # 第1章 HDFS---核心参数
 
-## 1.1 NameNode内存生产配置
+## 1.1 NameNode 内存生产配置
 
 1）NameNode 内存计算
 

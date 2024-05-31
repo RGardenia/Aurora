@@ -12,13 +12,13 @@ MapReduce核心功能是将用户编写的<span style="color:red">业务逻辑�
 
 **1）MapReduce易于编程**
 
-​		它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的PC机器上运行。也就是说你写一个分布式程序，跟写一个简单的串行程序是一模一样的。
+​		它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的PC机器上运行。也就是说写一个分布式程序，跟写一个简单的串行程序是一模一样的。
 
 ​		就是因为这个特点使得MapReduce编程变得非常流行。
 
 **2）良好的扩展性**
 
-​		当你的计算资源不能得到满足的时候，你可以通过<span style="color:red">简单的增加机器</span>来扩展它的计算能力。
+​		当计算资源不能得到满足的时候，可以通过<span style="color:red">简单的增加机器</span>来扩展它的计算能力。
 
 **3）高容错性**
 
@@ -48,25 +48,25 @@ MapReduce核心功能是将用户编写的<span style="color:red">业务逻辑�
 
 ![image-20230225141435533](images/image-20230225141435533.png)
 
-（1）分布式的运算程序往往需要分成至少2个阶段。
+（1）分布式的运算程序往往需要分成至少2个阶段
 
-（2）第一个阶段的MapTask并发实例，完全并行运行，互不相干。
+（2）第一个阶段的MapTask并发实例，完全并行运行，互不相干
 
-（3）第二个阶段的ReduceTask并发实例互不相干，但是他们的数据依赖于上一个阶段的所有MapTask并发实例的输出。
+（3）第二个阶段的ReduceTask并发实例互不相干，但是他们的数据依赖于上一个阶段的所有MapTask并发实例的输出
 
 （4）MapReduce编程模型只能包含一个Map阶段和一个Reduce阶段，如果用户的业务逻辑非常复杂，那就只能多个MapReduce程序，串行运行。
 
-总结：分析WordCount数据流走向深入理解MapReduce核心思想。
+总结：分析WordCount数据流走向深入理解MapReduce核心思想
 
 ## 1.4 MapReduce进程
 
 一个完整的MapReduce程序在分布式运行时有三类实例进程：
 
-（1）**MrAppMaster**：负责整个程序的过程调度及状态协调。
+（1）**MrAppMaster**：负责整个程序的过程调度及状态协调
 
-（2）**MapTask**：负责Map阶段的整个数据处理流程。
+（2）**MapTask**：负责Map阶段的整个数据处理流程
 
-（3）**ReduceTask**：负责Reduce阶段的整个数据处理流程。
+（3）**ReduceTask**：负责Reduce阶段的整个数据处理流程
 
 ## 1.5 官方WordCount源码
 
@@ -882,9 +882,9 @@ number of splits:1
 
 ​	（2）缓冲区的大小可以通过参数调整，参数：mapreduce.task.io.sort.mb默认100M。
 
-## 3.3 Shuffle机制
+## 3.3 Shuffle 机制
 
-### 3.3.1 Shuffle机制
+### 3.3.1 Shuffle 机制
 
 Map方法之后，Reduce方法之前的数据处理过程称之为Shuffle
 
@@ -898,7 +898,7 @@ Map方法之后，Reduce方法之前的数据处理过程称之为Shuffle
 
 ![image-20230225145144703](images/image-20230225145144703.png)
 
-### 3.3.3 Partition分区案例实操
+### 3.3.3 Partition 分区案例实操
 
 **1）需求**
 
@@ -1002,7 +1002,7 @@ public class FlowDriver {
 }
 ```
 
-### 3.3.4 WritableComparable排序
+### 3.3.4 WritableComparable 排序
 
 ![image-20230225145448374](images/image-20230225145448374.png)
 
@@ -1033,7 +1033,7 @@ public int compareTo(FlowBean bean) {
 }
 ```
 
-### 3.3.5 WritableComparable排序案例实操（全排序）
+### 3.3.5 WritableComparable 排序案例实操（全排序）
 
 **1）需求**
 
@@ -1252,7 +1252,7 @@ public class FlowDriver {
 }
 ```
 
-### 3.3.6 WritableComparable排序案例实操（区内排序）
+### 3.3.6 WritableComparable 排序案例实操（区内排序）
 
 **1）需求**
 
@@ -1311,7 +1311,7 @@ job.setPartitionerClass(ProvincePartitioner2.class);
 job.setNumReduceTasks(5);
 ```
 
-### 3.3.7 Combiner合并
+### 3.3.7 Combiner 合并
 
 ![image-20230225150322740](images/image-20230225150322740.png)
 
@@ -1345,7 +1345,7 @@ public class WordCountCombiner extends Reducer<Text, IntWritable, Text, IntWrita
 job.setCombinerClass(WordCountCombiner.class);
 ```
 
-### 3.3.8 Combiner合并案例实操
+### 3.3.8 Combiner 合并案例实操
 
 **1）需求**
 
@@ -2573,7 +2573,7 @@ public class WebLogDriver {
 
 ### 4.5.1 Map输出端采用压缩
 
-​		即使你的MapReduce的输入输出文件都是未压缩的文件，你仍然可以对Map任务的中间结果输出做压缩，因为它要写在硬盘并且通过网络传输到Reduce节点，对其压缩可以提高很多性能，这些工作只要设置两个属性即可，我们来看下代码怎么设置。
+​		即使的MapReduce的输入输出文件都是未压缩的文件，仍然可以对Map任务的中间结果输出做压缩，因为它要写在硬盘并且通过网络传输到Reduce节点，对其压缩可以提高很多性能，这些工作只要设置两个属性即可，我们来看下代码怎么设置。
 
 1）给大家提供的Hadoop源码支持的压缩格式有：BZip2Codec、DefaultCodec
 

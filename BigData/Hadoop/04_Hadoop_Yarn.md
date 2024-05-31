@@ -1,10 +1,10 @@
-# 第1章 Yarn资源调度器
+# 第1章 Yarn 资源调度器
 
 思考：
 
-1）如何管理集群资源？
+1）如何管理集群资源 ？
 
-2）如何给任务合理分配资源？
+2）如何给任务合理分配资源 ？
 
 ![image-20230227100713650](images/image-20230227100713650.png)
 
@@ -17,39 +17,39 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ![image-20230227100900523](images/image-20230227100900523.png)
 
-## 1.2 Yarn工作机制
+## 1.2 Yarn 工作机制
 
 ![image-20230227101007827](images/image-20230227101007827.png)
 
-（1）MR程序提交到客户端所在的节点。
+（1）MR程序提交到客户端所在的节点
 
-（2）YarnRunner向ResourceManager申请一个Application。
+（2）YarnRunner向ResourceManager申请一个Application
 
-（3）RM将该应用程序的资源路径返回给`YarnRunner`。
+（3）RM将该应用程序的资源路径返回给`YarnRunner`
 
-（4）该程序将运行所需资源提交到HDFS上。
+（4）该程序将运行所需资源提交到HDFS上
 
-（5）程序资源提交完毕后，申请运行`mrAppMaster`。
+（5）程序资源提交完毕后，申请运行`mrAppMaster`
 
-（6）RM将用户的请求初始化成一个Task。
+（6）RM 将用户的请求初始化成一个Task
 
-（7）其中一个NodeManager领取到Task任务。
+（7）其中一个NodeManager领取到Task任务
 
-（8）该NodeManager创建容器Container，并产生`MRAppmaster`。
+（8）该NodeManager创建容器Container，并产生`MRAppmaster`
 
-（9）Container从HDFS上拷贝资源到本地。
+（9）Container从HDFS上拷贝资源到本地
 
-（10）MRAppmaster向RM 申请运行MapTask资源。
+（10）MRAppmaster向RM 申请运行MapTask资源
 
-（11）RM将运行MapTask任务分配给另外两个NodeManager，另两个NodeManager分别领取任务并创建容器。
+（11）RM将运行MapTask任务分配给另外两个NodeManager，另两个NodeManager分别领取任务并创建容器
 
-（12）MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序。
+（12）MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序
 
-（13）MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask。
+（13）MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask
 
-（14）ReduceTask向MapTask获取相应分区的数据。
+（14）ReduceTask向MapTask获取相应分区的数据
 
-（15）程序运行完毕后，MR会向RM申请注销自己。
+（15）程序运行完毕后，MR会向RM申请注销自己
 
 ## 1.3 作业提交全过程
 
@@ -63,45 +63,45 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 （1）作业提交
 
-​	第1步：Client调用job.waitForCompletion方法，向整个集群提交MapReduce作业。
+​	第1步：Client调用job.waitForCompletion方法，向整个集群提交MapReduce作业
 
-​	第2步：Client向RM申请一个作业id。
+​	第2步：Client向RM申请一个作业id
 
-​	第3步：RM给Client返回该job资源的提交路径和作业id。
+​	第3步：RM给Client返回该job资源的提交路径和作业id
 
-​	第4步：Client提交jar包、切片信息和配置文件到指定的资源提交路径。
+​	第4步：Client提交jar包、切片信息和配置文件到指定的资源提交路径
 
-​	第5步：Client提交完资源后，向RM申请运行MrAppMaster。
+​	第5步：Client提交完资源后，向RM申请运行MrAppMaster
 
 （2）作业初始化
 
-​	第6步：当RM收到Client的请求后，将该job添加到容量调度器中。
+​	第6步：当RM收到Client的请求后，将该job添加到容量调度器中
 
-​	第7步：某一个空闲的NM领取到该Job。
+​	第7步：某一个空闲的NM领取到该Job
 
-​	第8步：该NM创建Container，并产生MRAppmaster。
+​	第8步：该NM创建Container，并产生MRAppmaster
 
-​	第9步：下载Client提交的资源到本地。
+​	第9步：下载Client提交的资源到本地
 
 （3）任务分配
 
-​	第10步：MrAppMaster向RM申请运行多个MapTask任务资源。
+​	第10步：MrAppMaster向RM申请运行多个MapTask任务资源
 
-​	第11步：RM将运行MapTask任务分配给另外两个NodeManager，另两个NodeManager分别领取任务并创建容器。
+​	第11步：RM将运行MapTask任务分配给另外两个NodeManager，另两个NodeManager分别领取任务并创建容器
 
 （4）任务运行
 
-​	第12步：MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序。
+​	第12步：MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序
 
-​	第13步：MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask。
+​	第13步：MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask
 
-​	第14步：ReduceTask向MapTask获取相应分区的数据。
+​	第14步：ReduceTask向MapTask获取相应分区的数据
 
-​	第15步：程序运行完毕后，MR会向RM申请注销自己。
+​	第15步：程序运行完毕后，MR会向RM申请注销自己
 
 （5）进度和状态更新
 
-​		YARN中的任务将其进度和状态(包括counter)返回给应用管理器，客户端每秒(通过`mapreduce.client.progressmonitor.pollinterval`设置)向应用管理器请求进度更新，展示给用户。
+​		YARN中的任务将其进度和状态(包括counter)返回给应用管理器，客户端每秒(通过`mapreduce.client.progressmonitor.pollinterval`设置 ) 向应用管理器请求进度更新，展示给用户。
 
 （6）作业完成
 
@@ -111,15 +111,15 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ​		目前，Hadoop作业调度器主要有三种：FIFO、容量（Capacity Scheduler）和公平（Fair Scheduler）。Apache Hadoop3.1.3 默认的资源调度器是Capacity Scheduler。
 
-​		CDH框架默认调度器是Fair Scheduler。
+​		CDH 框架默认调度器是 Fair Scheduler
 
-具体设置详见：`yarn-default.xml`文件
+​	具体设置详见：`yarn-default.xml`文件
 
 ```xml
 <property>
-    <description>The class to use as the resource scheduler.</description>
-    <name>yarn.resourcemanager.scheduler.class</name>
-<value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
+  <description>The class to use as the resource scheduler.</description>
+  <name>yarn.resourcemanager.scheduler.class</name>
+  <value>org.apache.hadoop.yarn.server.resourcemanager.scheduler.capacity.CapacityScheduler</value>
 </property>
 ```
 
@@ -135,7 +135,7 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ### 1.4.2 容量调度器（Capacity Scheduler）
 
-Capacity Scheduler是Yahoo开发的多用户调度器。
+Capacity Scheduler 是 Yahoo开发的多用户调度器。
 
 ![image-20230227101745168](images/image-20230227101745168.png)
 
@@ -345,7 +345,7 @@ Queue Name : default
 
 注：调整下列参数之前尽量拍摄Linux快照，否则后续的案例，还需要重写准备集群。
 
-## 2.1 Yarn生产环境核心参数配置案例
+## 2.1 Yarn 生产环境核心参数配置案例
 
 1）需求：从1G数据中，统计每个单词出现次数。服务器3台，每台配置4G内存，4核CPU，4线程。
 
