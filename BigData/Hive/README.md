@@ -72,6 +72,9 @@ CLI（command-line interface）、JDBC/ODBC
 
 ## 2.1 Hive   安装
 
+需预先启动 Hadoop 集群
+如果启动 Hadoop 集群后依然无法启动成功 Hive, 可能是因为 NameNode 处于安全模式,需要退出安全模式才能启动 Hive
+
 1、 **把 `apache-hive-x.x.x-bin.tar.gz` 上传到 Linux 的 `/opt/software` 目录下**
 
 2、**解压apache-hive-x.x.x-bin.tar.gz到 /opt/module/ 目录下**
@@ -96,7 +99,7 @@ export HIVE_HOME=/opt/module/hive
 export PATH=$PATH:$HIVE_HOME/bin
 ```
 
-4、**初始化元数据库（默认是derby数据库）**
+4、**初始化元数据库（默认是 derby 数据库）**
 
 ```bash
 bin/schematool -dbType derby -initSchema
@@ -116,15 +119,17 @@ hive> select * from stu;
 
 > 观察HDFS的路径 `/user/hive/warehouse/stu` 
 >
-> Hive中的表在Hadoop中是目录；Hive中的数据在Hadoop中是文件
+> Hive 中的表在 Hadoop 中是目录；Hive中的数据在 Hadoop 中是文件
 
-> Hive默认使用的元数据库为**derby**
+### 2.1.1 配置 MySQL 为元数据库
+
+> Hive默认使用的元数据库为 **derby**
 >
-> **derby数据库的特点是同一时间只允许一个客户端访问。如果多个Hive客户端同时访问，就会报错。**由于在企业开发中，都是多人协作开发，需要多客户端同时访问Hive
+> **derby 数据库的特点是同一时间只允许一个客户端访问。如果多个Hive客户端同时访问，就会报错。**由于在企业开发中，都是多人协作开发，需要多客户端同时访问 Hive
 
 ![image-20230217115135513](images/image-20230217115135513.png)
 
-1. **退出hive客户端。然后在Hive的安装目录下将derby.log和metastore_db删除，顺便将HDFS上目录删除**
+1. **退出 Hive 客户端。然后在 Hive 的安装目录下将 derby.log 和 metastore_db 删除，顺便将 HDFS 上目录删除**
 
 ```bash
 hive> quit;
@@ -133,23 +138,86 @@ rm -rf derby.log metastore_db
 hadoop fs -rm -r /user
 ```
 
-2. 删除HDFS中`/user/hive/warehouse/stu` 中数据
+2. 新建 Hive 元数据库
 
-![image-20230217115250069](images/image-20230217115250069.png)
+   ```bash
+   mysql -uroot -p123456
+   
+   create database metastore;
+   quit;
+   ```
+
+3. 将 MySQL 的 JDBC 驱动拷贝到 Hive 的 lib 目录下
+   ```bash
+   cp /opt/software/mysql-connector-java-5.1.37.jar $HIVE_HOME/lib
+   ```
+
+4. 在 `$HIVE_HOME/conf` 目录下新建 `hive-site.xml` 文件
+   ```xml
+   vim $HIVE_HOME/conf/hive-site.xml
+   
+   <?xml version="1.0"?>
+   <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+   
+   <configuration>
+     <!-- jdbc连接的URL -->
+     <property>
+         <name>javax.jdo.option.ConnectionURL</name>
+         <value>jdbc:mysql://hadoop102:3306/metastore?useSSL=false</value>
+     </property>
+   
+     <!-- jdbc连接的Driver-->
+     <property>
+         <name>javax.jdo.option.ConnectionDriverName</name>
+         <value>com.mysql.jdbc.Driver</value>
+     </property>
+   
+     <!-- jdbc连接的username-->
+     <property>
+         <name>javax.jdo.option.ConnectionUserName</name>
+         <value>root</value>
+     </property>
+   
+     <!-- jdbc连接的password -->
+     <property>
+         <name>javax.jdo.option.ConnectionPassword</name>
+         <value>123456</value>
+     </property>
+     <!-- Hive默认在HDFS的工作目录-->
+     <property>
+       <name>hive.metastore.warehouse.dir</name>
+       <value>/user/hive/warehouse</value>
+     </property>
+   </ configuration>
+   ```
+
+5. 初始化 元数据库 Hive
+   ```bash
+   bin/schematool -dbType mysql -initSchema -verbose
+   ```
+
+6. 验证 Hive 配置
+   ```bash
+   bin/hive
+   
+   # 多开 Shell
+   ```
+
+
 
 ## 2.2 服务部署
 
-#### 2.2.1 `hiveserver2`服务
+#### 2.2.1  hiveserver2 服务
 
-Hive的 `hiveserver2` 服务的作用是提供 `jdbc/odbc` 接口，为用户提供远程访问Hive数据的功能，例如用户期望在个人电脑中访问远程服务中的Hive数据，就需要用到 `Hiveserver2`
+Hive 的 `hiveserver2` 服务的作用是提供 `jdbc/odbc` 接口，为用户提供远程访问Hive数据的功能，例如用户期望在个人电脑中访问远程服务中的 Hive 数据，就需要用到 `Hiveserver2`
 
 <img src="images/image-20230217115432725.png" alt="image-20230217115432725" style="zoom:67%;" />
 
 > **用户说明**
 >
-> 在远程访问Hive数据时，客户端并未直接访问Hadoop集群，而是由Hivesever2代理访问。由于Hadoop集群中的数据具备访问权限控制，所以此时需考虑一个问题：那就是访问Hadoop集群的用户身份是谁？是Hiveserver2的启动用户？还是客户端的登录用户？
+> 在远程访问 Hive 数据时，客户端并未直接访问Hadoop集群，而是由Hivesever2代理访问。由于Hadoop集群中的数据具备访问权限控制，所以此时需考虑一个问题：那就是访问Hadoop集群的用户身份是谁？是Hiveserver2的启动用户？还是客户端的登录用户？
 >
-> 答案是都有可能，具体是谁，由Hiveserver2的hive.server2.enable.doAs参数决定，该参数的含义是是否启用Hiveserver2用户模拟的功能。若启用，则Hiveserver2会模拟成客户端的登录用户去访问Hadoop集群的数据，不启用，则Hivesever2会直接使用启动用户访问Hadoop集群数据。模拟用户的功能，默认是开启的。
+> 答案：都有可能，具体是谁，由Hiveserver2的hive.server2.enable.doAs参数决定，该参数的含义是是否启用Hiveserver2用户模拟的功能。若启用，则Hiveserver2会模拟成客户端的登录用户去访问Hadoop集群的数据，不启用，则Hivesever2会直接使用启动用户访问Hadoop集群数据。模拟用户的功能，默认是开启的
 
 <img src="images/image-20230217115452536.png" alt="image-20230217115452536" style="zoom:67%;" />
 
@@ -157,7 +225,7 @@ Hive的 `hiveserver2` 服务的作用是提供 `jdbc/odbc` 接口，为用户提
 
 <img src="images/image-20230217115508319.png" alt="image-20230217115508319" style="zoom:67%;" />
 
-> 生产环境，推荐开启用户模拟功能，因为开启后才能保证各用户之间的权限隔离。
+> 生产环境，推荐开启用户模拟功能，因为开启后才能保证各用户之间的权限隔离
 
 1. **Hadoop 端 配置**
 
@@ -254,7 +322,7 @@ metastore有两种运行模式，分别为嵌入式模式和独立服务模式�
 
 （1）嵌入式模式
 
-嵌入式模式下，只需保证Hiveserver2和每个Hive CLI的配置文件hive-site.xml中包含连接元数据库所需要的以下参数即可：
+嵌入式模式下，只需保证Hiveserver2和每个Hive CLI的配置文件 `hive-site.xml` 中包含连接元数据库所需要的以下参数即可：
 
 ```xml
 <!-- jdbc连接的URL -->

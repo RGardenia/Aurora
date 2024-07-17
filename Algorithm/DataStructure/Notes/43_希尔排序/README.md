@@ -8,7 +8,7 @@
 
 ## Python 代码
 
-```
+```python
 # 希尔排序
 class Solution:
     def shellSort(self, arrlist):
@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
 ## Java代码
 
-```
+```java
 package com.moxi.interview.study.nowCode;
 
 /**

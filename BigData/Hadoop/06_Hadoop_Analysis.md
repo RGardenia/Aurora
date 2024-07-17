@@ -108,7 +108,7 @@ public class HDFSClient {
 
 ​		通信协议就是接口规范。
 
-# 第1章 NameNode启动源码解析
+# 第1章 NameNode 启动源码解析
 
 ![image-20230227144924283](images/image-20230227144924283.png)
 
@@ -418,7 +418,7 @@ public NameNodeRpcServer(Configuration conf, NameNode nn)
 }
 ```
 
-## 1.4 NN启动资源检查
+## 1.4 NN 启动资源检查
 
 1）点击 startCommonServices
 
@@ -644,7 +644,7 @@ public boolean isResourceAvailable() {
 }
 ```
 
-## 1.5 NN对心跳超时判断
+## 1.5 NN 对心跳超时判断
 
 Ctrl + n 搜索 `namenode`，ctrl + f 搜索 `startCommonServices` 
 
@@ -1109,7 +1109,7 @@ private void initDataXceiver() throws IOException {
 }
 ```
 
-## 2. 初始化HTTP服务
+## 2. 初始化 HTTP 服务
 
 点击 `startInfoServer();`
 
@@ -1179,7 +1179,7 @@ private void initIpcServer() throws IOException {
 }
 ```
 
-## 2.4 DN向NN注册
+## 2.4 DN 向 NN 注册
 
 点击 `refreshNamenodes`
 
@@ -1476,7 +1476,7 @@ void addDatanode(final DatanodeDescriptor node) {
 }
 ```
 
-## 2.5 向NN发送心跳
+## 2.5 向 NN 发送心跳
 
 点击 BPServiceActor.java 中的 `run` 方法中的 `offerService` 方法
 
@@ -1716,7 +1716,7 @@ private void updateStorageStats(StorageReport[] reports, long cacheCapacity,
 }
 ```
 
-# 第3章 HDFS上传源码解析
+# 第3章 HDFS 上传源码解析
 
 ![image-20230227151353348](images/image-20230227151353348.png)
 
@@ -2126,7 +2126,7 @@ INodesInPath addINode(INodesInPath existing, INode child,
 }
 ```
 
-### 3.3.1 DataStreamer启动流程
+### 3.3.1 DataStreamer 启动流程
 
 ​	NN 处理完 DN 请求后，再次回到 DN 端，启动对应的线程
 
@@ -2888,7 +2888,7 @@ protected Node chooseTargetInOrder(int numOfReplicas,
 }
 ```
 
-### 3.3.1 建立管道之Socket发送
+### 3.3.1 建立管道之 Socket 发送
 
 点击 `nextBlockOutputStream`
 
@@ -3527,13 +3527,13 @@ public void run() {
 }
 ```
 
-# 第4章 Yarn源码解析
+# 第4章 Yarn 源码解析
 
 ![image-20230227153422243](images/image-20230227153422243.png)
 
 ![image-20230227153735287](images/image-20230227153735287.png)
 
-## 4.1 Yarn客户端向RM提交作业
+## 4.1 Yarn 客户端向 RM 提交作业
 
 1）在 wordcount 程序的驱动类中点击
 
@@ -3833,7 +3833,7 @@ public SubmitApplicationResponse submitApplication(
 }
 ```
 
-## 4.2 RM启动MRAppMaster
+## 4.2 RM 启动 MRAppMaster
 
 0）在 pom.xml 中增加如下依赖
 
@@ -4179,11 +4179,11 @@ public void run(Context context) throws IOException, InterruptedException {
 }
 ```
 
-# 第5章 MapReduce源码解析
+# 第5章 MapReduce 源码解析
 
-## 5.1 Job提交流程源码和切片源码详解
+## 5.1 Job 提交流程源码和切片源码详解
 
-**1）Job提交流程源码详解**
+**1）Job 提交流程源码详解**
 
 ```java
 waitForCompletion()
@@ -4229,7 +4229,7 @@ status = submitClient.submitJob(jobId, submitJobDir.toString(), job.getCredentia
 
 ![image-20230227163731036](images/image-20230227163731036.png)
 
-## 5.2 MapTask & ReduceTask源码解析
+## 5.2 MapTask & ReduceTask 源码解析
 
 **1）MapTask源码解析流程**
 
@@ -4271,7 +4271,7 @@ reduce();  //reduce阶段调用的就是我们自定义的reduce方法，会被�
 	cleanup(context); //reduce完成之前，会最后调用一次Reducer里面的cleanup方法
 ```
 
-# 第6章 Hadoop源码编译
+# 第6章 Hadoop 源码编译
 
 ## 6.1 前期准备工作
 
