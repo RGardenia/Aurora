@@ -1,50 +1,50 @@
 # 第1章 MapReduce概述
 
-## 1.1 MapReduce定义
+## 1.1 MapReduce 定义
 
 MapReduce是一个<span style="color:red">分布式运算程序</span>的编程框架，是用户开发"基于Hadoop的数据分析应用"的核心框架。
 
 MapReduce核心功能是将用户编写的<span style="color:red">业务逻辑代码</span>和<span style="color:red">自带默认组件</span>整合成一个完整<span style="color:red">的分布式运算程序</span>，并发运行在一个Hadoop集群上。
 
-## 1.2 MapReduce优缺点
+## 1.2 MapReduce 优缺点
 
 ### 1.2.1 优点
 
-**1）MapReduce易于编程**
+**1）MapReduce 易于编程**
 
-​		它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的PC机器上运行。也就是说写一个分布式程序，跟写一个简单的串行程序是一模一样的。
+​	简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的PC机器上运行。也就是说写一个分布式程序，跟写一个简单的串行程序是一模一样的。
 
-​		就是因为这个特点使得MapReduce编程变得非常流行。
+​	就是因为这个特点使得MapReduce编程变得非常流行。
 
 **2）良好的扩展性**
 
-​		当计算资源不能得到满足的时候，可以通过<span style="color:red">简单的增加机器</span>来扩展它的计算能力。
+​	当计算资源不能得到满足的时候，可以通过<span style="color:red">简单的增加机器</span>来扩展它的计算能力。
 
 **3）高容错性**
 
-​		MapReduce设计的初衷就是使程序能够部署在廉价的PC机器上，这就要求它具有很高的容错性。
+​	MapReduce设计的初衷就是使程序能够部署在廉价的PC机器上，这就要求它具有很高的容错性。
 
-​		比如其中一台机器挂了，它可以把上面的计算任务转移到另外一个节点上运行，不至于这个任务运行失败，而且这个过程不需要人工参与，而完全是由Hadoop内部完成的。
+​	如其中一台机器挂了，它可以把上面的计算任务转移到另外一个节点上运行，不至于这个任务运行失败，而且这个过程不需要人工参与，而完全是由 Hadoop 内部完成的。
 
 **4）适合PB级以上海量数据的离线处理**
 
-​		可以实现上千台服务器集群并发工作，提供数据处理能力。
+​	可以实现上千台服务器集群并发工作，提供数据处理能力。
 
 ### 1.2.2 缺点
 
 **1）不擅长实时计算**
 
-​		MapReduce无法像MySQL一样，在毫秒或者秒级内返回结果。
+​	MapReduce无法像MySQL一样，在毫秒或者秒级内返回结果。
 
 **2）不擅长流式计算**
 
-​		流式计算的输入数据是动态的，而MapReduce的<span style="color:red">输入数据集是静态的</span>，不能动态变化。这是因为MapReduce自身的设计特点决定了数据源必须是静态的。
+​	流式计算的输入数据是动态的，而MapReduce的<span style="color:red">输入数据集是静态的</span>，不能动态变化。这是因为MapReduce自身的设计特点决定了数据源必须是静态的。
 
 **3）不擅长DAG（有向无环图）计算**
 
-​		多个应用程序存在依赖关系，后一个应用程序的输入为前一个的输出。在这种情况下，MapReduce并不是不能做，而是使用后，<span style="color:red">每个MapReduce作业的输出结果都会写入到磁盘，会造成大量的磁盘IO，导致性能非常的低下</span>。
+​	多个应用程序存在依赖关系，后一个应用程序的输入为前一个的输出。在这种情况下，MapReduce并不是不能做，而是使用后，<span style="color:red">每个MapReduce作业的输出结果都会写入到磁盘，会造成大量的磁盘IO，导致性能非常的低下</span>。
 
-## 1.3 MapReduce核心思想
+## 1.3 MapReduce 核心思想
 
 ![image-20230225141435533](images/image-20230225141435533.png)
 
@@ -56,57 +56,50 @@ MapReduce核心功能是将用户编写的<span style="color:red">业务逻辑�
 
 （4）MapReduce编程模型只能包含一个Map阶段和一个Reduce阶段，如果用户的业务逻辑非常复杂，那就只能多个MapReduce程序，串行运行。
 
-总结：分析WordCount数据流走向深入理解MapReduce核心思想
+总结：分析 WordCount 数据流走向深入理解MapReduce核心思想
 
-## 1.4 MapReduce进程
+## 1.4 MapReduce 进程
 
 一个完整的MapReduce程序在分布式运行时有三类实例进程：
 
 （1）**MrAppMaster**：负责整个程序的过程调度及状态协调
 
-（2）**MapTask**：负责Map阶段的整个数据处理流程
+（2）**MapTask**：负责 Map 阶段的整个数据处理流程
 
-（3）**ReduceTask**：负责Reduce阶段的整个数据处理流程
+（3）**ReduceTask**：负责 Reduce 阶段的整个数据处理流程
 
-## 1.5 官方WordCount源码
+## 1.5 官方 WordCount 源码
 
-​		采用反编译工具反编译源码，发现WordCount案例有Map类、Reduce类和驱动类。且数据的类型是Hadoop自身封装的序列化类型。
+​	采用反编译工具反编译源码，发现WordCount案例有Map类、Reduce类和驱动类。且数据的类型是Hadoop自身封装的序列化类型。
 
 ## 1.6 常用数据序列化类型
 
------------------------------------ -----------------------------------
-  **Java类型**                        **Hadoop Writable类型**
+| **Java类型** | Hadoop Writable类型 |
+| :----------: | :-----------------: |
+|   Boolean    |   BooleanWritable   |
+|     Byte     |    ByteWritable     |
+|     Int      |     IntWritable     |
+|    Float     |    FloatWritable    |
+|     Long     |    LongWritable     |
+|    Double    |   DoubleWritable    |
+|    String    |        Text         |
+|     Map      |     MapWritable     |
+|    Array     |    ArrayWritable    |
+|     Null     |    NullWritable     |
 
-  Boolean                             BooleanWritable
-
-  Byte                                	ByteWritable
-
-  Int                                	   IntWritable
-
-  Float                                   FloatWritable
-
-  Long                                   LongWritable
-
-  Double                               DoubleWritable
-
-  String                                 Text
-
-  Map                                    MapWritable
-
-  Array                                  ArrayWritable
-
-  Null                                    NullWritable
 ----------------------------------- -----------------------------------
 
-## 1.7 MapReduce编程规范
 
-用户编写的程序分成三个部分：Mapper、Reducer和Driver。
+
+## 1.7 MapReduce 编程规范
+
+用户编写的程序分成三个部分：Mapper、Reducer 和 Driver
 
 ![image-20230225141656843](images/image-20230225141656843.png)
 
 ![image-20230225141719874](images/image-20230225141719874.png)
 
-## 1.8 WordCount案例实操
+## 1.8 WordCount 案例实操
 
 ### 1.8.1 本地测试
 
@@ -134,13 +127,13 @@ xue 1
 
 **2）需求分析**
 
-按照MapReduce编程规范，分别编写Mapper，Reducer，Driver
+按照 MapReduce 编程规范，分别编写Mapper，Reducer，Driver
 
 **3）环境准备**
 
-（1）创建maven工程，MapReduceDemo
+（1）创建 maven 工程，MapReduceDemo
 
-（2）在pom.xml文件中添加如下依赖
+（2）在 pom.xml 文件中添加如下依赖
 
 ```xml
 <dependencies>
@@ -162,7 +155,7 @@ xue 1
 </dependencies>
 ```
 
-（2）在项目的src/main/resources目录下，新建一个文件，命名为"log4j.properties"，在文件中填入。
+（2）在项目的 `src/main/resources` 目录下，新建一个文件，命名为"log4j.properties"，在文件中填入
 
 ```properties
 log4j.rootLogger=INFO, stdout  
@@ -179,7 +172,7 @@ log4j.appender.logfile.layout.ConversionPattern=%d %p [%c] - %m%n
 
 **4）编写程序**
 
-（1）编写Mapper类
+（1）编写 Mapper 类
 
 ```java
 package com.gardenia.mapreduce.wordcount;
@@ -189,6 +182,12 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+/**
+	KEYIN, map 阶段输入的key的类型: LongWritable
+	VALUEIN , map 阶段输入value类型: Text
+	KEYOUT , map 阶段输出的Key类型: Text
+	VALUEOUT , map 阶段输出的value类型: IntWritable
+*/
 public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritable>{
 	
 	Text k = new Text();
@@ -205,7 +204,6 @@ public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritabl
 		
 		// 3 输出
 		for (String word : words) {
-			
 			k.set(word);
 			context.write(k, v);
 		}
@@ -213,7 +211,7 @@ public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritabl
 }
 ```
 
-（2）编写Reducer类
+（2）编写 Reducer 类
 
 ```java
 package com.gardenia.mapreduce.wordcount;
@@ -222,10 +220,16 @@ import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
 
+/**
+	KEYIN, map 阶段输入的 key 的类型: Text
+	VALUEIN , map 阶段输入 value 类型: IntWritable
+	KEYOUT , map 阶段输出的 Key 类型: Text
+	VALUEOUT , map 阶段输出的 value 类型: IntWritable
+*/
 public class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritable>{
 
-int sum;
-IntWritable v = new IntWritable();
+  int sum;
+  IntWritable v = new IntWritable();
 
 	@Override
 	protected void reduce(Text key, Iterable<IntWritable> values,Context context) throws IOException, InterruptedException {
@@ -237,13 +241,13 @@ IntWritable v = new IntWritable();
 		}
 		
 		// 2 输出
-         v.set(sum);
-		context.write(key,v);
+    v.set(sum);
+    context.write(key,v);
 	}
 }
 ```
 
-（3）编写Driver驱动类
+（3）编写 Driver 驱动类
 
 ```java
 package com.gardenia.mapreduce.wordcount;
@@ -292,15 +296,15 @@ public class WordCountDriver {
 
 **5）本地测试**
 
-（1）需要首先配置好`HADOOP_HOME`变量以及Windows运行依赖
+（1）需要首先配置好`HADOOP_HOME`变量以及 Windows 运行依赖
 
-（2）在IDEA/Eclipse上运行程序
+（2）在 IDEA/Eclipse 上运行程序
 
 ### 1.8.2 提交到集群测试
 
 **集群上测试**
 
-（1）用maven打jar包，需要添加的打包插件依赖
+（1）用 maven 打 jar 包，需要添加的打包插件依赖
 
 ```xml
 <build>
@@ -334,11 +338,11 @@ public class WordCountDriver {
 </build>
 ```
 
-注意：如果工程上显示红叉。在项目上右键 -\> maven -\> Reimport 刷新即可。
+注意：如果工程上显示红叉。在项目上右键 -\> maven -\> Reimport 刷新即可
 
-（2）将程序打成jar包
+（2）将程序打成 jar 包
 
-（3）修改不带依赖的jar包名称为wc.jar，并拷贝该jar包到Hadoop集群的`/opt/module/hadoop-3.1.3`路径。
+（3）修改不带依赖的 jar 包名称为wc.jar，并拷贝该jar包到Hadoop集群的`/opt/module/hadoop-3.1.3`路径
 
 （4）启动Hadoop集群
 
@@ -348,10 +352,9 @@ public class WordCountDriver {
 
 （5）执行WordCount程序
 
-> hadoop jar wc.jar com.gardenia.mapreduce.wordcount.WordCountDriver /user/gardenia/input
->/user/gardenia/output
+> hadoop jar wc.jar com.gardenia.mapreduce.wordcount.WordCountDriver /user/gardenia/input /user/gardenia/output
 
-# 第2章 Hadoop序列化
+# 第2章 Hadoop 序列化
 
 ## 2.1 序列化概述
 
@@ -378,13 +381,13 @@ public class WordCountDriver {
 
 **（3）互操作：**支持多语言的交互
 
-## 2.2 自定义bean对象实现序列化接口（Writable）
+## 2.2 自定义 bean 对象实现序列化接口（Writable）
 
-​		在企业开发中往往常用的基本序列化类型不能满足所有需求，比如在Hadoop框架内部传递一个bean对象，那么该对象就需要实现序列化接口。
+​	在企业开发中往往常用的基本序列化类型不能满足所有需求，比如在Hadoop框架内部传递一个bean对象，那么该对象就需要实现序列化接口。
 
-具体实现bean对象序列化步骤如下7步。
+​	具体实现 bean 对象序列化步骤如下7步。
 
-（1）必须实现Writable接口
+（1）必须实现 Writable 接口
 
 （2）反序列化时，需要反射调用空参构造函数，所以必须有空参构造
 
@@ -454,9 +457,9 @@ scp -r ./Code/phone_data.txt root@192.168.9.128:/opt/module/hadoop/gardenia
 
 ![image-20230225143257489](images/image-20230225143257489.png)
 
-**3）编写MapReduce程序**
+**3）编写 MapReduce 程序**
 
-（1）编写流量统计的Bean对象
+（1）编写流量统计的 Bean 对象
 
 ```java
 package com.gardenia.mapreduce.writable;
@@ -474,8 +477,7 @@ public class FlowBean implements Writable {
     private long sumFlow; //总流量
 
     //2 提供无参构造
-    public FlowBean() {
-    }
+    public FlowBean() {}
 
     //3 提供三个参数的getter和setter方法
     public long getUpFlow() {
@@ -516,6 +518,7 @@ public class FlowBean implements Writable {
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
+      	// 按照 序列化顺序 接收
         this.upFlow = dataInput.readLong();
         this.downFlow = dataInput.readLong();
         this.sumFlow = dataInput.readLong();
@@ -529,7 +532,7 @@ public class FlowBean implements Writable {
 }
 ```
 
-（2）编写Mapper类
+（2）编写 Mapper 类
 
 ```java
 package com.gardenia.mapreduce.writable;
@@ -557,19 +560,19 @@ public class FlowMapper extends Mapper<LongWritable, Text, Text, FlowBean> {
         String up = split[split.length - 3];
         String down = split[split.length - 2];
 
-        //4 封装outK outV
+        //4 封装 outK outV
         outK.set(phone);
         outV.setUpFlow(Long.parseLong(up));
         outV.setDownFlow(Long.parseLong(down));
         outV.setSumFlow();
 
-        //5 写出outK outV
+        //5 写出 outK outV
         context.write(outK, outV);
     }
 }
 ```
 
-（3）编写Reducer类
+（3）编写 Reducer 类
 
 ```java
 package com.gardenia.mapreduce.writable;
@@ -580,30 +583,31 @@ import java.io.IOException;
 
 public class FlowReducer extends Reducer<Text, FlowBean, Text, FlowBean> {
     private FlowBean outV = new FlowBean();
+
     @Override
     protected void reduce(Text key, Iterable<FlowBean> values, Context context) throws IOException, InterruptedException {
 
         long totalUp = 0;
         long totalDown = 0;
 
-        //1 遍历values,将其中的上行流量,下行流量分别累加
+        //1 遍历 values,将其中的上行流量,下行流量分别累加
         for (FlowBean flowBean : values) {
             totalUp += flowBean.getUpFlow();
             totalDown += flowBean.getDownFlow();
         }
 
-        //2 封装outKV
+        //2 封装 outKV
         outV.setUpFlow(totalUp);
         outV.setDownFlow(totalDown);
         outV.setSumFlow();
 
-        //3 写出outK outV
+        //3 写出 outK outV
         context.write(key,outV);
     }
 }
 ```
 
-（4）编写Driver驱动类
+（4）编写 Driver 驱动类
 
 ```java
 package com.gardenia.mapreduce.writable;
@@ -630,32 +634,32 @@ public class FlowDriver {
         job.setMapperClass(FlowMapper.class);
         job.setReducerClass(FlowReducer.class);
         
-		//4 设置Map端输出KV类型
+        //4 设置Map端输出KV类型
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(FlowBean.class);
         
-		//5 设置程序最终输出的KV类型
+        //5 设置程序最终输出的KV类型
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(FlowBean.class);
         
-		//6 设置程序的输入输出路径
+        //6 设置程序的输入输出路径
         FileInputFormat.setInputPaths(job, new Path("D:\\inputflow"));
         FileOutputFormat.setOutputPath(job, new Path("D:\\flowoutput"));
         
-		//7 提交Job
+        //7 提交Job
         boolean b = job.waitForCompletion(true);
         System.exit(b ? 0 : 1);
     }
 }
 ```
 
-# 第3章 MapReduce框架原理
+# 第3章 MapReduce 框架原理
 
 ![image-20230225143536545](images/image-20230225143536545.png)
 
-## 3.1 InputFormat数据输入
+## 3.1 InputFormat 数据输入
 
-### 3.1.1 切片与MapTask并行度决定机制
+### 3.1.1 切片与 MapTask 并行度决定机制
 
 **1）问题引出**
 
@@ -671,9 +675,9 @@ public class FlowDriver {
 
 ![image-20230225143626561](images/image-20230225143626561.png)
 
-### 3.1.2 Job提交流程源码和切片源码详解
+### 3.1.2 Job 提交流程源码和切片源码详解
 
-**1）Job提交流程源码详解**
+**1）Job 提交流程源码详解**
 
 ```java
 waitForCompletion()
@@ -705,7 +709,7 @@ writeSplits(job, submitJobDir);
 		maps = writeNewSplits(job, jobSubmitDir);
 		input.getSplits(job);
 
-	// 5）向Stag路径写XML配置文件
+	// 5）向 Stag 路径写 XML 配置文件
 writeConf(conf, submitJobFile);
 	conf.writeXml(out);
 
@@ -715,11 +719,11 @@ status = submitClient.submitJob(jobId, submitJobDir.toString(), job.getCredentia
 
 ![image-20230225143826552](images/image-20230225143826552.png)
 
-**2）FileInputFormat切片源码解析（input.getSplits(job)）**
+**2）FileInputFormat 切片源码解析（input.getSplits(job)）**
 
 ![image-20230225144016126](images/image-20230225144016126.png)
 
-### 3.1.3 FileInputFormat切片机制
+### 3.1.3 FileInputFormat 切片机制
 
 ![image-20230225144039826](images/image-20230225144039826.png)
 
@@ -755,13 +759,13 @@ From the real demand for more close to the enterprise
 (74,From the real demand for more close to the enterprise)
 ```
 
-### 3.1.5 CombineTextInputFormat切片机制
+### 3.1.5 CombineTextInputFormat 切片机制
 
 ​		框架默认的TextInputFormat切片机制是对任务按文件规划切片，<span style="color:red">不管文件多小，都会是一个单独的切片，都会交给一个MapTask</span>，这样如果有大量小文件，就会产生大量的MapTask，处理效率极其低下。
 
 **1）应用场景：**
 
-​		CombineTextInputFormat用于小文件过多的场景，它可以将多个小文件从逻辑上规划到一个切片中，这样，多个小文件就可以交给一个MapTask处理。
+​		CombineTextInputFormat 用于小文件过多的场景，它可以将多个小文件从逻辑上规划到一个切片中，这样，多个小文件就可以交给一个 MapTask 处理。
 
 **2）虚拟存储切片最大值设置**
 
@@ -777,7 +781,7 @@ From the real demand for more close to the enterprise
 
 （1）虚拟存储过程：
 
-​		将输入目录下所有文件大小，依次和设置的setMaxInputSplitSize值比较，如果不大于设置的最大值，逻辑上划分一个块。如果输入文件大于设置的最大值且大于两倍，那么以最大值切割一块；当剩余数据大小超过设置的最大值且不大于最大值2倍，此时将文件均分成2个虚拟存储块（防止出现太小切片）。
+​		将输入目录下所有文件大小，依次和设置的 `setMaxInputSplitSize `值比较，如果不大于设置的最大值，逻辑上划分一个块。如果输入文件大于设置的最大值且大于两倍，那么以最大值切割一块；当剩余数据大小超过设置的最大值且不大于最大值2倍，此时将文件均分成 2 个虚拟存储块（防止出现太小切片）。
 
 > 例如 setMaxInputSplitSize 值为4M，输入文件大小为8.02M，则先逻辑上分成一个4M。剩余的大小为4.02M，如果按照4M逻辑划分，就会出现0.02M的小的虚拟存储文件，所以将剩余的4.02M文件切分成（2.01M和2.01M）两个文件。
 
@@ -795,24 +799,19 @@ From the real demand for more close to the enterprise
 >
 > （1.7+2.55）M，（2.55+3.4）M，（3.4+3.4）M
 
-### 3.1.6 CombineTextInputFormat案例实操
+### 3.1.6 CombineTextInputFormat 案例实操
 
 **1）需求**
 
 将输入的大量小文件合并成一个切片统一处理。
 
-（1）输入数据
+（1）输入数据：准备4个小文件
 
-> 准备4个小文件
->
-
-（2）期望
-
-> 期望一个切片处理4个文件
+（2）期望：期望一个切片处理4个文件
 
 **2）实现过程**
 
-（1）不做任何处理，运行1.8节的WordCount案例程序，观察切片个数为4。
+（1）不做任何处理，运行1.8节的WordCount案例程序，观察切片个数为 4
 
 ```bash
 number of splits:4
@@ -830,18 +829,18 @@ job.setInputFormatClass(CombineTextInputFormat.class);
 CombineTextInputFormat.setMaxInputSplitSize(job, 4194304);
 ```
 
-​		（b）运行如果为3个切片。
+​		（b）运行如果为 3 个切片
 
 ```txt
 number of splits:3
 ```
 
-（3）在WordcountDriver中增加如下代码，运行程序，并观察运行的切片个数为1。
+（3）在 WordcountDriver 中增加如下代码，运行程序，并观察运行的切片个数为 1
 
 ​		（a）驱动中添加代码如下：
 
 ```java
-// 如果不设置InputFormat，它默认用的是TextInputFormat.class
+// 如果不设置InputFormat，它默认用的是 TextInputFormat.class
 job.setInputFormatClass(CombineTextInputFormat.class);
 
 //虚拟存储切片最大值设置20m
@@ -854,7 +853,7 @@ CombineTextInputFormat.setMaxInputSplitSize(job, 20971520);
 number of splits:1
 ```
 
-## 3.2 MapReduce工作流程
+## 3.2 MapReduce 工作流程
 
 ![image-20230225144819099](images/image-20230225144819099.png)
 
@@ -874,13 +873,13 @@ number of splits:1
 
 （6）ReduceTask会抓取到同一个分区的来自不同MapTask的结果文件，ReduceTask会将这些文件再进行合并（归并排序）
 
-（7）合并成大文件后，Shuffle的过程也就结束了，后面进入ReduceTask的逻辑运算过程（从文件中取出一个一个的键值对Group，调用用户自定义的reduce()方法）
+（7）合并成大文件后，Shuffle的过程也就结束了，后面进入ReduceTask的逻辑运算过程（ 从文件中取出一个一个的键值对Group，调用用户自定义的 `reduce()` 方法 ）
 
 **注意：**
 
-​	（1）Shuffle中的缓冲区大小会影响到MapReduce程序的执行效率，原则上说，缓冲区越大，磁盘io的次数越少，执行速度就越快。
+​	（1）Shuffle中的缓冲区大小会影响到MapReduce程序的执行效率，原则上说，缓冲区越大，磁盘 IO 的次数越少，执行速度就越快
 
-​	（2）缓冲区的大小可以通过参数调整，参数：mapreduce.task.io.sort.mb默认100M。
+​	（2）缓冲区的大小可以通过参数调整，参数：mapreduce.task.io.sort.mb默认100M
 
 ## 3.3 Shuffle 机制
 
@@ -890,7 +889,7 @@ Map方法之后，Reduce方法之前的数据处理过程称之为Shuffle
 
 ![image-20230225145034469](images/image-20230225145034469.png)
 
-### 3.3.2 Partition分区
+### 3.3.2 Partition 分区
 
 ![image-20230225145101737](images/image-20230225145101737.png)
 
@@ -908,7 +907,7 @@ Map方法之后，Reduce方法之前的数据处理过程称之为Shuffle
 
 （2）期望输出数据
 
-手机号136、137、138、139开头都分别放到一个独立的4个文件中，其他开头的放到一个文件中。
+手机号 136、137、138、139 开头都分别放到一个独立的4个文件中，其他开头的放到一个文件中
 
 **2）需求分析**
 
@@ -925,11 +924,11 @@ public class ProvincePartitioner extends Partitioner<Text, FlowBean> {
 
     @Override
     public int getPartition(Text text, FlowBean flowBean, int numPartitions) {
-        //获取手机号前三位prePhone
+        // 获取手机号前三位prePhone
         String phone = text.toString();
         String prePhone = phone.substring(0, 3);
 
-        //定义一个分区号变量partition,根据prePhone设置分区号
+        // 定义一个分区号变量 partition,根据 prePhone 设置分区号
         int partition;
 
         if("136".equals(prePhone)){
@@ -944,7 +943,7 @@ public class ProvincePartitioner extends Partitioner<Text, FlowBean> {
             partition = 4;
         }
 
-        //最后返回分区号partition
+        // 最后返回分区号 partition
         return partition;
     }
 }
@@ -988,7 +987,7 @@ public class FlowDriver {
         //8 指定自定义分区器
         job.setPartitionerClass(ProvincePartitioner.class);
 
-        //9 同时指定相应数量的ReduceTask
+        //9 同时指定相应数量的 ReduceTask
         job.setNumReduceTasks(5);
 
         //6 设置输入输出路径
@@ -1010,9 +1009,9 @@ public class FlowDriver {
 
 ![image-20230225145510621](images/image-20230225145510621.png)
 
-**自定义排序WritableComparable原理分析**
+**自定义排序 WritableComparable 原理分析**
 
-bean对象做为key传输，需要实现WritableComparable接口重写compareTo方法，就可以实现排序。
+bean 对象做为 key 传输，需要实现 `WritableComparable` 接口重写 compareTo 方法，就可以实现排序
 
 ```java
 @Override
@@ -1037,12 +1036,9 @@ public int compareTo(FlowBean bean) {
 
 **1）需求**
 
-根据案例2.3序列化案例产生的结果再次对总流量进行倒序排序。
+根据案例 2.3 序列化案例产生的结果再次对总流量进行倒序排序
 
-（1）输入数据
-
-> 原始数据 第一次处理后的数据
->
+（1）输入数据：原始数据 第一次处理后的数据
 
 （2）期望输出数据
 
@@ -1062,7 +1058,7 @@ public int compareTo(FlowBean bean) {
 
 **3）代码实现**
 
-（1）FlowBean对象在在需求1基础上增加了比较功能
+（1）FlowBean 对象在在需求1基础上增加了比较功能
 
 ```java
 package com.gardenia.mapreduce.writablecompable;
@@ -1136,7 +1132,7 @@ public class FlowBean implements WritableComparable<FlowBean> {
     @Override
     public int compareTo(FlowBean o) {
 
-        //按照总流量比较,倒序排列
+        // 按照总流量比较, 倒序排列
         if(this.sumFlow > o.sumFlow){
             return -1;
         }else if(this.sumFlow < o.sumFlow){
@@ -1148,7 +1144,7 @@ public class FlowBean implements WritableComparable<FlowBean> {
 }
 ```
 
-（2）编写Mapper类
+（2）编写 Mapper 类
 
 ```java
 package com.gardenia.mapreduce.writablecompable;
@@ -1196,16 +1192,16 @@ public class FlowReducer extends Reducer<FlowBean, Text, Text, FlowBean> {
     @Override
     protected void reduce(FlowBean key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
-        //遍历values集合,循环写出,避免总流量相同的情况
+        // 遍历values集合,循环写出,避免总流量相同的情况
         for (Text value : values) {
-            //调换KV位置,反向写出
+            // 调换KV位置, 反向写出
             context.write(value,key);
         }
     }
 }
 ```
 
-（4）编写Driver类
+（4）编写 Driver 类
 
 ```java
 package com.gardenia.mapreduce.writablecompable;
@@ -1256,11 +1252,11 @@ public class FlowDriver {
 
 **1）需求**
 
-要求每个省份手机号输出的文件中按照总流量内部排序。
+要求每个省份手机号输出的文件中按照总流量内部排序
 
 **2）需求分析**
 
-基于前一个需求，增加自定义分区类，分区按照省份手机号设置。
+基于前一个需求，增加自定义分区类，分区按照省份手机号设置
 
 ![image-20230225150231756](images/image-20230225150231756.png)
 
@@ -1311,7 +1307,7 @@ job.setPartitionerClass(ProvincePartitioner2.class);
 job.setNumReduceTasks(5);
 ```
 
-### 3.3.7 Combiner 合并
+### 3.3.7  Combiner 合并
 
 ![image-20230225150322740](images/image-20230225150322740.png)
 
@@ -1339,7 +1335,7 @@ public class WordCountCombiner extends Reducer<Text, IntWritable, Text, IntWrita
 }
 ```
 
-​		（b）在Job驱动类中设置：
+​		（b）Job 驱动类中设置
 
 ```
 job.setCombinerClass(WordCountCombiner.class);
@@ -1349,13 +1345,13 @@ job.setCombinerClass(WordCountCombiner.class);
 
 **1）需求**
 
-统计过程中对每一个MapTask的输出进行局部汇总，以减小网络传输量即采用Combiner功能。
+统计过程中对每一个MapTask的输出进行局部汇总，以减小网络传输量即采用Combiner功能
 
 （1）数据输入
 
 （2）期望输出数据
 
-期望：Combine输入数据多，输出时经过合并，输出数据降低。
+期望：Combine输入数据多，输出时经过合并，输出数据降低
 
 **2）需求分析**
 
@@ -1414,17 +1410,17 @@ job.setCombinerClass(WordCountReducer.class);
 
 ![image-20230225150617365](images/image-20230225150617365.png)
 
-## 3.4 OutputFormat数据输出
+## 3.4 OutputFormat 数据输出
 
-### 3.4.1 OutputFormat接口实现类
+### 3.4.1 OutputFormat 接口实现类
 
 ![image-20230225150717147](images/image-20230225150717147.png)
 
-### 3.4.2 自定义OutputFormat案例实操
+### 3.4.2 自定义 OutputFormat 案例实操
 
 **1）需求**
 
-过滤输入的log日志，包含gardenia的网站输出到e:/gardenia.log，不包含gardenia的网站输出到 e:/other.log
+过滤输入的 `log` 日志，包含 gardenia 的网站输出到 `e:/gardenia.log` ，不包含 gardenia 的网站输出到 `e:/other.log` 
 
 （1）输入数据
 
@@ -1451,13 +1447,13 @@ import java.io.IOException;
 public class LogMapper extends Mapper<LongWritable, Text,Text, NullWritable> {
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        //不做任何处理,直接写出一行log数据
+        // 不做任何处理, 直接写出一行 log 数据
         context.write(value,NullWritable.get());
     }
 }
 ```
 
-（2）编写LogReducer类
+（2）编写 LogReducer 类
 
 ```java
 package com.gardenia.mapreduce.outputformat;
@@ -1471,15 +1467,15 @@ import java.io.IOException;
 public class LogReducer extends Reducer<Text, NullWritable,Text, NullWritable> {
     @Override
     protected void reduce(Text key, Iterable<NullWritable> values, Context context) throws IOException, InterruptedException {
-        // 防止有相同的数据,迭代写出
+        // 防止有相同的数据, 迭代写出
         for (NullWritable value : values) {
-            context.write(key,NullWritable.get());
+            context.write(key, NullWritable.get());
         }
     }
 }
 ```
 
-（3）自定义一个LogOutputFormat类
+（3）自定义一个 LogOutputFormat 类
 
 ```java
 package com.gardenia.mapreduce.outputformat;
@@ -1495,14 +1491,14 @@ import java.io.IOException;
 public class LogOutputFormat extends FileOutputFormat<Text, NullWritable> {
     @Override
     public RecordWriter<Text, NullWritable> getRecordWriter(TaskAttemptContext job) throws IOException, InterruptedException {
-        //创建一个自定义的RecordWriter返回
+        // 创建一个自定义的 RecordWriter 返回
         LogRecordWriter logRecordWriter = new LogRecordWriter(job);
         return logRecordWriter;
     }
 }
 ```
 
-（4）编写LogRecordWriter类
+（4）编写 LogRecordWriter 类
 
 ```java
 package com.gardenia.mapreduce.outputformat;
@@ -1555,7 +1551,7 @@ public class LogRecordWriter extends RecordWriter<Text, NullWritable> {
 }
 ```
 
-（5）编写LogDriver类
+（5）编写 LogDriver 类
 
 ```java
 package com.gardenia.mapreduce.outputformat;
@@ -1586,12 +1582,12 @@ public class LogDriver {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(NullWritable.class);
 
-        //设置自定义的outputformat
+        // 设置自定义的 outputformat
         job.setOutputFormatClass(LogOutputFormat.class);
 
         FileInputFormat.setInputPaths(job, new Path("D:\\input"));
-        //虽然我们自定义了outputformat，但是因为我们的outputformat继承自fileoutputformat
-        //而fileoutputformat要输出一个_SUCCESS文件，所以在这还得指定一个输出目录
+        // 虽然自定义了outputformat，但是因为 outputformat 继承自 fileoutputformat
+        // 而 fileoutputformat 要输出一个 _SUCCESS 文件，所以在这还得指定一个输出目录
         FileOutputFormat.setOutputPath(job, new Path("D:\\logoutput"));
 
         boolean b = job.waitForCompletion(true);
@@ -1600,57 +1596,57 @@ public class LogDriver {
 }
 ```
 
-## 3.5 MapReduce内核源码解析
+## 3.5 MapReduce 内核源码解析 （重点）
 
-### 3.5.1 MapTask工作机制
+### 3.5.1 MapTask 工作机制
 
 ![image-20230225151148731](images/image-20230225151148731.png)
 
-（1）Read阶段：MapTask通过InputFormat获得的RecordReader，从输入InputSplit中解析出一个个key/value。
+（1）Read阶段：MapTask通过InputFormat获得的RecordReader，从输入InputSplit中解析出一个个key/value
 
-（2）Map阶段：该节点主要是将解析出的key/value交给用户编写map()函数处理，并产生一系列新的key/value。
+（2）Map阶段：该节点主要是将解析出的key/value交给用户编写map()函数处理，并产生一系列新的key/value
 
-（3）Collect收集阶段：在用户编写map()函数中，当数据处理完成后，一般会调用OutputCollector.collect()输出结果。在该函数内部，它会将生成的key/value分区（调用Partitioner），并写入一个环形内存缓冲区中。
+（3）Collect收集阶段：在用户编写map()函数中，当数据处理完成后，一般会调用OutputCollector.collect()输出结果。在该函数内部，它会将生成的key/value分区（调用Partitioner），并写入一个环形内存缓冲区中
 
-（4）Spill阶段：即"溢写"，当环形缓冲区满后，MapReduce会将数据写到本地磁盘上，生成一个临时文件。需要注意的是，将数据写入本地磁盘之前，先要对数据进行一次本地排序，并在必要时对数据进行合并、压缩等操作。
+（4）Spill阶段：即"溢写"，当环形缓冲区满后，MapReduce会将数据写到本地磁盘上，生成一个临时文件。需要注意的是，将数据写入本地磁盘之前，先要对数据进行一次本地排序，并在必要时对数据进行合并、压缩等操作
 
 溢写阶段详情：
 
-​		步骤1：利用快速排序算法对缓存区内的数据进行排序，排序方式是，先按照分区编号Partition进行排序，然后按照key进行排序。这样，经过排序后，数据以分区为单位聚集在一起，且同一分区内所有数据按照key有序。
+​		步骤1：利用快速排序算法对缓存区内的数据进行排序，排序方式是，先按照分区编号Partition进行排序，然后按照key进行排序。这样，经过排序后，数据以分区为单位聚集在一起，且同一分区内所有数据按照key有序
 
-​		步骤2：按照分区编号由小到大依次将每个分区中的数据写入任务工作目录下的临时文件output/spillN.out（N表示当前溢写次数）中。如果用户设置了Combiner，则写入文件之前，对每个分区中的数据进行一次聚集操作。
+​		步骤2：按照分区编号由小到大依次将每个分区中的数据写入任务工作目录下的临时文件output/spillN.out（N表示当前溢写次数）中。如果用户设置了Combiner，则写入文件之前，对每个分区中的数据进行一次聚集操作
 
-​		步骤3：将分区数据的元信息写到内存索引数据结构SpillRecord中，其中每个分区的元信息包括在临时文件中的偏移量、压缩前数据大小和压缩后数据大小。如果当前内存索引大小超过1MB，则将内存索引写到文件output/spillN.out.index中。
+​		步骤3：将分区数据的元信息写到内存索引数据结构SpillRecord中，其中每个分区的元信息包括在临时文件中的偏移量、压缩前数据大小和压缩后数据大小。如果当前内存索引大小超过1MB，则将内存索引写到文件output/spillN.out.index中
 
-（5）Merge阶段：当所有数据处理完成后，MapTask对所有临时文件进行一次合并，以确保最终只会生成一个数据文件。
+（5）Merge阶段：当所有数据处理完成后，MapTask对所有临时文件进行一次合并，以确保最终只会生成一个数据文件
 
-​		当所有数据处理完后，MapTask会将所有临时文件合并成一个大文件，并保存到文件output/file.out中，同时生成相应的索引文件output/file.out.index。
+​		当所有数据处理完后，MapTask会将所有临时文件合并成一个大文件，并保存到文件output/file.out中，同时生成相应的索引文件output/file.out.index
 
-​		在进行文件合并过程中，MapTask以分区为单位进行合并。对于某个分区，它将采用多轮递归合并的方式。每轮合并mapreduce.task.io.sort.factor（默认10）个文件，并将产生的文件重新加入待合并列表中，对文件排序后，重复以上过程，直到最终得到一个大文件。
+​		在进行文件合并过程中，MapTask以分区为单位进行合并。对于某个分区，它将采用多轮递归合并的方式。每轮合并mapreduce.task.io.sort.factor（默认10）个文件，并将产生的文件重新加入待合并列表中，对文件排序后，重复以上过程，直到最终得到一个大文件
 
-​		让每个MapTask最终只生成一个数据文件，可避免同时打开大量文件和同时读取大量小文件产生的随机读取带来的开销。
+​		让每个MapTask最终只生成一个数据文件，可避免同时打开大量文件和同时读取大量小文件产生的随机读取带来的开销
 
-### 3.5.2 ReduceTask工作机制
+### 3.5.2 ReduceTask 工作机制
 
 ![image-20230225151249981](images/image-20230225151249981.png)
 
-（1）Copy阶段：ReduceTask从各个MapTask上远程拷贝一片数据，并针对某一片数据，如果其大小超过一定阈值，则写到磁盘上，否则直接放到内存中。
+（1）Copy阶段：ReduceTask从各个MapTask上远程拷贝一片数据，并针对某一片数据，如果其大小超过一定阈值，则写到磁盘上，否则直接放到内存中
 
-（2）Sort阶段：在远程拷贝数据的同时，ReduceTask启动了两个后台线程对内存和磁盘上的文件进行合并，以防止内存使用过多或磁盘上文件过多。
+（2）Sort阶段：在远程拷贝数据的同时，ReduceTask启动了两个后台线程对内存和磁盘上的文件进行合并，以防止内存使用过多或磁盘上文件过多
 
-​		按照MapReduce语义，用户编写reduce()函数输入数据是按key进行聚集的一组数据。为了将key相同的数据聚在一起，Hadoop采用了基于排序的策略。由于各个MapTask已经实现对自己的处理结果进行了局部排序，因此，ReduceTask只需对所有数据进行一次归并排序即可。
+​	按照MapReduce语义，用户编写reduce()函数输入数据是按key进行聚集的一组数据。为了将key相同的数据聚在一起，Hadoop采用了基于排序的策略。由于各个MapTask已经实现对自己的处理结果进行了局部排序，因此，ReduceTask只需对所有数据进行一次归并排序即可。
 
-（3）Reduce阶段：reduce()函数将计算结果写到HDFS上。
+（3）Reduce阶段：reduce()函数将计算结果写到HDFS上
 
-### 3.5.3 ReduceTask并行度决定机制
+### 3.5.3 ReduceTask 并行度决定机制
 
-​	**回顾：**MapTask并行度由切片个数决定，切片个数由输入文件和切片规则决定。
+​	**回顾：**MapTask并行度由切片个数决定，切片个数由输入文件和切片规则决定
 
 ​	**思考：**ReduceTask并行度由谁决定？
 
 **1）设置ReduceTask并行度（个数）**
 
-​			ReduceTask 的并行度同样影响整个Job的执行并发度和执行效率，但与MapTask的并发数由切片数决定不同，ReduceTask数量的决定是可以直接手动设置：
+​	ReduceTask 的并行度同样影响整个Job的执行并发度和执行效率，但与MapTask的并发数由切片数决定不同，ReduceTask数量的决定是可以直接手动设置：
 
 ```java
 // 默认值是1，手动设置为4
@@ -1663,102 +1659,80 @@ job.setNumReduceTasks(4);
 
 （2）实验结论：
 
-改变ReduceTask（数据量为1GB）
+<p style="text-align: center;">改变 ReduceTask（数据量为1GB）</p>
 
------------- ----- ----- ------ ------ ---- ------ ------ ------- ------ ------
-  MapTask =16                                                              
+| MapTask =16 |      |      |      |      |      |      |      |      |      |      |
+| ----------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| ReduceTask  | 1    | 5    | 10   | 15   | 16   | 20   | 25   | 30   | 45   | 60   |
+| 总时间      | 892  | 146  | 110  | 92   | 88   | 100  | 128  | 101  | 145  | 104  |
 
-  ReduceTask   	1  	      5        10     15     16 	  20     25       30       45      60
-
-  总时间       		892   	146	 110    92     88     100    128    101     145    104
 ------------ ----- ----- ------ ------ ---- ------ ------ ------- ------ ------
 
 **3）注意事项**
 
 ![image-20230225151548917](images/image-20230225151548917.png)
 
-### 3.5.4 MapTask & ReduceTask源码解析
+### 3.5.4 MapTask & ReduceTask 源码解析
 
 **1）MapTask源码解析流程**
 
-​	  =================== MapTask ===================
-
-​	  context.write(k, NullWritable.get()); //自定义的map方法的写出，进入
-
-​			output.write(key, value);
-
-​				//MapTask727行，收集方法，进入两次
-
-​				collector.collect(key, value,partitioner.getPartition(key, value,
-partitions));
-
-​					HashPartitioner(); //默认分区器
-
-​				collect() //MapTask1082行 map端所有的kv全部写出后会走下面的close方法
-
-​					close() //MapTask732行
-
-​						collector.flush() // 溢出刷写方法，MapTask735行，提前打个断点，进入
-
-​							sortAndSpill() //溢写排序，MapTask1505行，进入
-
-​								sorter.sort() QuickSort //溢写排序方法，MapTask1625行，进入
-
-​							mergeParts(); //合并文件，MapTask1527行，进入
-
-​						collector.close(); //MapTask739行,收集器关闭,即将进入ReduceTask
+```java
+// =================== MapTask =================
+context.write(k, NullWritable.get()); //自定义的map方法的写出，
+	output.write(key, value)
+		//MapTask727行，收集方法，进入
+		collector.collect(key, value, partitioner.getPartition(key, value, partitions)
+			HashPartitioner(); //默认分
+		collect() //MapTask1082行 map端所有的kv全部写出后会走下面的close
+			close() //MapTask73
+				collector.flush() // 溢出刷写方法，MapTask735行，提前打个断点，
+					sortAndSpill() //溢写排序，MapTask1505行，
+						sorter.sort() QuickSort //溢写排序方法，MapTask1625行，
+					mergeParts(); //合并文件，MapTask1527行，
+				collector.close(); //MapTask739行,收集器关闭,即将进入ReduceTask
+```
 
 **2）ReduceTask源码解析流程**
 
-​	  =================== ReduceTask ===================
-
-​	  if (isMapOrReduce()) //reduceTask324行，提前打断点
-
-​	  initialize() // reduceTask333行,进入
-
-​	  init(shuffleContext); // reduceTask375行,走到这需要先给下面的打断点
-
-​			totalMaps = job.getNumMapTasks(); // ShuffleSchedulerImpl第120行，提前打断点
-
-​			  merger = createMergeManager(context); //合并方法，Shuffle第80行
-
-​			  // MergeManagerImpl第232 235行，提前打断点
-
-​			  this.inMemoryMerger = createInMemoryMerger(); //内存合并
-
-​			  this.onDiskMerger = new OnDiskMerger(this); //磁盘合并
-
-​	rIter = shuffleConsumerPlugin.run();
-
-​			eventFetcher.start(); //开始抓取数据，Shuffle第107行，提前打断点
-
-​			eventFetcher.shutDown(); //抓取结束，Shuffle第141行，提前打断点
-
-​			copyPhase.complete(); //copy阶段完成，Shuffle第151行
-
-​			taskStatus.setPhase(TaskStatus.Phase.SORT);  //开始排序阶段，Shuffle第152行
-
-​		sortPhase.complete(); //排序阶段完成，即将进入reduce阶段 reduceTask382行
-
+```java
+// =================== ReduceTask ===================
+if (isMapOrReduce()) //reduceTask324行，提前打断点
+initialize() // reduceTask333行,进入
+init(shuffleContext); // reduceTask375行,走到这需要先给下面的打断点
+totalMaps = job.getNumMapTasks(); // ShuffleSchedulerImpl第120行，提前打断点
+  merger = createMergeManager(context); //合并方法，Shuffle第80行
+  // MergeManagerImpl第232 235行，提前打断点
+  this.inMemoryMerger = createInMemoryMerger(); //内存合并
+  this.onDiskMerger = new OnDiskMerger(this); //磁盘合并
+rter = shuffleConsumerPlugin.run();
+eventFetcher.start(); //开始抓取数据，Shuffle第107行，提前打断点
+eventFetcher.shutDown(); //抓取结束，Shuffle第141行，提前打断点
+	copyPhase.complete(); //copy阶段完成，Shuffle第151行
+	taskStatus.setPhase(TaskStatus.Phase.SORT);  //开始排序阶段，Shuffle第152行
+	sortPhase.complete(); //排序阶段完成，即将进入reduce阶段 reduceTask382行
 reduce(); //reduce阶段调用的就是我们自定义的reduce方法，会被调用多次
 
-​		cleanup(context); //reduce完成之前，会最后调用一次Reducer里面的cleanup方法
+cleanup(context); //reduce完成之前，会最后调用一次Reducer里面的cleanup方法
+```
 
-## 3.6 Join应用
+
+
+## 3.6 Join 应用
 
 ### 3.6.1 Reduce Join
 
-​		Map端的主要工作：为来自不同表或文件的key/value对，打标签以区别不同来源的记录。然后用连接字段作为key，其余部分和新加的标志作为value，最后进行输出。
+​	Map端的主要工作：为来自不同表或文件的key/value对，打标签以区别不同来源的记录。然后用连接字段作为key，其余部分和新加的标志作为value，最后进行输出
 
-​		Reduce端的主要工作：在Reduce端以连接字段作为key的分组已经完成，我们只需要在每一个分组当中将那些来源于不同文件的记录（在Map阶段已经打标志）分开，最后进行合并就ok了。
+​	Reduce端的主要工作：在Reduce端以连接字段作为key的分组已经完成，我们只需要在每一个分组当中将那些来源于不同文件的记录（在Map阶段已经打标志）分开，最后进行合并就ok了
 
-### 3.6.2 Reduce Join案例实操
+### 3.6.2 Reduce Join 案例实操
 
 **1）需求**
 
-订单数据表t_order
+订单数据表 `t_order`
 
 ------------------- ------------------------- -------------------------
+```sql
   id                  pid                       amount
 
   1001                01                        1
@@ -1772,11 +1746,14 @@ reduce(); //reduce阶段调用的就是我们自定义的reduce方法，会被�
   1005                02                        5
 
   1006                03                        6
+```
+
 ------------------- ------------------------- -------------------------
 
-商品信息表t_product
+商品信息表 `t_product`
 
 ---------------------------- ------------------------------------------
+```sql
   pid                          pname
 
   01                           小米
@@ -1784,13 +1761,16 @@ reduce(); //reduce阶段调用的就是我们自定义的reduce方法，会被�
   02                           华为
 
   03                           格力
+```
+
 ---------------------------- ------------------------------------------
 
-将商品信息表中数据根据商品pid合并到订单数据表中。
+将商品信息表中数据根据商品 `pid` 合并到订单数据表中
 
 最终数据形式
 
 ------------------- ------------------------- -------------------------
+```sql
   id                  pname                     amount
 
   1001                小米                      1
@@ -1804,11 +1784,13 @@ reduce(); //reduce阶段调用的就是我们自定义的reduce方法，会被�
   1003                格力                      3
 
   1006                格力                      6
+```
+
 ------------------- ------------------------- -------------------------
 
 **2）需求分析**
 
-​		通过将关联条件作为Map输出的key，将两表满足Join条件的数据并携带数据所来源的文件信息，发往同一个ReduceTask，在Reduce中进行数据的串联。
+​		通过将关联条件作为Map输出的key，将两表满足Join条件的数据并携带数据所来源的文件信息，发往同一个ReduceTask，在Reduce 中进行数据的串联
 
 ![image-20230225152607517](images/image-20230225152607517.png)
 
@@ -1901,7 +1883,7 @@ public class TableBean implements Writable {
 }
 ```
 
-（2）编写TableMapper类
+（2）编写 TableMapper 类
 
 ```java
 package com.gardenia.mapreduce.reducejoin;
@@ -1922,7 +1904,7 @@ public class TableMapper extends Mapper<LongWritable,Text,Text,TableBean> {
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        //获取对应文件名称
+        // 获取对应文件名称
         InputSplit split = context.getInputSplit();
         FileSplit fileSplit = (FileSplit) split;
         filename = fileSplit.getPath().getName();
@@ -1987,12 +1969,10 @@ public class TableReducer extends Reducer<Text,TableBean,TableBean, NullWritable
 
         for (TableBean value : values) {
 
-            //判断数据来自哪个表
+            // 判断数据来自哪个表
             if("order".equals(value.getFlag())){   //订单表
-
-			  //创建一个临时TableBean对象接收value
+			  			//创建一个临时 TableBean 对象接收value
                 TableBean tmpOrderBean = new TableBean();
-
                 try {
                     BeanUtils.copyProperties(tmpOrderBean,value);
                 } catch (IllegalAccessException e) {
@@ -2001,9 +1981,9 @@ public class TableReducer extends Reducer<Text,TableBean,TableBean, NullWritable
                     e.printStackTrace();
                 }
 
-			  //将临时TableBean对象添加到集合orderBeans
+			  			// 将临时 TableBean 对象添加到集合 orderBeans
                 orderBeans.add(tmpOrderBean);
-            }else {                                    //商品表
+            }else {    //商品表
                 try {
                     BeanUtils.copyProperties(pdBean,value);
                 } catch (IllegalAccessException e) {
@@ -2014,19 +1994,18 @@ public class TableReducer extends Reducer<Text,TableBean,TableBean, NullWritable
             }
         }
 
-        //遍历集合orderBeans,替换掉每个orderBean的pid为pname,然后写出
+        // 遍历集合 orderBeans, 替换掉每个 orderBean 的 pid 为 pname , 然后写出
         for (TableBean orderBean : orderBeans) {
-
             orderBean.setPname(pdBean.getPname());
 
-		   //写出修改后的orderBean对象
+		   		// 写出修改后的orderBean对象
             context.write(orderBean,NullWritable.get());
         }
     }
 }
 ```
 
-（4）编写TableDriver类
+（4）编写 TableDriver 类
 
 ```java
 package com.gardenia.mapreduce.reducejoin;
@@ -2069,16 +2048,11 @@ public class TableDriver {
 运行程序查看结果
 
 > 1004 小米 4
->
-> 1001 小米 1
->
+>1001 小米 1
 > 1005 华为 5
->
-> 1002 华为 2
->
+>1002 华为 2
 > 1006 格力 6
->
-> 1003 格力 3
+>1003 格力 3
 
 **5）总结**
 
@@ -2090,7 +2064,7 @@ public class TableDriver {
 
 **1）使用场景**
 
-​		Map Join适用于一张表十分小、一张表很大的场景。
+​		Map Join适用于一张表十分小、一张表很大的场景
 
 **2）优点**
 
@@ -2100,9 +2074,9 @@ public class TableDriver {
 
 **3）具体办法：采用DistributedCache**
 
-（1）在Mapper的setup阶段，将文件读取到缓存集合中。
+（1）在Mapper的setup阶段，将文件读取到缓存集合中
 
-（2）在Driver驱动类中加载缓存。
+（2）在Driver驱动类中加载缓存
 
 ```java
 //缓存普通文件到Task运行节点。
@@ -2111,13 +2085,14 @@ job.addCacheFile(new URI("file:///e:/cache/pd.txt"));
 job.addCacheFile(new URI("hdfs://hadoop102:8020/cache/pd.txt"));
 ```
 
-### 3.6.4 Map Join案例实操
+### 3.6.4 Map Join 案例实操
 
 **1）需求**
 
 订单数据表t_order
 
 ------------------- ------------------------- -------------------------
+```sql
   id                  pid                       amount
 
   1001                01                        1
@@ -2131,18 +2106,23 @@ job.addCacheFile(new URI("hdfs://hadoop102:8020/cache/pd.txt"));
   1005                02                        5
 
   1006                03                        6
+```
+
 ------------------- ------------------------- -------------------------
 
 商品信息表t_product
 
 ---------------------------- ------------------------------------------
+ ```sql
   pid                          pname
+ 
+   01                           小米
+ 
+   02                           华为
+ 
+   03                           格力
+ ```
 
-  01                           小米
-
-  02                           华为
-
-  03                           格力
 ---------------------------- ------------------------------------------
 
 将商品信息表中数据根据商品pid合并到订单数据表中。
@@ -2150,24 +2130,27 @@ job.addCacheFile(new URI("hdfs://hadoop102:8020/cache/pd.txt"));
 最终数据形式
 
 ------------------- ------------------------- -------------------------
+ ```sql
   id                  pname                     amount
+ 
+   1001                小米                      1
+ 
+   1004                小米                      4
+ 
+   1002                华为                      2
+ 
+   1005                华为                      5
+ 
+   1003                格力                      3
+ 
+   1006                格力                      6
+ ```
 
-  1001                小米                      1
-
-  1004                小米                      4
-
-  1002                华为                      2
-
-  1005                华为                      5
-
-  1003                格力                      3
-
-  1006                格力                      6
 ------------------- ------------------------- -------------------------
 
 **2）需求分析**
 
-MapJoin适用于关联表中有小表的情形。
+MapJoin 适用于关联表中有小表的情形
 
 ![image-20230225152947505](images/image-20230225152947505.png)
 
@@ -2223,7 +2206,7 @@ public class MapJoinDriver {
 }
 ```
 
-（2）在MapJoinMapper类中的setup方法中读取缓存文件
+（2）在 MapJoinMapper 类中的 setup 方法中读取缓存文件
 
 ```java
 package com.gardenia.mapreduce.mapjoin;
@@ -2254,22 +2237,22 @@ public class MapJoinMapper extends Mapper<LongWritable, Text, Text, NullWritable
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
 
-        //通过缓存文件得到小表数据pd.txt
+        //通过缓存文件得到小表数据 pd.txt
         URI[] cacheFiles = context.getCacheFiles();
         Path path = new Path(cacheFiles[0]);
 
-        //获取文件系统对象,并开流
+        //获取文件系统对象, 并开流
         FileSystem fs = FileSystem.get(context.getConfiguration());
         FSDataInputStream fis = fs.open(path);
 
-        //通过包装流转换为reader,方便按行读取
+        //通过包装流转换为 reader, 方便按行读取
         BufferedReader reader = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
 
         //逐行读取，按行处理
         String line;
         while (StringUtils.isNotEmpty(line = reader.readLine())) {
             //切割一行    
-//01	小米
+            //01	小米
             String[] split = line.split("\t");
             pdMap.put(split[0], split[1]);
         }
@@ -2282,13 +2265,13 @@ public class MapJoinMapper extends Mapper<LongWritable, Text, Text, NullWritable
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 
         //读取大表数据    
-//1001	01	1
+        //1001	01	1
         String[] fields = value.toString().split("\t");
 
-        //通过大表每行数据的pid,去pdMap里面取出pname
+        //通过大表每行数据的 pid, pdMap 里面取出 pname
         String pname = pdMap.get(fields[1]);
 
-        //将大表每行数据的pid替换为pname
+        //将大表每行数据的 pid 替换为 pname
         text.set(fields[0] + "\t" + pname + "\t" + fields[2]);
 
         //写出
@@ -2305,17 +2288,17 @@ public class MapJoinMapper extends Mapper<LongWritable, Text, Text, NullWritable
 
 **1）需求**
 
-> 去除日志中字段个数小于等于11的日志。
+> 去除日志中字段个数小于等于 11 的日志
 
 （1）输入数据
 
 （2）期望输出数据
 
-> 每行字段长度都大于11。
+> 每行字段长度都大于11
 
 **2）需求分析**
 
-需要在Map阶段对输入的数据根据规则进行过滤清洗。
+需要在Map阶段对输入的数据根据规则进行过滤清洗
 
 **3）实现代码**
 
@@ -2412,15 +2395,15 @@ public class WebLogDriver {
 }
 ```
 
-## 3.8 MapReduce开发总结
+## 3.8 MapReduce 开发总结
 
 **1）输入数据接口：InputFormat**
 
 （1）默认使用的实现类是：TextInputFormat
 
-（2）TextInputFormat的功能逻辑是：一次读一行文本，然后将该行的起始偏移量作为key，行内容作为value返回。
+（2）TextInputFormat的功能逻辑是：一次读一行文本，然后将该行的起始偏移量作为key，行内容作为value返回
 
-（3）CombineTextInputFormat可以把多个小文件合并成一个切片处理，提高处理效率。
+（3）CombineTextInputFormat可以把多个小文件合并成一个切片处理，提高处理效率
 
 **2）逻辑处理接口：Mapper**
 
@@ -2430,21 +2413,21 @@ public class WebLogDriver {
 
 （1）有默认实现 HashPartitioner，逻辑是根据key的哈希值和numReduces来返回一个分区号；`key.hashCode() & Integer.MAXVALUE % numReduces`
 
-（2）如果业务上有特别的需求，可以自定义分区。
+（2）如果业务上有特别的需求，可以自定义分区
 
 **4）Comparable排序**
 
-（1）当我们用自定义的对象作为key来输出时，就必须要实现WritableComparable接口，重写其中的compareTo()方法。
+（1）当我们用自定义的对象作为key来输出时，就必须要实现WritableComparable接口，重写其中的compareTo()方法
 
-（2）部分排序：对最终输出的每一个文件进行内部排序。
+（2）部分排序：对最终输出的每一个文件进行内部排序
 
-（3）全排序：对所有数据进行排序，通常只有一个Reduce。
+（3）全排序：对所有数据进行排序，通常只有一个Reduce
 
-（4）二次排序：排序的条件有两个。
+（4）二次排序：排序的条件有两个
 
 **5）Combiner合并**
 
-​	Combiner合并可以提高程序执行效率，减少IO传输。但是使用时必须不能影响原有的业务处理结果。
+​	Combiner合并可以提高程序执行效率，减少IO传输。但是使用时必须不能影响原有的业务处理结果
 
 **6）逻辑处理接口：Reducer**
 
@@ -2452,11 +2435,11 @@ public class WebLogDriver {
 
 **7）输出数据接口：OutputFormat**
 
-（1）默认实现类是TextOutputFormat，功能逻辑是：将每一个 `K V` 对，向目标文本文件输出一行。
+（1）默认实现类是TextOutputFormat，功能逻辑是：将每一个 `K V` 对，向目标文本文件输出一行
 
-（2）用户还可以自定义OutputFormat。
+（2）用户还可以自定义OutputFormat
 
-# 第4章 Hadoop数据压缩
+# 第4章 Hadoop 数据压缩
 
 ## 4.1 概述
 
@@ -2472,34 +2455,26 @@ public class WebLogDriver {
 
 （2）IO密集型的Job，多用压缩
 
-## 4.2 MR支持的压缩编码
+## 4.2 MR 支持的压缩编码
 
 1）压缩算法对比介绍
 
 ---------- -------------- --------- ------------ ------------ ----------------------------------------
-  压缩格式      Hadoop自带	    算法         	文件扩展名   是否可切片   换成压缩格式后，原来的程序是否需要修改
+| 压缩格式 | Hadoop自带 | 算法    | 文件扩展名 | 是否可切片 | 换成压缩格式后，原来的程序是否需要修改 |
+| -------- | ---------- | ------- | ---------- | ---------- | -------------------------------------- |
+| DEFLATE  | 是         | DEFLATE | .deflate   | 否         | 和文本处理一样，不需要修改             |
+| Gzip     | 是         | DEFLATE | .gz        | 否         | 和文本处理一样，不需要修改             |
+| bzip2    | 是         | bzip2   | .bz2       | 是         | 和文本处理一样，不需要修改             |
+| LZO      | 否         | LZO     | .lzo       | 是         | 需要建索引，还需要指定输入格式         |
+| Snappy   | 是         | Snappy  | .snappy    | 否         | 和文本处理一样，不需要修改             |
 
-  DEFLATE     是，直接使用  	 DEFLATE        .deflate     	   否             	 和文本处理一样，不需要修改
+ 2）压缩性能的比较
 
-  Gzip        	是，直接使用    	DEFLATE  		 .gz         	    否           		和文本处理一样，不需要修改
-
-  bzip2	 	 是，直接使用  	  bzip2     		    .bz2       	    是           		和文本处理一样，不需要修改
-
-  LZO         	否，需要安装  	  LZO       	        .lzo        		是           		需要建索引，还需要指定输入格式
-
-  Snappy       是，直接使用   	Snappy       	   .snappy   	 否           		和文本处理一样，不需要修改
----------- -------------- --------- ------------ ------------ ----------------------------------------
-
-2）压缩性能的比较
-
-------------- -------------- -------------- -------------- -------------
-  压缩算法      原始文件大小   压缩文件大小   压缩速度       解压速度
-
-  gzip          	  8.3GB        		  1.8GB           17.5MB/s       58MB/s
-
-  bzip2       	  8.3GB          		1.1GB           2.4MB/s          9.5MB/s
-
-  LZO           	8.3GB          		2.9GB           49.3MB/s        74.6MB/s
+| 压缩算法 | 原始文件大小 | 压缩文件大小 | 压缩速度 | 解压速度 |
+| -------- | ------------ | ------------ | -------- | -------- |
+| gzip     | 8.3GB        | 1.8GB        | 17.5MB/s | 58MB/s   |
+| bzip2    | 8.3GB        | 1.1GB        | 2.4MB/s  | 9.5MB/s  |
+| LZO      | 8.3GB        | 2.9GB        | 49.3MB/s | 74.6MB/s |
 
 ------------- -------------- -------------- -------------- -------------
 
@@ -2509,54 +2484,51 @@ public class WebLogDriver {
 
 ## 4.3 压缩方式选择
 
-​		压缩方式选择时重点考虑：压缩/解压缩速度、压缩率（压缩后存储大小）、压缩后是否可以支持切片。
+​		压缩方式选择时重点考虑：压缩/解压缩速度、压缩率（压缩后存储大小）、压缩后是否可以支持切片
 
-### 4.3.1 Gzip压缩
+### 4.3.1 Gzip 压缩
 
-​		优点：压缩率比较高；
+​		优点：压缩率比较高
 
-​		缺点：不支持Split；压缩/解压速度一般；
+​		缺点：不支持Split；压缩/解压速度一般
 
-### 4.3.2 Bzip2压缩
+### 4.3.2 Bzip2 压缩
 
-​		优点：压缩率高；支持Split；
+​		优点：压缩率高；支持Split
 
-​		缺点：压缩/解压速度慢。
+​		缺点：压缩/解压速度慢
 
-### 4.3.3 Lzo压缩
+### 4.3.3 Lzo 压缩
 
-​		优点：压缩/解压速度比较快；支持Split；
+​		优点：压缩/解压速度比较快；支持Split
 
-​		缺点：压缩率一般；想支持切片需要额外创建索引。
+​		缺点：压缩率一般；想支持切片需要额外创建索引
 
-### 4.3.4 Snappy压缩
+### 4.3.4 Snappy 压缩
 
-​		优点：压缩和解压缩速度快；
+​		优点：压缩和解压缩速度快
 
-​		缺点：不支持Split；压缩率一般；
+​		缺点：不支持Split；压缩率一般
 
 ### 4.3.5 压缩位置选择
 
-​		压缩可以在MapReduce作用的任意阶段启用。
+​		压缩可以在MapReduce作用的任意阶段启用
 
 ![image-20230225153826381](images/image-20230225153826381.png)
 
 ## 4.4 压缩参数配置
 
-1）为了支持多种压缩/解压缩算法，Hadoop引入了编码/解码器
+1）为了支持多种压缩/解压缩算法，Hadoop 引入了编码/解码器   `hadoop checknative ` 查看
 
 ---------------------------- --------------------------------------------
-  压缩格式                     对应的编码/解码器
+| 压缩格式 |             对应的编码/解码器              |
+| :------: | :----------------------------------------: |
+| DEFLATE  | org.apache.hadoop.io.compress.DefaultCodec |
+|   gzip   |  org.apache.hadoop.io.compress.GzipCodec   |
+|  bzip2   |  org.apache.hadoop.io.compress.BZip2Codec  |
+|   LZO    |    com.hadoop.compression.lzo.LzopCodec    |
+|  Snappy  | org.apache.hadoop.io.compress.SnappyCodec  |
 
-  DEFLATE                      org.apache.hadoop.io.compress.DefaultCodec
-
-  gzip                        	  org.apache.hadoop.io.compress.GzipCodec
-
-  bzip2                      	  org.apache.hadoop.io.compress.BZip2Codec
-
-  LZO                        	  com.hadoop.compression.lzo.LzopCodec
-
-  Snappy                        org.apache.hadoop.io.compress.SnappyCodec
 ---------------------------- --------------------------------------------
 
 2）要在Hadoop中启用压缩，可以配置如下参数
@@ -2565,15 +2537,15 @@ public class WebLogDriver {
 | ------------------------------------------------------------ | ------------------------------------------------------ | ----------- | --------------------------------------------- |
 | io.compression.codecs <br>（在core-site.xml中配置）          | 无，这个需要在命令行输入 <br/>`hadoop checknative`查看 | 输入压缩    | Hadoop使用文件扩展名判断是否支持某种编解码器  |
 | mapreduce.map.output.compress<br/>（在mapred-site.xml中配置） | false                                                  | mapper输出  | 这个参数设为true启用压缩                      |
-| mapreduce.map.output.compress.codec<br/>（在mapred-site.xml中配置） | org.apache.hadoop.io. <br/>compress.DefaultCodec       | mapper输出  | 企业多使用LZO或Snappy编解码器在此阶段压缩数据 |
+| mapreduce.map.output.compress.codec<br/>（在mapred-site.xml中配置） | org.apache.hadoop.io.compress.DefaultCodec             | mapper输出  | 企业多使用LZO或Snappy编解码器在此阶段压缩数据 |
 | mapreduce.output.fileoutputformat.compress<br/>（在mapred-site.xml中配置） | false                                                  | reducer输出 | 这个参数设为true启用压缩                      |
-| mapreduce.output.fileoutputformat.compress.codec（在mapred-site.xml中配置） | org.apache.hadoop.io.<br/>compress.DefaultCodec        | reducer输出 | 使用标准工具或者编解码器，如gzip和bzip2       |
+| mapreduce.output.fileoutputformat.compress.codec<br/>（在mapred-site.xml中配置） | org.apache.hadoop.io.compress.DefaultCodec             | reducer输出 | 使用标准工具或者编解码器，如gzip和bzip2       |
 
 ## 4.5 压缩实操案例
 
-### 4.5.1 Map输出端采用压缩
+### 4.5.1 Map 输出端采用压缩
 
-​		即使的MapReduce的输入输出文件都是未压缩的文件，仍然可以对Map任务的中间结果输出做压缩，因为它要写在硬盘并且通过网络传输到Reduce节点，对其压缩可以提高很多性能，这些工作只要设置两个属性即可，我们来看下代码怎么设置。
+​	即使的MapReduce的输入输出文件都是未压缩的文件，仍然可以对Map任务的中间结果输出做压缩，因为它要写在硬盘并且通过网络传输到Reduce节点，对其压缩可以提高很多性能，这些工作只要设置两个属性即可，我们来看下代码怎么设置。
 
 1）给大家提供的Hadoop源码支持的压缩格式有：BZip2Codec、DefaultCodec
 
@@ -2626,7 +2598,7 @@ public class WordCountDriver {
 }
 ```
 
-2）Mapper保持不变
+2）Mapper 保持不变
 
 ```java
 package com.gardenia.mapreduce.compress;
@@ -2659,7 +2631,7 @@ public class WordCountMapper extends Mapper<LongWritable, Text, Text, IntWritabl
 }
 ```
 
-3）Reducer保持不变
+3）Reducer 保持不变
 
 ```java
 package com.gardenia.mapreduce.compress;
@@ -2691,9 +2663,9 @@ public class WordCountReducer extends Reducer<Text, IntWritable, Text, IntWritab
 }
 ```
 
-### 4.5.2 Reduce输出端采用压缩
+### 4.5.2 Reduce 输出端采用压缩
 
-基于WordCount案例处理
+基于 WordCount 案例处理
 
 1）修改驱动
 
@@ -2750,7 +2722,7 @@ public class WordCountDriver {
 }
 ```
 
-2）Mapper和Reducer保持不变（详见4.5.1）
+2）Mapper 和 Reducer 保持不变（详见4.5.1）
 
 # 第5章 常见错误及解决方案
 

@@ -8,22 +8,22 @@
 
 ![image-20230227100713650](images/image-20230227100713650.png)
 
-​		Yarn是一个<span style="color:red">资源调度平台</span>，负责为运算程序提供服务器运算资源，相当于一个<span style="color:red">分布式的操作系统平台</span>，而 MapReduce 等运算程序则相当于<span style="color:red">运行于操作系统之上的应用程序</span>。
+​		Yarn是一个<span style="color:red">资源调度平台</span>，负责为运算程序提供服务器运算资源，相当于一个<span style="color:red">分布式的操作系统平台</span>，而 MapReduce 等运算程序则相当于<span style="color:red">运行于操作系统之上的应用程序</span>
 
-## 1.1 Yarn基础架构
+## 1.1 Yarn 基础架构
 
 
-YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Container`等组件构成。
+YARN 主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Container`等组件构成
 
 ![image-20230227100900523](images/image-20230227100900523.png)
 
-## 1.2 Yarn 工作机制
+## 1.2 Yarn 工作机制 <span style="color:red">（重点）</span>
 
 ![image-20230227101007827](images/image-20230227101007827.png)
 
 （1）MR程序提交到客户端所在的节点
 
-（2）YarnRunner向ResourceManager申请一个Application
+（2）YarnRunner 向 ResourceManager 申请一个 Application
 
 （3）RM将该应用程序的资源路径返回给`YarnRunner`
 
@@ -33,21 +33,21 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 （6）RM 将用户的请求初始化成一个Task
 
-（7）其中一个NodeManager领取到Task任务
+（7）其中一个 NodeManager 领取到Task任务
 
-（8）该NodeManager创建容器Container，并产生`MRAppmaster`
+（8）该 NodeManager 创建容器Container，并产生`MRAppmaster`
 
 （9）Container从HDFS上拷贝资源到本地
 
-（10）MRAppmaster向RM 申请运行MapTask资源
+（10）MRAppmaster 向RM 申请运行MapTask资源
 
-（11）RM将运行MapTask任务分配给另外两个NodeManager，另两个NodeManager分别领取任务并创建容器
+（11）RM 将运行 MapTask 任务分配给另外两个 NodeManager，另两个 NodeManager 分别领取任务并创建容器
 
-（12）MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序
+（12）MR向两个接收到任务的NodeManager发送程序启动脚本，这两个 NodeManager 分别启动MapTask，MapTask对数据分区排序
 
-（13）MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask
+（13）MrAppMaster 等待所有 MapTask 运行完毕后，向RM申请容器，运行 ReduceTask
 
-（14）ReduceTask向MapTask获取相应分区的数据
+（14）ReduceTask 向 MapTask 获取相应分区的数据
 
 （15）程序运行完毕后，MR会向RM申请注销自己
 
@@ -63,21 +63,21 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 （1）作业提交
 
-​	第1步：Client调用job.waitForCompletion方法，向整个集群提交MapReduce作业
+​	第1步：Client调用 `job.waitForCompletion` 方法，向整个集群提交 `MapReduce` 作业
 
-​	第2步：Client向RM申请一个作业id
+​	第2步：Client 向 RM 申请一个作业 `id`
 
-​	第3步：RM给Client返回该job资源的提交路径和作业id
+​	第3步：RM 给 Client 返回该 `job` 资源的提交路径和作业 `id` 
 
-​	第4步：Client提交jar包、切片信息和配置文件到指定的资源提交路径
+​	第4步：Client 提交 jar 包、切片信息和配置文件到指定的资源提交路径
 
-​	第5步：Client提交完资源后，向RM申请运行MrAppMaster
+​	第5步：Client 提交完资源后，向RM申请运行 `MrAppMaster` 
 
 （2）作业初始化
 
 ​	第6步：当RM收到Client的请求后，将该job添加到容量调度器中
 
-​	第7步：某一个空闲的NM领取到该Job
+​	第7步：某一个空闲的NM领取到该 Job
 
 ​	第8步：该NM创建Container，并产生MRAppmaster
 
@@ -93,7 +93,7 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ​	第12步：MR向两个接收到任务的NodeManager发送程序启动脚本，这两个NodeManager分别启动MapTask，MapTask对数据分区排序
 
-​	第13步：MrAppMaster等待所有MapTask运行完毕后，向RM申请容器，运行ReduceTask
+​	第13步：MrAppMaster等待所有MapTask运行完毕后，向 RM 申请容器，运行 ReduceTask
 
 ​	第14步：ReduceTask向MapTask获取相应分区的数据
 
@@ -107,7 +107,7 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ​		除了向应用管理器请求作业进度外，客户端每5秒都会通过调用`waitForCompletion()`来检查作业是否完成。时间间隔可以通过`mapreduce.client.completion.pollinterval`来设置。作业完成之后，应用管理器和Container会清理工作状态。作业的信息会被作业历史服务器存储以备之后用户核查。
 
-## 1.4 Yarn调度器和调度算法
+## 1.4 Yarn 调度器和调度算法
 
 ​		目前，Hadoop作业调度器主要有三种：FIFO、容量（Capacity Scheduler）和公平（Fair Scheduler）。Apache Hadoop3.1.3 默认的资源调度器是Capacity Scheduler。
 
@@ -129,18 +129,17 @@ YARN主要由`ResourceManager`、`NodeManager`、`ApplicationMaster`和`Containe
 
 ![image-20230227101724067](images/image-20230227101724067.png)
 
-优点：简单易懂；
+优点：简单易懂
 
-缺点：不支持多队列，生产环境很少使用；
+缺点：不支持多队列，生产环境很少使用
 
 ### 1.4.2 容量调度器（Capacity Scheduler）
 
-Capacity Scheduler 是 Yahoo开发的多用户调度器。
+Capacity Scheduler 是 Yahoo开发的多用户调度器
 
 ![image-20230227101745168](images/image-20230227101745168.png)
 
 1、多队列：每个队列可配置一定的资源量，每个队列采用FIFo调度策略
-
 2、容量保证：管理员可为每个队列设置资源最低保证和资源使用上限
 3、灵活性：如果一个队列中的资源有剩余，可以暂时共享给那些需要资源的队列，而一旦该队列有新的应用程序提交，则其他队列借调的资源会归还给该队列
 4、多租户：支持多用户共享集群和多应用程序同时运行。为了防止同一个用户的作业独占队列中的资源，该调度器会对<span style="color:red">同一用户提交的作业所占资源量进行限定</span>
@@ -156,20 +155,17 @@ Fair Schedulere 是 Facebook 开发的多用户调度器
 **1）与容量调度器相同点**
 		（1）多队列：支持多队列多作业
 		（2）容量保证：管理员可为每个队列设置资源最低保证和资源使用上线
-		（3）灵活性：如果一个队列中的资源有剩余，可以暂时共享给那些需要资源的队列，而一旦该队列有新的应用程序提交，则其他队列借调的资源会归还给该队列。
-		（4）多租户：支持多用户共享集群和多应用程序同时运行;为了防止同一个用户的作业独占队列中的资源，该调度器会对同一用户提交的作业所占资源量进行限定。
+		（3）灵活性：如果一个队列中的资源有剩余，可以暂时共享给那些需要资源的队列，而一旦该队列有新的应用程序提交，则其他队列借调的资源会归还给该队列
+		（4）多租户：支持多用户共享集群和多应用程序同时运行;为了防止同一个用户的作业独占队列中的资源，该调度器会对同一用户提交的作业所占资源量进行限定
 **2）与容量调度器不同点**
 
 （1）核心调度策略不同
-
-​					容量调度器：优先选择<span style="color:red">资源利用率低</span>的队列
+					容量调度器：优先选择<span style="color:red">资源利用率低</span>的队列
 ​					公平调度器：优先选择对资源的<span style="color:red">缺额</span>比例大的
 
 （2）每个队列可以单独设置资源分配方式
-
-​					容量调度器：FIFO、<span style="color:red">DRF</span>
-
-​					公平调度器：FIFO、<span style="color:red">FAIR、DRF</span>
+					容量调度器：FIFO、<span style="color:red">DRF</span>
+					公平调度器：FIFO、<span style="color:red">FAIR、DRF</span>
 
 ![image-20230227102325972](images/image-20230227102325972.png)
 
@@ -181,11 +177,11 @@ Fair Schedulere 是 Facebook 开发的多用户调度器
 
 ![image-20230227102638429](images/image-20230227102638429.png)
 
-## 1.5 Yarn常用命令
+## 1.5 Yarn 常用命令
 
 Yarn状态的查询，除了可以在`hadoop103:8088`页面查看外，还可以通过命令操作。常见的命令操作如下所示：
 
-需求：执行WordCount案例，并用Yarn命令查看任务运行情况。
+需求：执行WordCount案例，并用Yarn命令查看任务运行情况
 
 ```bash
 myhadoop.sh start
@@ -193,7 +189,7 @@ myhadoop.sh start
 hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount /input /output
 ```
 
-### 1.5.1 yarn application查看任务
+### 1.5.1 yarn application 查看任务
 
 （1）列出所有Application：
 
@@ -205,7 +201,7 @@ Total number of applications (application-types: [], states: [SUBMITTED, ACCEPTE
 Application-Id	    Application-Name	    Application-Type	      User	     Queue	 State	             Final-State	           Progress	           Tracking-URL
 ```
 
-（2）根据Application状态过滤：`yarn application -list -appStates`
+（2）根据 Application 状态过滤：`yarn application -list -appStates`
 （所有状态：ALL、NEW、NEW_SAVING、SUBMITTED、ACCEPTED、RUNNING、FINISHED、FAILED、KILLED）
 
 ```bash
@@ -227,15 +223,15 @@ Connecting to ResourceManager at hadoop103/192.168.10.103:8032
 Application application_<> has already finished
 ```
 
-### 1.5.2 yarn logs查看日志
+### 1.5.2 yarn logs 查看日志
 
-（1）查询Application日志：yarn logs -applicationId \<ApplicationId\>
+（1）查询 Application 日志：yarn logs -applicationId \<ApplicationId\>
 
 ```bash
 yarn logs -applicationId application_<>
 ```
 
-（2）查询Container日志：yarn logs -applicationId \<ApplicationId\> -containerId \<ContainerId\>
+（2）查询 Container 日志：yarn logs -applicationId \<ApplicationId\> -containerId \<ContainerId\>
 
 ```bash
 yarn logs -applicationId application_<> -containerId container_<>
@@ -243,7 +239,7 @@ yarn logs -applicationId application_<> -containerId container_<>
 
 ### 1.5.3 yarn applicationattempt 查看尝试运行的任务
 
-（1）列出所有Application尝试的列表：yarn applicationattempt -list <ApplicationId\>
+（1）列出所有 Application 尝试的列表：yarn applicationattempt -list <ApplicationId\>
 
 ```bash
 yarn applicationattempt -list application_<>
@@ -272,7 +268,7 @@ Application Attempt Report :
 
 ### 1.5.4 yarn container 查看容器
 
-（1）列出所有Container：yarn container -list \<ApplicationAttemptId\>
+（1）列出所有 Container：yarn container -list \<ApplicationAttemptId\>
 
 ```bash
 yarn container -list appattempt_<>
@@ -283,7 +279,7 @@ Total number of containers :0
                   State	                Host	  			  Node Http Address	
 ```
 
-（2）打印Container状态： yarn container -status \<ContainerId\>
+（2）打印 Container 状态： yarn container -status \<ContainerId\>
 
 ```bash
 yarn container -status container_<>
@@ -309,7 +305,7 @@ Total Nodes:3
  hadoop104:39702	        RUNNING	   hadoop104:8042	                           0
 ```
 
-### 1.5.6 yarn rmadmin更新配置
+### 1.5.6 yarn rmadmin 更新配置
 
 加载队列配置：yarn rmadmin -refreshQueues
 
@@ -319,7 +315,7 @@ yarn rmadmin -refreshQueues
 Connecting to ResourceManager at hadoop103/192.168.10.103:8033
 ```
 
-### 1.5.7 yarn queue查看队列
+### 1.5.7 yarn queue 查看队列
 
 打印队列信息：yarn queue -status \<QueueName\>
 
@@ -337,17 +333,17 @@ Queue Name : default
 	Intra-queue Preemption : disabled
 ```
 
-## 1.6 Yarn生产环境核心参数
+## 1.6 Yarn 生产环境核心参数
 
 ![image-20230227103444234](images/image-20230227103444234.png)
 
-# 第2章 Yarn案例实操
+# 第2章 Yarn 案例实操
 
-注：调整下列参数之前尽量拍摄Linux快照，否则后续的案例，还需要重写准备集群。
+注：调整下列参数之前尽量拍摄 Linux 快照，否则后续的案例，还需要重写准备集群
 
 ## 2.1 Yarn 生产环境核心参数配置案例
 
-1）需求：从1G数据中，统计每个单词出现次数。服务器3台，每台配置4G内存，4核CPU，4线程。
+1）需求：从1G数据中，统计每个单词出现次数。服务器3台，每台配置4G内存，4核CPU，4线程
 
 2）需求分析：
 
@@ -481,7 +477,7 @@ Queue Name : default
 
 4）分发配置。
 
-注意：如果集群的硬件资源不一致，要每个NodeManager单独配置
+注意：如果集群的硬件资源不一致，要每个 NodeManager 单独配置
 
 5）重启集群
 
@@ -505,7 +501,7 @@ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount 
 
 1）在生产环境怎么创建队列
 
-​	（1）调度器默认就1个default队列，不能满足生产要求。
+​	（1）调度器默认就1个default队列，不能满足生产要求
 
 ​	（2）按照框架：`hive/spark/flink` 每个框架的任务放入指定的队列（企业用的不是特别多）
 
@@ -513,15 +509,15 @@ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount 
 
 2）创建多队列的好处
 
-​	（1）因为担心员工不小心，写递归死循环代码，把所有资源全部耗尽。
+​	（1）因为担心员工不小心，写递归死循环代码，把所有资源全部耗尽
 
-​	（2）实现任务的**降级**使用，特殊时期保证重要的任务队列资源充足。
+​	（2）实现任务的**降级**使用，特殊时期保证重要的任务队列资源充足
 
 > 业务部门1（重要）=》业务部门2（比较重要）=》下单（一般）=》购物车（一般）=》登录注册（次要）
 
 ### 2.2.1 需求
 
-​		需求1：`default`队列占总内存的40%，最大资源容量占总资源60%，hive队列占总内存的60%，最大资源容量占总资源80%。
+​		需求1：`default`队列占总内存的40%，最大资源容量占总资源60%，hive 队列占总内存的60%，最大资源容量占总资源 80%
 
 ​		需求2：配置队列优先级
 
@@ -626,9 +622,9 @@ yarn rmadmin -refreshQueues
 
 ![image-20230227111400915](images/image-20230227111400915.png)
 
-### 2.2.3 向Hive队列提交任务
+### 2.2.3 向 Hive 队列提交任务
 
-1）hadoop jar的方式
+1）hadoop jar 的方式
 
 ```bash
 hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount -D mapreduce.job.queuename=hive /input /output
@@ -636,7 +632,7 @@ hadoop jar share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar wordcount 
 
 > 注: -D 表示运行时改变参数值
 
-2）打jar包的方式
+2）打 jar 包的方式
 
 ​		默认的任务提交都是提交到 default 队列的。如果希望向其他队列提交任务，需要在Driver中声明：
 
@@ -649,12 +645,12 @@ public class WcDrvier {
 
         conf.set("mapreduce.job.queuename","hive");
 
-        //1. 获取一个Job实例
+        // 1. 获取一个 Job 实例
         Job job = Job.getInstance(conf);
 
-        。。。 。。。
+        // 。。。 。。。
 
-        //6. 提交Job
+        // 6. 提交 Job
         boolean b = job.waitForCompletion(true);
         System.exit(b ? 0 : 1);
     }
@@ -669,7 +665,7 @@ public class WcDrvier {
 
 ​		容量调度器，支持任务优先级的配置，在资源紧张时，优先级高的任务将优先获取资源。默认情况，Yarn将所有任务的优先级限制为0，若想使用任务的优先级功能，须开放该限制。
 
-1.  修改yarn-site.xml文件，增加以下参数
+1.  修改 `yarn-site.xml` 文件，增加以下参数
 
 ```xml
 <property>
@@ -678,7 +674,7 @@ public class WcDrvier {
 </property>
 ```
 
-2）分发配置，并重启Yarn
+2）分发配置，并重启 Yarn
 
 ```bash
 xsync yarn-site.xml
@@ -688,7 +684,7 @@ sbin/stop-yarn.sh
 sbin/start-yarn.sh
 ```
 
-3）模拟资源紧张环境，可连续提交以下任务，直到新提交的任务申请不到资源为止。
+3）模拟资源紧张环境，可连续提交以下任务，直到新提交的任务申请不到资源为止
 
 ```bash
 hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-examples-3.1.3.jar pi 5 2000000
@@ -714,17 +710,13 @@ yarn application -appID application_<> -updatePriority 5
 
 ### 2.3.1 需求
 
-​		创建两个队列，分别是 test 和 gardenia（以用户所属组命名）。期望实现以下效果：若用户提交任务时指定队列，则任务提交到指定队列运行；若未指定队列，test用户提交的任务到 root.group.test 队列运行，gardenia提交的任务到 root.group.gardenia 队列运行（注：group为用户所属组）
+​		创建两个队列，分别是 test 和 gardenia（以用户所属组命名）。期望实现以下效果：若用户提交任务时指定队列，则任务提交到指定队列运行；若未指定队列，test 用户提交的任务到 `root.group.test` 队列运行，gardenia 提交的任务到 root.group.gardenia 队列运行（注：group 为用户所属组）
 
-​	公平调度器的配置涉及到两个文件，一个是`yarn-site.xml`，另一个是公平调度器队列分配文件`fair-scheduler.xml`（文件名可自定义）。
+​	公平调度器的配置涉及到两个文件，一个是`yarn-site.xml`，另一个是公平调度器队列分配文件`fair-scheduler.xml`（文件名可自定义）
 
-（1）配置文件参考资料：
+（1）配置文件参考资料：https://hadoop.apache.org/docs/r3.1.3/hadoop-yarn/hadoop-yarn-site/FairScheduler.html
 
-> https://hadoop.apache.org/docs/r3.1.3/hadoop-yarn/hadoop-yarn-site/FairScheduler.html
-
-（2）任务队列放置规则参考资料：
-
-> https://blog.cloudera.com/untangling-apache-hadoop-yarn-part-4-fair-scheduler-queue-basics/
+（2）任务队列放置规则参考资料：https://blog.cloudera.com/untangling-apache-hadoop-yarn-part-4-fair-scheduler-queue-basics/
 
 ### 2.3.2 配置多队列的公平调度器
 
@@ -750,7 +742,7 @@ yarn application -appID application_<> -updatePriority 5
 </property>
 ```
 
-2）配置 fair-scheduler.xml
+2）配置 `fair-scheduler.xml`
 
 ```xml
 <?xml version="1.0"?>
@@ -775,7 +767,8 @@ yarn application -appID application_<> -updatePriority 5
     <!-- 队列内部的资源分配策略 -->
     <schedulingPolicy>fair</schedulingPolicy>
   </queue>
-  <!-- 增加一个队列gardenia -->
+  
+  <!-- 增加一个队列 gardenia -->
   <queue name="gardenia" type="parent">
     <!-- 队列最小资源 -->
     <minResources>2048mb,2vcores</minResources>
@@ -833,7 +826,7 @@ hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-exam
 
 ![image-20230227112006649](images/image-20230227112006649.png)
 
-## 2.4 Yarn的Tool接口案例
+## 2.4 Yarn 的 Tool 接口案例
 
 0）回顾：
 
@@ -841,17 +834,17 @@ hadoop jar /opt/module/hadoop-3.1.3/share/hadoop/mapreduce/hadoop-mapreduce-exam
 hadoop jar wc.jar com.gardenia.mapreduce.wordcount2.WordCountDriver /input /output1
 ```
 
-期望可以动态传参，结果报错，误认为是第一个输入参数。
+期望可以动态传参，结果报错，误认为是第一个输入参数
 
 ```bash
 hadoop jar wc.jar com.gardenia.mapreduce.wordcount2.WordCountDriver -Dmapreduce.job.queuename=root.test /input /output1
 ```
 
-1）需求：自己写的程序也可以动态修改参数。编写 Yarn 的 Tool 接口。
+1）需求：自己写的程序也可以动态修改参数。编写 Yarn 的 Tool 接口
 
 2）具体步骤：
 
-（1）新建Maven项目 YarnDemo，pom 如下：
+（1）新建 Maven 项目 YarnDemo，pom 如下：
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -968,7 +961,7 @@ public class WordCount implements Tool {
 }
 ```
 
-（4）新建WordCountDriver
+（4）新建 WordCountDriver
 
 ```java
 package com.gardenia.yarn;
@@ -986,7 +979,7 @@ public class WordCountDriver {
         // 1. 创建配置文件
         Configuration conf = new Configuration();
 
-        // 2. 判断是否有tool接口
+        // 2. 判断是否有 tool 接口
         switch (args[0]){
             case "wordcount":
                 tool = new WordCount();

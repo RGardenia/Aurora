@@ -14,7 +14,7 @@
 
 ## 代码
 
-```
+```python
 def quick_sort(li, start, end):
     # 分治 一分为二
     # start=end ,证明要处理的数据只有一个

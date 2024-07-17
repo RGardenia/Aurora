@@ -4,15 +4,15 @@
 
 ### 1.前言
 
-相信不少小伙伴已经被java的NPE(`Null Pointer Exception`)所谓的空指针异常搞的头昏脑涨,有大佬说过“防止 NPE，是程序员的基本修养。”但是修养归修养，也是我们程序员最头疼的问题之一，那么我们今天就要尽可能的利用Java8的新特性`Optional`来尽量简化代码同时高效处理NPE（`Null Pointer Exception`空指针异常）
+相信不少小伙伴已经被java的NPE(`Null Pointer Exception`)所谓的空指针异常搞的头昏脑涨,有大佬说过“防止 NPE，是程序员的基本修养。”但是修养归修养，也是我们程序员最头疼的问题之一，尽可能的利用Java8的新特性`Optional`来尽量简化代码同时高效处理NPE（`Null Pointer Exception`空指针异常）
 
-### 2.认识Optional并使用
+### 2.认识 Optional 并使用
 
 简单来说，Opitonal类就是Java提供的为了解决大家平时判断对象是否为空用 会用 null!=obj 这样的方式存在的判断，从而令人头疼导致NPE（`Null Pointer Exception`空指针异常），同时Optional的存在可以让代码更加简单，可读性跟高，代码写起来更高效.
 
 常规判断：
 
-```
+```java
 //对象 人
 //属性有 name，age
 Person person=new Person();
@@ -24,7 +24,7 @@ return person;
 
 使用Optional：
 
-```
+```java
 //对象 人
 //属性有 name，age
 Person person=new Person();
@@ -33,7 +33,7 @@ return Optional.ofNullable(person).orElse("person为null");
 
 测试展示类Person代码(如果有朋友不明白可以看一下这个)：
 
-```
+```java
 public class Person {
     private String name;
     private Integer age;
@@ -70,7 +70,7 @@ public class Person {
 
 首先我们先打开Optional的内部,去一探究竟 先把几个创建Optional对象的方法提取出来
 
-```
+```java
 public final class Optional<T> {
    private static final Optional<?> EMPTY = new Optional<>();
    private final T value;
@@ -101,7 +101,7 @@ public final class Optional<T> {
 
 再做一个简单的实例展示 与上面对应
 
-```
+```java
 // 1、创建一个包装对象值为空的Optional对象
 Optional<String> optEmpty = Optional.empty();
 // 2、创建包装对象值非空的Optional对象
@@ -117,7 +117,7 @@ Optional<String> optOfNullable2 = Optional.ofNullable("optional");
 
 `get()`方法是返回一个option的实例值 源码：
 
-```
+```java
 public T get() {
     if (value == null) {
         throw new NoSuchElementException("No value present");
@@ -128,7 +128,7 @@ public T get() {
 
 也就是如果value不为空则做返回，如果为空则抛出异常 "No value present" 简单实例展示
 
-```
+```java
 Person person=new Person();
 person.setAge(2);
 Optional.ofNullable(person).get();
@@ -138,7 +138,7 @@ Optional.ofNullable(person).get();
 
 `isPresent()`方法就是会返回一个boolean类型值，如果对象不为空则为真，如果为空则false 源码:
 
-```
+```java
  public boolean isPresent() {
         return value != null;
     }
@@ -146,7 +146,7 @@ Optional.ofNullable(person).get();
 
 简单的实例展示:
 
-```
+```java
 Person person=new Person();
 person.setAge(2);
 if (Optional.ofNullable(person).isPresent()){
@@ -162,7 +162,7 @@ System.out.println("不为空");
 
 这个意思是如果对象非空，则运行函数体 源码:
 
-```
+```java
 public void ifPresent(Consumer<? super T> consumer) {
       //如果value不为空，则运行accept方法体
       if (value != null)
@@ -172,7 +172,7 @@ public void ifPresent(Consumer<? super T> consumer) {
 
 看实例：
 
-```
+```java
 Person person=new Person();
 person.setAge(2);
 Optional.ofNullable(person).ifPresent(p -> System.out.println("年龄"+p.getAge()));
@@ -186,7 +186,7 @@ Optional.ofNullable(person).ifPresent(p -> System.out.println("年龄"+p.getAge(
 
 源码：
 
-```
+```java
 public Optional<T> filter(Predicate<? super T> predicate) {
     Objects.requireNonNull(predicate);
     //如果为空直接返回this
@@ -200,7 +200,7 @@ public Optional<T> filter(Predicate<? super T> predicate) {
 
 简单实例：
 
-```
+```java
 Person person=new Person();
 person.setAge(2);
 Optional.ofNullable(person).filter(p -> p.getAge()>50);
@@ -210,7 +210,7 @@ Optional.ofNullable(person).filter(p -> p.getAge()>50);
 
 `map()`方法将对应Funcation函数式接口中的对象，进行二次运算，封装成新的对象然后返回在Optional中 源码：
 
-```
+```java
  public<U> Optional<U> map(Function<? super T, ? extends U> mapper) {
         Objects.requireNonNull(mapper);
         //如果为空返回自己
@@ -225,7 +225,7 @@ Optional.ofNullable(person).filter(p -> p.getAge()>50);
 
 实例展示：
 
-```
+```java
 Person person1=new Person();
 person.setAge(2);
 String optName = Optional.ofNullable(person).map(p -> person.getName()).orElse("name为空");
@@ -235,7 +235,7 @@ String optName = Optional.ofNullable(person).map(p -> person.getName()).orElse("
 
 `map()`方法将对应`Optional< Funcation >`函数式接口中的对象，进行二次运算，封装成新的对象然后返回在Optional中 源码:
 
-```
+```java
     public<U> Optional<U> flatMap(Function<? super T, Optional<U>> mapper) {
         Objects.requireNonNull(mapper);
         if (!isPresent())
@@ -248,7 +248,7 @@ String optName = Optional.ofNullable(person).map(p -> person.getName()).orElse("
 
 实例：
 
-```
+```java
 Person person=new Person();
 person.setAge(2);
 Optional<Object> optName = Optional.ofNullable(person).map(p -> Optional.ofNullable(p.getName()).orElse("name为空"));
@@ -258,7 +258,7 @@ Optional<Object> optName = Optional.ofNullable(person).map(p -> Optional.ofNulla
 
 常用方法之一，这个方法意思是如果包装对象为空的话，就执行orElse方法里的value，如果非空，则返回写入对象 源码:
 
-```
+```java
 public T orElse(T other) {
 //如果非空，返回value，如果为空，返回other
     return value != null ? value : other;
@@ -267,7 +267,7 @@ public T orElse(T other) {
 
 实例：
 
-```
+```java
 Person person1=new Person();
 person.setAge(2);
 Optional.ofNullable(person).orElse(new Person("小明", 2));
@@ -277,7 +277,7 @@ Optional.ofNullable(person).orElse(new Person("小明", 2));
 
 这个与orElse很相似，入参不一样，入参为Supplier对象，为空返回传入对象的`.get()`方法，如果非空则返回当前对象 源码:
 
-```
+```java
     public T orElseGet(Supplier<? extends T> other) {
         return value != null ? value : other.get();
     }
@@ -285,7 +285,7 @@ Optional.ofNullable(person).orElse(new Person("小明", 2));
 
 实例：
 
-```
+```java
 Optional<Supplier<Person>> sup=Optional.ofNullable(Person::new);
 //调用get()方法，此时才会调用对象的构造方法，即获得到真正对象
 Optional.ofNullable(person).orElseGet(sup.get());
@@ -301,7 +301,7 @@ Optional.ofNullable(person).orElseGet(sup.get());
 
 源码：
 
-```
+```java
     public <X extends Throwable> T orElseThrow(Supplier<? extends X> exceptionSupplier) throws X {
         if (value != null) {
             return value;
@@ -313,7 +313,7 @@ Optional.ofNullable(person).orElseGet(sup.get());
 
 实例：这个就贴实战源码了
 
-```
+```java
 //简单的一个查询
 Member member = memberService.selectByPhone(request.getPhone());
 Optional.ofNullable(member).orElseThrow(() -> new ServiceException("没有查询的相关数据"));
@@ -346,7 +346,7 @@ Optional.ofNullable(member).orElseThrow(() -> new ServiceException("没有查询
 
 场景1：在service层中 查询一个对象，返回之后判断是否为空并做处理
 
-```
+```java
  //查询一个对象
  Member member = memberService.selectByIdNo(request.getCertificateNo());
  //使用ofNullable加orElseThrow做判断和操作
@@ -363,7 +363,7 @@ Optional<Location> findLocationById(String id);
 
 然后在是Service中
 
-```
+```java
 public TerminalVO findById(String id) {
 //这个方法在dao层也是用了Optional包装了
         Optional<Terminal> terminalOptional = terminalRepository.findById(id);
@@ -399,7 +399,7 @@ public TerminalVO findById(String id) {
 
 如果我只想判断对象的某一个变量是否为空并且做出判断呢？
 
-```
+```java
 Person person=new Person();
 person.setName("");
 persion.setAge(2);

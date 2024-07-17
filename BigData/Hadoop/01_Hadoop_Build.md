@@ -3,7 +3,6 @@
 ## 1.1 Hadoop是什么
 
 1）Hadoop是一个由Apache基金会所开发的<span style="color:red">分布式系统基础架构</span>
-
 2）主要解决，海量数据的<span style="color:red">存储</span>和<span style="color:red">海量数据</span>的分析计算问题
 3）广义上来说，Hadoop通常是指一个更广泛的概念——<span style="color:red">Hadoop生态圈</span>
 
