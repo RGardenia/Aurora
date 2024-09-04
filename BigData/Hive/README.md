@@ -2,11 +2,11 @@
 
 Hive 是由 Facebook 开源，基于 Hadoop 的一个数据仓库工具，可以将结构化的数据文件映射为一张表，并提供类 SQL 查询功能
 
-Hive是一个Hadoop客户端，用于将HQL（Hive SQL）转化成 MapReduce 程序
+Hive 是一个 Hadoop 客户端，用于将 HQL（Hive SQL）转化成 MapReduce 程序
 
-（1）Hive中每张表的数据存储在HDFS
+（1）Hive 中每张表的数据存储在 HDFS
 
-（2）Hive分析数据底层的实现是 MapReduce（也可配置为Spark或者Tez）
+（2）Hive 分析数据底层的实现是 MapReduce（也可配置为 Spark 或者 Tez）
 
 （3）执行程序运行在 Yarn 上
 
@@ -51,6 +51,13 @@ CLI（command-line interface）、JDBC/ODBC
 ![image-20230217113706489](images/image-20230217113706489.png)
 
 
+
+## 1.1 Distinguish
+
+​	Hive 中大多数查询的执行是通过Hadoop 提供的 MapReduce 来实现的，而数据库通常有自己的执行引擎。
+​	Hive在查询数据的时候，由于没有索引，需要扫描整个表，因此延迟较高。另外一个导致Hive执行延迟高的因素是MapReduce框架。由于MapReduce本身具有较高的延迟，因此在利用MapReduce 执行 HiVe 时，描拉小。当数据规模大到超过数据库的处理能力较低。当然，这个低是有条件的，即数据规模较小，当数据规模大到超过数据库的处理能力的时候，Hive的并行计算显然能体现出优势。
+
+​	由于Hive建立在集群上并可以利用MapReduce进行并行计算，因此可以支持很大规模的数据。对应的，数据库可以支持的数据规模较小。
 
 # 二、Install
 
@@ -209,15 +216,13 @@ hadoop fs -rm -r /user
 
 #### 2.2.1  hiveserver2 服务
 
-Hive 的 `hiveserver2` 服务的作用是提供 `jdbc/odbc` 接口，为用户提供远程访问Hive数据的功能，例如用户期望在个人电脑中访问远程服务中的 Hive 数据，就需要用到 `Hiveserver2`
+​	Hive 的 `hiveserver2` 服务的作用是提供 `jdbc/odbc` 接口，为用户提供远程访问Hive数据的功能，例如用户期望在个人电脑中访问远程服务中的 Hive 数据，就需要用到 `Hiveserver2`
 
 <img src="images/image-20230217115432725.png" alt="image-20230217115432725" style="zoom:67%;" />
 
 > **用户说明**
->
-> 在远程访问 Hive 数据时，客户端并未直接访问Hadoop集群，而是由Hivesever2代理访问。由于Hadoop集群中的数据具备访问权限控制，所以此时需考虑一个问题：那就是访问Hadoop集群的用户身份是谁？是Hiveserver2的启动用户？还是客户端的登录用户？
->
-> 答案：都有可能，具体是谁，由Hiveserver2的hive.server2.enable.doAs参数决定，该参数的含义是是否启用Hiveserver2用户模拟的功能。若启用，则Hiveserver2会模拟成客户端的登录用户去访问Hadoop集群的数据，不启用，则Hivesever2会直接使用启动用户访问Hadoop集群数据。模拟用户的功能，默认是开启的
+>	在远程访问 Hive 数据时，客户端并未直接访问Hadoop集群，而是由Hivesever2代理访问。由于Hadoop集群中的数据具备访问权限控制，所以此时需考虑一个问题：那就是访问Hadoop集群的用户身份是谁？是Hiveserver2的启动用户？还是客户端的登录用户？
+> 	答案：都有可能，具体是谁，由Hiveserver2的hive.server2.enable.doAs参数决定，该参数的含义是是否启用Hiveserver2用户模拟的功能。若启用，则Hiveserver2会模拟成客户端的登录用户去访问Hadoop集群的数据，不启用，则Hivesever2会直接使用启动用户访问Hadoop集群数据。模拟用户的功能，默认是开启的
 
 <img src="images/image-20230217115452536.png" alt="image-20230217115452536" style="zoom:67%;" />
 
@@ -292,17 +297,17 @@ bin/beeline -u jdbc:hive2://hadoop102:10000 -n gardenia
 # 0: jdbc:hive2://hadoop102:10000>
 ```
 
-> 可使用`Datagrip`图形化客户端进行远程访问
+> 可使用`Datagrip` 等图形化客户端进行远程访问
 
 
 
 #### 2.2.2 metastore 服务
 
-Hive 的 metastore 服务的作用是为Hive CLI或者Hiveserver2提供元数据访问接口。
+Hive 的 metastore 服务的作用是为 Hive CLI 或者 Hiveserver2 提供元数据访问接口
 
-**1）metastore运行模式**
+**1）metastore 运行模式**
 
-metastore有两种运行模式，分别为嵌入式模式和独立服务模式。下面分别对两种模式进行说明：
+metastore 有两种运行模式，分别为嵌入式模式和独立服务模式。下面分别对两种模式进行说明：
 
 （1）嵌入式模式
 
@@ -314,15 +319,15 @@ metastore有两种运行模式，分别为嵌入式模式和独立服务模式�
 
 生产环境中，不推荐使用嵌入式模式。因为其存在以下两个问题：
 
-（1）嵌入式模式下，每个Hive CLI都需要直接连接元数据库，当HiveCLI较多时，数据库压力会比较大。
+（1）嵌入式模式下，每个 Hive CLI 都需要直接连接元数据库，当 HiveCLI 较多时，数据库压力会比较大
 
-（2）每个客户端都需要用户元数据库的读写权限，元数据库的安全得不到很好的保证。
+（2）每个客户端都需要用户元数据库的读写权限，元数据库的安全得不到很好的保证
 
 **2）metastore部署**
 
 （1）嵌入式模式
 
-嵌入式模式下，只需保证Hiveserver2和每个Hive CLI的配置文件 `hive-site.xml` 中包含连接元数据库所需要的以下参数即可：
+嵌入式模式下，只需保证 Hiveserver2 和每个 Hive CLI 的配置文件 `hive-site.xml` 中包含连接元数据库所需要的以下参数即可：
 
 ```xml
 <!-- jdbc连接的URL -->
@@ -354,7 +359,7 @@ metastore有两种运行模式，分别为嵌入式模式和独立服务模式�
 
 独立服务模式需做以下配置：
 
-首先，保证metastore服务的配置文件hive-site.xml中包含连接元数据库所需的以下参数：
+首先，保证 metastore 服务的配置文件 `hive-site.xml` 中包含连接元数据库所需的以下参数：
 
 ```xml
 <!-- jdbc连接的URL -->
@@ -382,7 +387,7 @@ metastore有两种运行模式，分别为嵌入式模式和独立服务模式�
 </property>
 ```
 
-其次，保证Hiveserver2和每个Hive CLI的配置文件hive-site.xml中包含访问metastore服务所需的以下参数：
+其次，保证 Hiveserver2 和每个 Hive CLI 的配置文件  `hive-site.xml` 中包含访问 metastore 服务所需的以下参数：
 
 ```xml
 <!-- 指定metastore服务的地址 -->
@@ -392,7 +397,7 @@ metastore有两种运行模式，分别为嵌入式模式和独立服务模式�
 </property>
 ```
 
-注意：主机名需要改为metastore服务所在节点，端口号无需修改，metastore服务的默认端口就是9083
+注意：主机名需要改为 metastore 服务所在节点，端口号无需修改， metastore 服务的默认端口就是 9083
 
 **3）测试**
 
@@ -521,7 +526,7 @@ hiveservices.sh start
 
 ## 2.4 Hive 使用技巧
 
-### 2.4.1 Hive常用交互命令
+### 2.4.1 Hive 常用交互命令
 
 ```bash
 bin/hive -help
@@ -586,7 +591,7 @@ bin/hive -f /opt/module/hive/datas/hivef.sql
 bin/hive -f /opt/module/hive/datas/hivef.sql > /opt/module/hive/datas/hive_result.txt
 ```
 
-### 2.4.2 Hive参数配置方式
+### 2.4.2 Hive 参数配置方式
 
 **1）查看当前所有的配置信息**
 
@@ -630,11 +635,11 @@ set mapreduce.job.reduces=10;
 
 上述三种设定方式的优先级依次递增。即**配置文件 \< 命令行参数 \< 参数声明**。注意某些系统级的参数，例如log4j相关的设定，必须用前两种方式设定，因为那些参数的读取在会话建立以前已经完成了。
 
-### 2.4.3 Hive常见属性配置
+### 2.4.3 Hive 常见属性配置
 
-**1）Hive客户端显示当前库和表头**
+**1）Hive 客户端显示当前库和表头**
 
-**（1）在hive-site.xml中加入如下两个配置:**
+**（1）在 hive-site.xml 中加入如下两个配置:**
 
 ```xml
 vim hive-site.xml
@@ -668,7 +673,7 @@ hive (default)>
 
 **2）Hive运行日志路径配置**
 
-**（1）Hive的log默认存放在 /tmp/atguigu/hive.log 目录下（当前用户名下）**
+**（1）Hive的log默认存放在 /tmp/gardenia/hive.log 目录下（当前用户名下）**
 
 ```bash
 ls
@@ -807,7 +812,7 @@ DESCRIBE DATABASE [EXTENDED] db_name;
 ```sql
 desc database db_hive3;
 OK
-db_hive		hdfs://hadoop102:8020/user/hive/warehouse/db_hive.db	atguigu	USER
+db_hive		hdfs://hadoop102:8020/user/hive/warehouse/db_hive.db	gardenia	USER
 ```
 
 **查看更多信息**
@@ -816,7 +821,7 @@ db_hive		hdfs://hadoop102:8020/user/hive/warehouse/db_hive.db	atguigu	USER
 desc database extended db_hive3;
 OK
 db_name	comment	location	owner_name	owner_type	parameters
-db_hive3		hdfs://hadoop102:8020/user/hive/warehouse/db_hive3.db	atguigu	USER	{create_date=2022-11-18}
+db_hive3		hdfs://hadoop102:8020/user/hive/warehouse/db_hive3.db	gardenia	USER	{create_date=2022-11-18}
 ```
 
 ### 3.1.3 修改数据库
@@ -1375,13 +1380,13 @@ load data local inpath '/opt/module/datas/student.txt' into table student;
 ​	①上传文件到 HDFS
 
 ```bash
-hadoop fs -put /opt/module/datas/student.txt /user/atguigu
+hadoop fs -put /opt/module/datas/student.txt /user/gardenia
 ```
 
 ​	②加载HDFS上数据，导入完成后去HDFS上查看文件是否还存在
 
 ```sql
-load data inpath '/user/atguigu/student.txt' into table student;
+load data inpath '/user/gardenia/student.txt' into table student;
 ```
 
 （3）加载数据覆盖表中已有的数据
@@ -1389,13 +1394,13 @@ load data inpath '/user/atguigu/student.txt' into table student;
 ​	①上传文件到HDFS
 
 ```sql
-dfs -put /opt/module/datas/student.txt /user/atguigu;
+dfs -put /opt/module/datas/student.txt /user/gardenia;
 ```
 
 ​	② 加载数据覆盖表中已有的数据
 
 ```sql
-load data inpath '/user/atguigu/student.txt' overwrite into table student;
+load data inpath '/user/gardenia/student.txt' overwrite into table student;
 ```
 
 ## 4.2 Insert
@@ -1631,7 +1636,7 @@ select
 from emp;
 ```
 
-### 5.2.4 Limit语句
+### 5.2.4 Limit 语句
 
 典型的查询会返回多行数据。limit子句用于限制返回的行数。
 
@@ -1640,9 +1645,9 @@ select * from emp limit 5;
 select * from emp limit 2,3; -- 表示从第2行开始，向下抓取3行
 ```
 
-### 5.2.5 Where语句
+### 5.2.5 Where 语句
 
-**1）使用where子句，将不满足条件的行过滤掉**
+**1）使用 where 子句，将不满足条件的行过滤掉**
 
 **2）where子句紧随from子句**
 
@@ -1794,13 +1799,13 @@ height="1.3340277777777778in"}
 
 ## 5.3 分组
 
-### 5.3.1 Group By语句
+### 5.3.1 Group By 语句
 
-Group By语句通常会和聚合函数一起使用，按照一个或者多个列队结果进行分组，然后对每个组执行聚合操作。
+Group By 语句通常会和聚合函数一起使用，按照一个或者多个列队结果进行分组，然后对每个组执行聚合操作。
 
 **1）案例实操：**
 
-（1）计算emp表每个部门的平均工资。
+（1）计算 emp 表每个部门的平均工资
 
 ```sql
 select 
@@ -1831,9 +1836,9 @@ hive sql执行过程：
 ![snipaste_20220713_135346](images/image26.png){width="5.7625in"
 height="1.363888888888889in"}
 
-### 5.3.2 Having语句
+### 5.3.2 Having 语句
 
-**1）having与where不同点**
+**1）having 与 where 不同点**
 
 （1）where 后面不能写分组聚合函数，而having后面可以使用分组聚合函数
 
@@ -1874,9 +1879,9 @@ hive sql 执行过程：
 ![snipaste_20220713_140141](images/image27.png){width="5.763888888888889in"
 height="1.2277777777777779in"}
 
-## 5.4 Join语句
+## 5.4 Join 语句
 
-### 5.4.1 等值Join
+### 5.4.1 等值 Join
 
 Hive支持通常的 sql join 语句，但是**只支持等值连接，不支持非等值连接**
 
@@ -2219,9 +2224,9 @@ height="2.4490004374453194in"}
 
 ### 5.5.4 分区排序（Cluster By）
 
-当distribute by和sort by字段相同时，可以使用 `cluster by` 方式
+当 `distribute by` 和 `sort by` 字段相同时，可以使用 `cluster by` 方式
 
-cluster by除了具有distribute by的功能外还兼具sort by的功能。但是排序只能是升序排序，不能指定排序规则为asc或者desc。
+`cluster by` 除了具有distribute by的功能外还兼具sort by的功能。但是排序只能是升序排序，不能指定排序规则为asc或者desc
 
 （1）以下两种写法等价
 
@@ -2337,15 +2342,15 @@ hive\> select floor(4.8); 4
 
 ​	（1）获取第二个字符以后的所有字符
 
-​		`select substring("atguigu",2);`
+​		`select substring("gardenia",2);`
 
 ​	（2）获取倒数第三个字符以后的所有字符
 
-​		select substring(\"atguigu\",-3);
+​		select substring(\"gardenia\",-3);
 
 ​	（3）从第3个字符开始，向后获取2个字符
 
-​		select substring(\"atguigu\",3,2);
+​		select substring(\"gardenia\",3,2);
 
 **2）replace ：替换**
 
@@ -2355,7 +2360,7 @@ hive\> select floor(4.8); 4
 
 ​	说明：将字符串A中的子字符串B替换为C。
 
-​	hive\> select replace(\'atguigu\', \'a\', \'A\')
+​	hive\> select replace(\'gardenia\', \'a\', \'A\')
 
 **3）regexp_replace：正则替换**
 
@@ -2955,7 +2960,7 @@ group by
 **2）建表语句**
 
 ```sql
-create table movie_info(
+create table movie_info (
     movie string,     --电影名称
     category string   --电影分类
 ) 
@@ -3004,8 +3009,8 @@ from
             movie,
             split(category,',') cates
         from movie_info
-    )t1 lateral view explode(cates) tmp as cate
-)t2
+    ) t1 lateral view explode(cates) tmp as cate
+) t2
 group by cate;
 ```
 
@@ -3040,26 +3045,21 @@ group by cate;
 按照功能，常用窗口可划分为如下几类：聚合函数、跨行取值函数、排名函数。
 
 **1）聚合函数**
-
-​	max：最大值
-
-​	min：最小值
-
-​	sum：求和
-
-​	avg：平均值
-
-​	count：计数
+	max：最大值
+	min：最小值
+	sum：求和
+	avg：平均值
+	count：计数
 
 **2）跨行取值函数**
 
-**（1）lead和lag**
+**（1）lead 和 lag**
 
 ![image-20240511235137418](images/image-20240511235137418.png)
 
-**注：lag和lead函数不支持自定义窗口**
+**注：lag 和 lead 函数不支持自定义窗口**
 
-**（2）first_value和last_value**
+**（2）first_value 和 last_value**
 
 ![image-20240511235145232](images/image-20240511235145232.png)
 
@@ -3067,7 +3067,7 @@ group by cate;
 
 ![image-20240511235201224](images/image-20240511235201224.png)
 
-注：**rank、dense_rank、row_number不支持自定义窗口。**
+注：**rank、dense_rank、row_number 不支持自定义窗口。**
 
 ### 6.5.3 案例演示
 
@@ -3305,9 +3305,9 @@ from order_info;
 
 ## 6.6 自定义函数
 
-**1）Hive自带了一些函数，比如：max/min等，但是数量有限，自己可以通过自定义UDF来方便的扩展**
+**1）Hive 自带了一些函数，比如：max/min 等，但是数量有限，自己可以通过自定义UDF来方便的扩展**
 
-**2）当Hive提供的内置函数无法满足你的业务处理需要时，此时就可以考虑使用用户自定义函数（UDF：user-defined function）**
+**2）当 Hive 提供的内置函数无法满足你的业务处理需要时，此时就可以考虑使用用户自定义函数（UDF：user-defined function）**
 
 **3）根据用户自定义函数类别分为以下三种：**
 
@@ -3333,7 +3333,7 @@ https://cwiki.apache.org/confluence/display/Hive/HivePlugins
 
 **5）编程步骤**
 
-（1）继承Hive提供的类
+（1）继承 Hive 提供的类
 
 > org.apache.hadoop.hive.ql.udf.generic.GenericUDF
 >
@@ -3341,7 +3341,7 @@ https://cwiki.apache.org/confluence/display/Hive/HivePlugins
 
 （2）实现类中的抽象方法
 
-（3）在hive的命令行窗口创建函数
+（3）在 Hive 的命令行窗口创建函数
 
 ```sql
 add jar linux_jar_path
@@ -3351,23 +3351,23 @@ add jar linux_jar_path
 create [temporary] function [dbname.]function_name AS class_name;
 ```
 
-（4）在hive的命令行窗口删除函数
+（4）在 Hive 的命令行窗口删除函数
 
 ```sql
 drop [temporary] function [if exists] [dbname.]function_name;
 ```
 
-## 6.7 自定义UDF函数
+## 6.7 自定义 UDF 函数
 
 **0）需求**
 
-​	自定义一个UDF实现计算给定基本数据类型的长度，例如：
+​	自定义一个 UDF 实现计算给定基本数据类型的长度，例如：
 
 ```sql
 select my_len("abcd");
 ```
 
-**1）创建一个Maven工程Hive**
+**1）创建一个 Maven 工程 Hive **
 
 **2）导入依赖**
 
@@ -3384,7 +3384,7 @@ select my_len("abcd");
 **3）创建一个类**
 
 ```java
-package com.atguigu.hive.udf;
+package com.gardenia.hive.udf;
 
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
@@ -3395,7 +3395,7 @@ import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 
 /**
- * 我们需计算一个要给定基本数据类型的长度
+ * 需计算一个要给定基本数据类型的长度
  */
 public class MyUDF extends GenericUDF {
     /**
@@ -3406,27 +3406,27 @@ public class MyUDF extends GenericUDF {
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
 
         if (arguments.length !=1) {
-            throw  new UDFArgumentLengthException("please give me  only one arg");
+            throw  new UDFArgumentLengthException("Please give me only one arg ~");
         }
 
         if (!arguments[0].getCategory().equals(ObjectInspector.Category.PRIMITIVE)){
-            throw  new UDFArgumentTypeException(1, "i need primitive type arg");
+            throw  new UDFArgumentTypeException(1, "I need primitive type arg !");
         }
-
+			 // 返回值类型
         return PrimitiveObjectInspectorFactory.javaIntObjectInspector;
     }
 
     /**
-     * 解决具体逻辑的
+     * 解决具体逻辑 处理每一行的数据
      */
     @Override
     public Object evaluate(DeferredObject[] arguments) throws HiveException {
 
         Object o = arguments[0].get();
-        if(o==null){
+        if(o == null){
             return 0;
         }
-
+		
         return o.toString().length();
     }
 
@@ -3442,7 +3442,7 @@ public class MyUDF extends GenericUDF {
 
 （1）打成 jar 包上传到服务器 `/opt/module/hive/datas/myudf.jar` 
 
-（2）将jar包添加到 hive 的 classpath，临时生效
+（2）将 jar 包添加到 Hive 的 classpath，临时生效
 
 ```sql
 add jar /opt/module/hive/datas/myudf.jar;
@@ -3451,7 +3451,7 @@ add jar /opt/module/hive/datas/myudf.jar;
 （3）创建临时函数与开发好的 `java class` 关联
 
 ```sql
-create temporary function my_len as "com.atguigu.hive.udf.MyUDF";
+create temporary function my_len as "com.gardenia.hive.udf.MyUDF";
 ```
 
 （4）即可在 `hql` 中使用自定义的临时函数
@@ -3475,10 +3475,10 @@ drop temporary function my_len;
 
 （1）创建永久函数
 
-注意：因为 add jar本身也是临时生效，所以在创建永久函数的时候，需要制定路径（并且因为元数据的原因，这个路径还得是HDFS上的路径）
+注意：因为 add jar 本身也是临时生效，所以在创建永久函数的时候，需要制定路径（并且因为元数据的原因，这个路径还得是HDFS上的路径）
 
 ```sql
-create function my_len2 as "com.atguigu.hive.udf.MyUDF" using jar "hdfs://hadoop102:8020/udf/myudf.jar";
+create function my_len2 as "com.gardenia.hive.udf.MyUDF" using jar "hdfs://hadoop102:8020/udf/myudf.jar";
 ```
 
 （2）即可在 hql 中使用自定义的永久函数 
@@ -3503,7 +3503,7 @@ drop function my_len2;
 
 ## 7.1 分区表
 
-​	Hive中的分区就是把一张大表的数据按照业务需要分散的存储到多个目录，每个目录就称为该表的一个分区。在查询时通过where子句中的表达式选择查询所需要的分区，这样的查询效率会提高很多。
+​	 Hive 中的分区就是把一张大表的数据按照业务需要分散的存储到多个目录，每个目录就称为该表的一个分区。在查询时通过 where子句中的表达式选择查询所需要的分区，这样的查询效率会提高很多。
 
 ### 7.1.1 分区表基本语法
 
@@ -3558,7 +3558,7 @@ where day = '2020-04-01';
 
 **2）读数据**
 
-查询分区表数据时，可以将分区字段看作表的**伪列**，可像使用其他字段一样使用分区字段。
+查询分区表数据时，可以将分区字段看作表的**伪列**，可像使用其他字段一样使用分区字段
 
 ```sql
 select deptno, dname, loc ,day
@@ -3579,8 +3579,7 @@ show partitions dept_partition;
 **（1）创建单个分区**
 
 ```sql
-alter table dept_partition 
-add partition(day='20220403');
+alter table dept_partition add partition(day='20220403');
 ```
 
 **（2）同时创建多个分区（分区之间不能有逗号）**
@@ -3595,8 +3594,7 @@ add partition(day='20220404') partition(day='20220405');
 **（1）删除单个分区**
 
 ```sql
-alter table dept_partition 
-drop partition (day='20220403');
+alter table dept_partition drop partition (day='20220403');
 ```
 
 **（2）同时删除多个分区（分区之间必须有逗号）**
@@ -3608,21 +3606,21 @@ drop partition (day='20220404'), partition(day='20220405');
 
 **4）修复分区**
 
-​	Hive 将分区表的所有分区信息都保存在了元数据中，只有元数据与HDFS上的分区路径一致时，分区表才能正常读写数据。若用户手动创建/删除分区路径，Hive都是感知不到的，这样就会导致Hive的元数据和HDFS的分区路径不一致。再比如，若分区表为外部表，用户执行 `drop partition` 命令后，分区元数据会被删除，而HDFS的分区路径不会被删除，同样会导致Hive的元数据和HDFS的分区路径不一致。
+​	Hive 将分区表的所有分区信息都保存在了元数据中，只有元数据与HDFS上的分区路径一致时，分区表才能正常读写数据。若用户手动创建 / 删除分区路径，Hive 都是感知不到的，这样就会导致 Hive 的元数据和HDFS的分区路径不一致。再比如，若分区表为外部表，用户执行 `drop partition` 命令后，分区元数据会被删除，而HDFS的分区路径不会被删除，同样会导致 Hive 的元数据和HDFS的分区路径不一致。
 
-若出现元数据和HDFS路径不一致的情况，可通过如下几种手段进行修复。
+若出现元数据和HDFS路径不一致的情况，可通过如下几种手段进行修复
 
 **（1）add partition**
 
-若手动创建HDFS的分区路径，Hive无法识别，可通过`add partition` 命令增加分区元数据信息，从而使元数据和分区路径保持一致。
+若手动创建HDFS的分区路径，Hive无法识别，可通过`add partition` 命令增加分区元数据信息，从而使元数据和分区路径保持一致
 
 **（2）drop partition**
 
-若手动删除HDFS的分区路径，Hive无法识别，可通过 `drop partition` 命令删除分区元数据信息，从而使元数据和分区路径保持一致。
+若手动删除HDFS的分区路径，Hive无法识别，可通过 `drop partition` 命令删除分区元数据信息，从而使元数据和分区路径保持一致
 
 **（3）msck**
 
-若分区元数据和HDFS的分区路径不一致，还可使用msck命令进行修复，以下是该命令的用法说明。
+若分区元数据和HDFS的分区路径不一致，还可使用msck命令进行修复，以下是该命令的用法说明
 
 ```sql
 msck repair table table_name [add/drop/sync partitions];
@@ -3630,17 +3628,15 @@ msck repair table table_name [add/drop/sync partitions];
 
 ​	说明：
 
-​	msck repair table table_name add partitions：该命令会增加HDFS路径存在但元数据缺失的分区信息。
-
-​	msck repair table table_name drop partitions：该命令会删除HDFS路径已经删除但元数据仍然存在的分区信息。
-
-​	msck repair table table_name sync partitions：该命令会同步HDFS路径和元数据分区信息，相当于同时执行上述的两个命令。
-
-​	msck repair table table_name：等价于 msck repair table table_name add partitions 命令。
+- msck repair table table_name add partitions：该命令会增加HDFS路径存在但元数据缺失的分区信息
+- msck repair table table_name drop partitions：该命令会删除HDFS路径已经删除但元数据仍然存在的分区信息
+- msck repair table table_name sync partitions：该命令会同步HDFS路径和元数据分区信息，相当于同时执行上述的两个命令
+- msck repair table table_name：等价于 msck repair table table_name add partitions 命令
 
 ### 7.1.2 二级分区表
 
-思考：如果一天内的日志数据量也很大，如何再将数据拆分?答案是二级分区表，例如可以在按天分区的基础上，再对每天的数据按小时进行分区。
+思考：如果一天内的日志数据量也很大，如何再将数据拆分 ?
+答案是二级分区表，例如可以在按天分区的基础上，再对每天的数据按小时进行分区
 
 **1）二级分区表建表语句**
 
@@ -3673,11 +3669,11 @@ where day='20220401' and hour='12';
 
 ### 7.1.3 动态分区
 
-​	动态分区是指向分区表insert数据时，被写往的分区不由用户指定，而是由每行数据的最后一个字段的值来动态的决定。使用动态分区，可只用一个insert语句将数据写入多个分区。
+​	动态分区是指向分区表 insert 数据时，被写往的分区不由用户指定，而是由每行数据的最后一个字段的值来动态的决定。使用动态分区，可只用一个insert语句将数据写入多个分区。
 
 **1）动态分区相关参数**
 
-（1）动态分区功能总开关（默认true，开启）
+（1）动态分区功能总开关（默认 true，开启）
 
 ```sql
 set hive.exec.dynamic.partition=true
@@ -3717,7 +3713,7 @@ hive.error.on.empty.partition=false
 
 **2）案例实操**
 
-需求：将dept表中的数据按照地区（loc字段），插入到目标表dept_partition_dynamic的相应分区中
+需求：将dept表中的数据按照地区（loc字段），插入到目标表 `dept_partition_dynamic` 的相应分区中
 
 （1）创建目标分区表
 
@@ -3841,7 +3837,7 @@ height="1.7680555555555555in"}
 
 # 八、 文件格式和压缩
 
-## 8.1 Hadoop压缩概述
+## 8.1 Hadoop 压缩概述
 
 | **压缩格式** | **算法** | **文件扩展名** | **是否可切分** |
 | ------------ | -------- | -------------- | -------------- |
@@ -3851,11 +3847,11 @@ height="1.7680555555555555in"}
 | LZO          | LZO      | .lzo           | **是**         |
 | Snappy       | Snappy   | .snappy        | 否             |
 
-​	为了支持多种压缩/解压缩算法，Hadoop引入了编码/解码器，如下表所示：
+为了支持多种压缩/解压缩算法，Hadoop引入了编码/解码器，如下表所示：
 
-​		Hadoop 查看支持压缩的方式 `hadoop checknative`
+​	Hadoop 查看支持压缩的方式 `hadoop checknative`
 
-​		Hadoop 在 `driver` 端设置压缩
+​	Hadoop 在 `driver` 端设置压缩
 
 | **压缩格式** | 对应的编码/解码器                          |
 | ------------ | ------------------------------------------ |
@@ -3877,7 +3873,7 @@ height="1.7680555555555555in"}
 
 On a single core of a Core i7 processor in 64-bit mode, Snappy compresses at about 250 MB/sec or more and decompresses at about 500 MB/sec or more.
 
-## 8.2 Hive文件格式
+## 8.2 Hive 文件格式
 
 ​	为 Hive 表中的数据选择一个合适的文件格式，对提高查询性能的提高是十分有益的。Hive 表数据的存储格式，可以选择 text
 file、orc、parquet、sequence file 等
@@ -3896,7 +3892,7 @@ create table textfile_table (column_specs) stored as textfile;
 
 **1）文件格式**
 
-​	ORC（Optimized Row Columnar）file format 是 Hive 0.11版里引入的一种**列式存储**的文件格式。ORC文件能够提高Hive读写数据和处理数据的性能。
+​	ORC（Optimized Row Columnar）file format 是 Hive 0.11版里引入的一种**列式存储**的文件格式。ORC 文件能够提高 Hive 读写数据和处理数据的性能。
 
 与列式存储相对的是行式存储，下图是两者的对比：
 
@@ -3933,7 +3929,7 @@ orc 文件的具体结构如下图所示：
 
 ​	`Tail` 由`File Footer` 和 `PostScript` 组成。File Footer中保存了各Stripe的其实位置、索引长度、数据长度等信息，各Column的统计信息等；PostScript记录了整个文件的压缩类型以及File Footer的长度信息等。
 
-​	在读取ORC文件时，会先从最后一个字节读取 `PostScript` 长度，进而读取到PostScript，从里面解析到File Footer长度，进而读取FileFooter，从中解析到各个Stripe信息，再读各个Stripe，即从后往前读。
+​	在读取ORC文件时，会先从最后一个字节读取 `PostScript` 长度，进而读取到PostScript，从里面解析到File Footer长度，进而读取FileFooter，从中解析到各个Stripe信息，再读各个 Stripe，即从后往前读。
 
 **3）建表语句**
 
@@ -3965,7 +3961,7 @@ Parquet 文件的格式如下图所示：
 
 ​	首尾中间由若干个Row Group和一个Footer（File Meta Data）组成
 
-​	每个Row Group包含多个Column Chunk，每个Column Chunk包含多个Page。以下是Row Group、Column Chunk和Page三个概念的说明：
+​	每个 Row Group 包含多个Column Chunk，每个 Column Chunk 包含多个Page。以下是Row Group、Column Chunk和Page三个概念的说明：
 
 ​		**行组（Row Group）：**一个行组对应逻辑表中的若干行
 
@@ -3996,7 +3992,7 @@ tblproperties (property_name=property_value, ...);
 
 在Hive表中和计算过程中，保持数据的压缩，对磁盘空间的有效利用和提高查询性能都是十分有益的
 
-### 8.2.1 Hive表数据进行压缩
+### 8.2.1 Hive 表数据进行压缩
 
 在Hive中，不同文件类型的表，声明数据压缩的方式是不同的
 
@@ -4007,7 +4003,7 @@ tblproperties (property_name=property_value, ...);
 需要注意的是，在执行往表中导入数据的SQL语句时，用户需设置以下参数，来保证写入表中的数据是被压缩的。
 
 ```sql
--- SQL语句的最终输出结果是否压缩
+-- SQL 语句的最终输出结果是否压缩
 set hive.exec.compress.output=true;
 
 -- 输出结果的压缩格式（以下示例为snappy）
@@ -4040,7 +4036,7 @@ tblproperties ("parquet.compression"="snappy");
 
 **1）单个MR的中间结果进行压缩**
 
-​	单个MR的中间结果是指Mapper输出的数据，对其进行压缩可降低shuffle阶段的网络IO，可通过以下参数进行配置：
+​	单个MR的中间结果是指 Mapper 输出的数据，对其进行压缩可降低 shuffle 阶段的网络 IO，可通过以下参数进行配置：
 
 ```sql
 -- 开启MapReduce中间数据压缩功能
@@ -4053,8 +4049,6 @@ set mapreduce.map.output.compress.codec=org.apache.hadoop.io.compress.SnappyCode
 **2）单条SQL语句的中间结果进行压缩**
 
 ​	单条SQL语句的中间结果是指，两个MR（一条SQL语句可能需要通过MR进行计算）之间的临时数据，可通过以下参数进行配置：
-
-\--是否对两个MR之间的临时数据进行压缩
 
 ```sql
 -- 是否对两个MR之间的临时数据进行压缩
