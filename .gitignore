@@ -13,9 +13,11 @@
 *.ipr
 .mvn
 .fleet
+target
 
 ### Markdown ###
 .obsidian
+*.exe
 
 ## 相关 软件 ##
 Software
@@ -24,6 +26,7 @@ Software
 Datum
 *.doc
 *.docx
+*.pptx
 *.txt
 doc
 *.pdf
@@ -31,6 +34,7 @@ doc
 *.ttf
 *.mp4
 *.xmind
+output
 
 ### git rm --cached -r fold/
 ## 提交 ##
