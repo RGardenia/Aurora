@@ -6,9 +6,9 @@
 
 
 
-## Installation[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installation)
+## Installation[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installation)
 
-### Installing with Apt[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-apt)
+### Installing with Apt[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-apt)
 
 1. Configure the production repository:
 
@@ -45,7 +45,7 @@
 
    
 
-### Installing with Yum or Dnf[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-yum-or-dnf)
+### Installing with Yum or Dnf[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#installing-with-yum-or-dnf)
 
 1. Configure the production repository:
 
@@ -100,7 +100,7 @@
 
 ## Configuration[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#configuration)
 
-### Prerequisites[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#prerequisites)
+### Prerequisites[](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html#prerequisites)
 
 - You installed a supported container engine (Docker, Containerd, CRI-O, Podman).
 - You installed the NVIDIA Container Toolkit.
