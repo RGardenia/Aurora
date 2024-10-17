@@ -23,6 +23,21 @@ docker run --name nginx --net host \
 -d nginx:1.21.1-alpine
 ```
 
+## 1.1 部署 Front Project
+
+```bash
+# Dockerfile
+FROM nginx
+# 将dist目录复制到 nginx 的默认静态文件目录下
+COPY ./dist /usr/share/nginx/html
+# 暴露 80 端口
+EXPOSE 80
+
+docker build -t soybean-admin .
+
+docker run -d -p 8081:80 soybean-admin
+```
+
 
 
 # 二、Mysql
