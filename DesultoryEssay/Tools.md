@@ -14,6 +14,7 @@
 - Typora
 - 记事本
 - Obsidian
+- Notion.so
 
 ### 思维导图
 

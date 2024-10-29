@@ -1,5 +1,23 @@
 # Docker Network
 
+
+
+从 1.7 版本开始，把网络和存储从 Docker 中以插件的形式剥离开来，并分别为其定义了标准
+<p style="color:orange;text-align:center">Docker 定义的网络模型标准称之为 CNM (ContainerNetwork Model)</p>
+
+CNM(ContainerNetwork Model)是 Docker发布的容器网络标准，只要满足 CNM 接口的网络方案都可以接入到 Docker容器网络
+
+![image-20241029214321243](images/image-20241029214321243.png)
+
+
+
+## Libnetwork 
+
+Libnetwork 通过插件的形式为 Docker 提供网络功能
+Libnetwork 是开源的，使用 Golang编写，完全遵循CNM 网络规范，是CNM 的官方实现
+
+
+
 网络栈”，就包括：网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则
 
 作为一个容器，它可以声明直接使用宿主机的网络栈（–net=host），即：不开启 Network Namespace，比如：

@@ -788,7 +788,7 @@ UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层�
 
 > 镜像分层
 
-- 所有的Docker镜像都起始于一个基础的镜像层，当进行修改或增加新的内容时，就会在当前的镜像层上，创建新的镜像层。
+- 所有的 Docker 镜像都起始于一个基础的镜像层，当进行修改或增加新的内容时，就会在当前的镜像层上，创建新的镜像层。
 - 举一个简单的例子，例如基于CentOS7创建新的镜像，这就是镜像的第一层，如果在该镜像中添加`Java`包，就会在基础镜像层上创建第二个镜像层；如果继续添加一个安全补丁，就会创建第三个镜像层。
 
 ![容器分层](https://img-blog.csdnimg.cn/20181125144730125.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNzc0ODIy,size_16,color_FFFFFF,t_70)
