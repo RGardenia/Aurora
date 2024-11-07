@@ -86,16 +86,16 @@ https://gitee.com/zhengqingya/docker-compose
 
 ### 2.1 下载
 
-首先我们先安装一下 `Docker` 
+首先先安装一下 `Docker` 
 
 ```bash
 # yum安装
 yum -y install docker-ce
-#查看docker版本
+# 查看 docker 版本
 docker --version  
 # 设置开机自启
 systemctl enable docker
-# 启动docker
+# 启动 docker
 systemctl start docker
 ```
 
@@ -104,7 +104,7 @@ systemctl start docker
 ```bash
 curl -L https://github.com/docker/compose/releases/download/v2.17.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 
-# 若是github访问太慢，可以用daocloud下载 (或者使用 这个)
+# 若是 github 访问太慢，可以用 daocloud 下载 (或者使用 这个)
 curl -L https://get.daocloud.io/docker/compose/releases/download/v2.17.2/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 
 curl http://baobao66.club:9009/download/sources/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
@@ -122,7 +122,6 @@ sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # sudo apt install -i ./docker-compose-plugin.deb
-
 
 ###  pip 安装
 pip install docker-compose
@@ -146,7 +145,7 @@ mkdir composetest
 cd composetest
 ```
 
-然后我们需要创建一个 app.py 文件
+然后需要创建一个 app.py 文件
 
 ```bash
 import time
@@ -201,13 +200,9 @@ CMD ["flask", "run"]
 ```
 
 > 上述代码中，是为了告诉Docker
->
-> 从Python3.7版本开始构建镜像
->
+>从Python3.7版本开始构建镜像
 > 将当前目录设置为 /code
->
-> 安装python依赖项
->
+>安装python依赖项
 > 将容器的默认命令设置为 python app.py
 
 **Compose 文件定义服务**
@@ -229,7 +224,7 @@ services:
 >
 > 将容器上的公开端口5000
 
-这个合成文件定义了两个服务:web和redis。
+这个合成文件定义了两个服务：web和redis
 
 **使用 Compose 构建和运行应用程序**
 
@@ -266,7 +261,7 @@ redis_1  | 1:M 17 Aug 22:11:10.483 * Ready to accept connections
 
 ![image-20200727212451516](images/image-20200727212451516.png)
 
-使用 docker images命令，我们发现在docker compose中的镜像都已经下载好了
+使用 docker images命令，发现在docker compose中的镜像都已经下载好了
 
 ![image-20200727212555232](images/image-20200727212555232.png)
 
@@ -280,9 +275,9 @@ docker network ls
 
 ![image-20200727212932704](images/image-20200727212932704.png)
 
-通过compose构建的服务，compose帮我们维护了，都会在一个网络下面，就可以通过域名访问
+通过compose构建的服务，compose 帮维护了，都会在一个网络下面，就可以通过域名访问
 
-我们通过以下命令来进行查看，发现启动的两个服务，就是同处于同一个网络下的
+通过以下命令来进行查看，发现启动的两个服务，就是同处于同一个网络下的
 
 ```bash
 docker network inspect composetest_default
@@ -340,24 +335,6 @@ configs:
     file: ./my_config.txt
   my_other_config:
     external: true
-```
-
-### 2.5 依赖关系
-
-如果项目还有依赖关系，比如  web 依赖于 redis，也就是说项目需要首先启动 `redis` 
-
-```yaml
-version: "3.8"
-services:
-  web:
-    build: .
-    depends_on:
-      - db
-      - redis
-  redis:
-    image: redis
-  db:
-    image: postgres
 ```
 
 
@@ -531,13 +508,21 @@ docker-compose  -d
 
 ​	同时可以使用类似Bash的 `$ {VARIABLE} ` 语法在配置值中使用环境变量，有关详细信息，请参阅[变量替换](https://docs.docker.com/compose/compose-file/#variable-substitution)。
 
-## 5. compose常用服务配置参考
+### 4.1 Docker Compose 操作命令
 
-Compose文件是一个定义服务，网络和卷的YAML文件。 Compose文件的默认文件名为docker-compose.yml。
+<img src="images/image-20241104225326132.png" alt="image-20241104225326132" style="zoom:67%;" />
 
-> 提示：您可以对此文件使用.yml或.yaml扩展名。 他们都工作。
+<img src="images/image-20241104225407084.png" alt="image-20241104225407084" style="zoom:67%;" />
 
-与docker运行一样，默认情况下，Dockerfile中指定的选项（例如，CMD，EXPOSE，VOLUME，ENV）都被遵守，你不需要在docker-compose.yml中再次指定它们。
+<img src="images/image-20241104230044422.png" alt="image-20241104230044422" style="zoom:67%;" />
+
+## 5. Compose 常用服务配置参考
+
+Compose文件是一个定义服务，网络和卷的YAML文件。 Compose文件的默认文件名为 `docker-compose.yml` 。
+
+> 提示：可以对此文件使用 `.yml` 或 `.yaml` 扩展名。
+
+与 `docker` 运行一样，默认情况下，Dockerfile 中指定的选项（例如，CMD，EXPOSE，VOLUME，ENV）都被遵守，不需要在 `docker-compose.yml` 中再次指定它们。
 
 同时你可以使用类似Bash的$ {VARIABLE} 语法在配置值中使用环境变量，有关详细信息，请参阅[变量替换](https://docs.docker.com/compose/compose-file/#variable-substitution)。
 
@@ -554,7 +539,7 @@ services:
     build: ./dir
 ```
 
-或者，作为一个对象，该对象具有上下文路径和指定的Dockerfile文件以及args参数值：
+或者，作为一个对象，该对象具有上下文路径和指定的 Dockerfile 文件以及 args 参数值：
 
 ```vbnet
 version: '2'
@@ -567,7 +552,7 @@ services:
         buildno: 1
 ```
 
-webapp服务将会通过./dir目录下的Dockerfile-alternate文件构建容器镜像。
+webapp 服务将会通过 `./dir` 目录下的 Dockerfile-alternate 文件构建容器镜像。
 如果你同时指定image和build，则compose会通过build指定的目录构建容器镜像，而构建的镜像名为image中指定的镜像名和标签。
 
 ```vbnet
@@ -640,10 +625,10 @@ container_name: my-web-container
 
 ### 5.4 volumes
 
-卷挂载路径设置。可以设置宿主机路径 （HOST:CONTAINER） 或加上访问模式 （HOST:CONTAINER:ro）,挂载数据卷的默认权限是读写（rw），可以通过ro指定为只读。
-你可以在主机上挂载相对路径，该路径将相对于当前正在使用的Compose配置文件的目录进行扩展。 相对路径应始终以 . 或者 .. 开始。
+​	卷挂载路径设置。可以设置宿主机路径 （HOST:CONTAINER） 或加上访问模式 （HOST:CONTAINER:ro），挂载数据卷的默认权限是读写（rw），可以通过ro指定为只读。
+​	可以在主机上挂载相对路径，该路径将相对于当前正在使用的Compose配置文件的目录进行扩展。 相对路径应始终以 `.` 或者 `..` 开始。
 
-```bash
+```yml
 volumes:
   # 只需指定一个路径，让引擎创建一个卷
   - /var/lib/mysql
@@ -659,11 +644,19 @@ volumes:
  
   # 命名卷
   - datavolume:/var/lib/mysql
+  
+  volumes:
+  - type: volume
+  - source: /var/lib/mysql
+  - target: /var/lib/mysql
+
+volumes:
+	datavolume: 
 ```
 
 但是，如果要跨多个服务并重用挂载卷，请在顶级volumes关键字中命名挂在卷，但是并不强制，如下的示例亦有重用挂载卷的功能，但是不提倡。
 
-```bash
+```yml
 version: "3"
  
 services:
@@ -677,10 +670,10 @@ services:
       - ../code:/opt/web/code
 ```
 
-> ** 注意：通过顶级volumes定义一个挂载卷，并从每个服务的卷列表中引用它， 这会替换早期版本的Compose文件格式中volumes_from。
+> 注意：通过顶级volumes定义一个挂载卷，并从每个服务的卷列表中引用它， 这会替换早期版本的Compose文件格式中volumes_from
 
 
-```haskell
+```yml
 version: "3"
  
 services:
@@ -696,7 +689,7 @@ services:
 
 ### 5.5 command
 
-覆盖容器启动后默认执行的命令。
+覆盖容器启动后默认执行的命令
 
 ```bash
 command: bundle exec thin -p 3000
@@ -728,7 +721,7 @@ links也可以起到和depends_on相似的功能，即定义服务之间的依�
 
 ### 5.7 external_links
 
-链接到docker-compose.yml 外部的容器，甚至并非 Compose 管理的容器。参数格式跟 links 类似。
+链接到docker-compose.yml 外部的容器，甚至并非 Compose 管理的容器。参数格式跟 links 类似
 
 ```vbnet
 external_links:
@@ -753,7 +746,7 @@ expose:
 暴露端口信息。
 常用的简单格式：使用宿主：容器 （HOST:CONTAINER）格式或者仅仅指定容器的端口（宿主将会随机选择端口）都可以。
 
-> ** 注意：当使用 HOST:CONTAINER 格式来映射端口时，如果你使用的容器端口小于 60 你可能会得到错误得结果，因为 YAML 将会解析 xx:yy 这种数字格式为 60 进制。所以建议采用字符串格式。
+> ** 注意：当使用 HOST:CONTAINER 格式来映射端口时，如果使用的容器端口小于 60 你可能会得到错误得结果，因为 YAML 将会解析 xx:yy 这种数字格式为 60 进制。所以建议采用字符串格式。
 
 
 简单的短格式：
@@ -770,7 +763,7 @@ ports:
  - "6060:6060/udp"
 ```
 
-在v3.2中ports的长格式的语法允许配置不能用短格式表示的附加字段。
+在 `v3.2` 中 `ports` 的长格式的语法允许配置不能用短格式表示的附加字段。
 长格式：
 
 ```vbnet
@@ -819,7 +812,7 @@ environment:
 
 ### 5.12 pid
 
-将PID模式设置为主机PID模式。 这就打开了容器与主机操作系统之间的共享PID地址空间。 使用此标志启动的容器将能够访问和操作裸机的命名空间中的其他容器，反之亦然。即打开该选项的容器可以相互通过进程 ID 来访问和操作。
+将PID模式设置为主机 PID 模式。 这就打开了容器与主机操作系统之间的共享PID地址空间。 使用此标志启动的容器将能够访问和操作裸机的命名空间中的其他容器，反之亦然。即打开该选项的容器可以相互通过进程 ID 来访问和操作。
 
 ```vbnet
 pid: "host"
@@ -834,7 +827,110 @@ dns: 8.8.8.8
 dns:
   - 8.8.8.8
   - 9.9.9.9
+  
+# 配置 dns 的搜索域
+dns_search:
+- svc.cluster.com
+- svc1.cluster.com
 ```
+
+### 5.14 depends_on
+
+如果项目还有依赖关系，比如  web 依赖于 redis，也就是说项目需要首先启动 `redis` 
+
+```yaml
+version: "3.8"
+services:
+  web:
+    build: .
+    depends_on:
+      - db
+      - redis
+  redis:
+    image: redis
+  db:
+    image: postgres
+```
+
+
+
+### 5.15 Cap
+
+指定容器可以使用到哪些内核能力(capabilities)
+
+```yaml
+cap_add:
+ - NET_ADMIN
+cap_drop:
+ - SYS_ADMIN
+```
+
+
+
+### 5.16 Devices
+
+挂载主机的设备到容器中
+
+```yaml
+devices:
+- "/dev/sba:/dev/sda"
+```
+
+
+
+### 5.17 Entrypoint
+
+覆盖容器的 entrypoint 命令
+
+```yaml
+entrypoint: sleep 3000
+
+entrypoint: ["sleep","3000"]
+```
+
+
+
+### 5.18 Env_file
+
+指定容器的环境变量文件
+
+```yml
+env_file:
+- ./dbs.env
+# env 文件的内容格式
+KEY_ENV=values
+```
+
+
+
+### 5.19 Networks
+
+服务要使用的网络名称，对应顶级的 networks中的配置
+
+```yml
+services:
+  my-service:
+    networks:
+     - hello-network
+     - hello1-network
+
+# 创建自定义的网络
+version: "3'
+  services:
+    web:
+      networks:
+        mybridge:
+          ipv4_address: 172.16.1.11
+networks:
+  mybridge:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        subnet: 172.16.1.0/24
+```
+
+
 
 ## 6、FAQ
 
