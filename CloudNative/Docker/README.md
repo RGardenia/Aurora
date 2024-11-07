@@ -444,9 +444,9 @@ Docker-Server 接收到Docker-Client的指令，就会执行这个命令
 
 
 
-# 2.Docker 的常用命令
+# 2. Docker 的常用命令
 
-## 2.1.帮助命令
+## 2.1. 帮助命令
 
 ```shell
 docker version	#显示docker的版本信息
@@ -458,7 +458,7 @@ Docker帮助文档地址：https://docs.docker.com/reference/
 
 
 
-## 2.2.镜像命令
+## 2.2. 镜像命令
 
 > docker images  查看所有本地的主机上的镜像
 
@@ -557,7 +557,7 @@ Deleted: sha256:ab8bf065b402b99aec4f12c648535ef1b8dc954b4e1773bdffa10ae2027d3e00
 docker rmi -f [image id1] [image id2]....
 ```
 
-## 2.3.容器命令
+## 2.3. 容器命令
 
 **说明：我们有了image才可以创建容器，下载一个centos镜像来测试和学习。**
 
@@ -636,7 +636,7 @@ docker stop [容器id] 		# 停止当前正在运行的容器
 docker kill [容器id]		# 强制停止运行容器
 ```
 
-## 2.4.其他常用命令
+## 2.4. 其他常用命令
 
 > 后台启动容器
 
@@ -716,7 +716,7 @@ drwxr-xr-x. 2 root root    6 Oct 31  2018 rh
 drwxr-xr-x. 3 root root   61 Jun 11 10:23 zookeeper
 ```
 
-## 2.5.小结
+## 2.5. 小结
 
 ```shell
 attach	Attach to a running container            		# 当前shell下进入到指定的正在运行的container中
@@ -752,9 +752,9 @@ version	Show the docker version information     		# 展示Docker版本信息
 wait	Block until one or more containers stop,then print their exit codes		# 截取容器停止时的退出状态
 ```
 
-# 3.Docker 镜像
+# 3. Docker 镜像
 
-## 3.1.镜像是什么？
+## 3.1. 镜像是什么？
 
 镜像是一种轻量级，可执行的独立软件包，用来打包软件运行环境和基于运行环境开发的软件，它包含运行某个软件所需的所有内容，包括代码、运行时、库、环境变量和配置文件。
 
@@ -766,7 +766,7 @@ wait	Block until one or more containers stop,then print their exit codes		# 截�
 - 朋友拷贝给你。
 - 自己制作镜像DockerFile。
 
-## 3.2.Docker镜像加载原理
+## 3.2. Docker 镜像加载原理
 
 > UnionFS（联合文件系统）
 
@@ -793,7 +793,7 @@ UnionFS（联合文件系统）：Union文件系统（UnionFS）是一种分层�
 
 ![容器分层](https://img-blog.csdnimg.cn/20181125144730125.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3FxXzMzNzc0ODIy,size_16,color_FFFFFF,t_70)
 
-## 3.3.Commit镜像
+## 3.3. Commit 镜像
 
 ```shell
 docker commit 提交容器成为一个新的镜像
@@ -804,24 +804,53 @@ docker commit -m="描述信息" -a="作者名字" 目标镜像ID:[TAG]
 
 # 4.容器数据卷
 
-## 4.1.什么是容器数据卷
+## 4.1. 容器数据卷
 
-- 将应用和环境打包成一个镜像！数据？如果数据都在容器中，那么我们将容器删除，数据就会消失。
-- 需求：为了解决数据持久化的问题，可以容器数据存储在本地磁盘中，容器之间可以有一个数据共享的技术！
-- Docker容器中的数据可以同步到本地，删除容器后数据不会丢失，这就是容器数据卷技术。
-- **一句话：容器的数据的持久化和容器间数据的共享。**
+容器按照业务类型，总体可以分为:
 
-## 4.2.使用数据卷
+- 无状态的：数据不需要被持久化
+- 有状态的：数据需要被持久化
+
+将应用和环境打包成一个镜像！数据？如果数据都在容器中，那么容器删除，数据就会消失。
+需求：为了解决数据持久化的问题，可以容器数据存储在本地磁盘中，容器之间可以有一个数据共享的技术！
+Docker 容器中的数据可以同步到本地，删除容器后数据不会丢失，这就是容器**数据卷技术**。
+**一句话：容器的数据的持久化和容器间数据的共享**
+
+卷(Volume) 本质是文件或者目录，它可以绕过默认的联合文件系统，直接以文件或目录的形式存在于宿主机上，使用卷可以将容器内的目录或文件持久化，当容器重启后保证数据不丢失
+
+
+
+## 4.2. 数据卷
 
 ```shell
-# -v的基本使用
+# 使用 docker volume 命令可以实现对卷的创建、查看和删除等操作
+## 创建一个名为 myvolume 的数据卷   默认 网络模式为 local
+docker volume create nginx_log
+
+docker volume ls
+# 使用 docker volumels 命令查看主机上的卷
+
+# 查看 volume 的详细信息
+docker volume inspect nginx_log
+
+# 使用上一步创建的卷来启动一个 nginx 容器，并将 /usr/share/nginx/html 目录与卷关联
+docker run -d --name=nginx --mount source=nginx_log,target=/usr/share/nginx/html nginx
+docker run -it --name consumer --volumes-from nginx busybox
+# nginx_log 卷来作为共享目录 nginx 容器向该卷写入数据，consumer 容器从该卷读取数据
+
+# 删除上面创建 volume 数据卷
+docker volume rm nginx_log
+
+# -v 的基本使用
 docker run -d -p 主机端口:容器内端口 -v 主机目录:容器目录 镜像id
 
 # 查看容器数据卷的挂载状态
 docker inspect 容器id
 ```
 
-## 4.3.安装MySQL
+![image-20241029232655616](images/image-20241029232655616.png)
+
+栗子🌰：安装 MySQL
 
 ```shell
 docker run --name mysql -d -p 3306:3306 \
@@ -830,10 +859,6 @@ docker run --name mysql -d -p 3306:3306 \
 -e MYSQL_ROOT_PASSWORD=333 \
 mysql:5.7
 ```
-
-
-
-### 4.3.1. MySQL8
 
 ```shell
 docker run \
@@ -848,13 +873,25 @@ docker run \
     -d mysql:8.0.26
 ```
 
+> 镜像和容器的文件系统原理
+> 镜像是由多层文件系统组成的，想要启动一个容器时，Docker 会在镜像上层创建一个可读写层，容器中的文件都工作在这个读写层中，当容器删除时，与容器相关的工作文件将全部丢失
+
+**卷的实现原理**
+
+```bash
+# 创建一个名称为 volume-data 的卷
+docker volume create volume-data
+
+# 使用 ls 命令查看 /var/lib/docker/volumes 目录下的内容
+sudo ls -l /var/lib/docker/volumes
+sudo ls -l /var/lib/docker/volumes/volume-data
+# 在创建 Docker 卷时，Docker 会把卷的数据全部放在 /var/lib/docker/volumes 目录下
+# 并且在每个对应的卷的目录下创建一个 _data 目录，然后把 _data 目录绑定到容器中
+```
 
 
 
-
-## 4.4.具名挂载和匿名挂载
-
-> 匿名挂载和具名挂载展示
+## 4.3. 具名挂载和匿名挂载
 
 ```shell
 # 1、匿名挂载
@@ -896,13 +933,11 @@ mysql:5.7
 
 我们通过具名挂载可以方便的找到我们的一个卷，大多数情况在使用的`具名挂载`。
 
-> 如何区分匿名挂载，还是具名挂载，还是指定路径挂载？
+> 如何区分匿名挂载，还是具名挂载，还是指定路径挂载 ？
 
-- 匿名挂载：`-v 容器内路径`。
-- 具名挂载：`-v 卷名:容器内路径`。
-- 指定路径挂载：`-v /宿主机路径:容器内路径`。
-
-> 扩展
+- 匿名挂载：`-v 容器内路径`
+- 具名挂载：`-v 卷名:容器内路径`
+- 指定路径挂载：`-v /宿主机路径:容器内路径`
 
 ```shell
 # 通过 -v 容器内路径:ro rw改变读写权限
@@ -918,7 +953,7 @@ mysql:5.7
 # ro 说明这个路径只能通过宿主机来操作，容器内部是无法操作的！
 ```
 
-## 4.5.初识Dockefile
+## 4.4. 初识 Dockefile
 
 Dockerfile就是用来构建docker image的文件！就是命令脚本！
 
@@ -997,7 +1032,7 @@ bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  s
 
 建设构建镜像时没有挂载卷，需要手动挂载` -v 卷名:容器内路径`。
 
-## 4.6.数据卷容器
+## 4.5. 数据卷容器
 
 ```shell
 # mycentos01容器继承mycentos的容器数据卷
@@ -1007,23 +1042,23 @@ docker run -it --name mycentos01 --volumes-from mycentos gardenia/centos:1.0 /bi
 # 测试删除mycentos容器，mycentos01容器仍然可以访问数据卷的数据
 ```
 
-## 4.7.结论
+## 4.6. 结论
 
 - 容器之间信息的传递，数据卷的生命周期一直持续到没有容器使用为止。
 - 但是一旦将数据持久化到本地磁盘，本地文件是不会消失的！
 
-# 5.DockerFile
+# 5. DockerFile
 
-## 5.1.Docker镜像的构建步骤
+## 5.1. Docker镜像的构建步骤
 
 - 编写一个dockerfile文件。
 - `docker build`构建成为一个镜像。
 - `docker run`运行镜像。
 - `docker push`发布镜像（Docker Hub、阿里云镜像）。
 
-## 5.2.DockerFile构建过程
+## 5.2. DockerFile构建过程
 
-### 5.2.1.基础知识
+### 5.2.1. 基础知识
 
 - 每个保留关键字（指令）都是必须大写字母。
 - 执行从上到下顺序执行。
@@ -1044,7 +1079,7 @@ DockerImages：通过DockerFile生成的镜像，最终发布和运行的产品�
 
 DockerContainer：容器就是镜像运行起来提供服务的。
 
-## 5.3.DockerFile指令
+## 5.3. DockerFile指令
 
 ```shell
 FROM                       # 基础镜像，一切从这里开始构建
@@ -1061,7 +1096,7 @@ COPY                       # 类似ADD，将文件拷贝到镜像中
 ENV                        # 构建的时候设置环境变量
 ```
 
-## 5.4.实战：创建一个自己的CentOS
+## 5.4. 实战：创建一个自己的CentOS
 
 ```shell
 # 1、编写dockerfile文件
@@ -1112,7 +1147,7 @@ c248625c78e6        8 minutes ago       /bin/sh -c #(nop)  ENV MYPATH=/usr/local
 <missing>           10 days ago         /bin/sh -c #(nop) ADD file:84700c11fcc969ac0…   215MB    
 ```
 
-## 5.5.CMD和ENTRYPOINT
+## 5.5. CMD和ENTRYPOINT
 
 > 测试CMD
 
@@ -1178,7 +1213,7 @@ drwxr-xr-x  1 root root 4096 Jun 27 05:58 ..
 lrwxrwxrwx  1 root root    7 May 11  2019 bin -> usr/bin
 ```
 
-## 5.6.实战：Tomcat镜像
+## 5.6. 实战：Tomcat镜像
 
 ```shell
 # 1、准备jdk压缩包和tomcat压缩包
@@ -1209,13 +1244,15 @@ EXPOSE 8080
 CMD /usr/local/apache-tomcat-9.0.36/bin/startup.sh 
 ```
 
-## 5.7.小结
+## 5.7. 小结
 
 <img src="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=2699174763,1602099223&amp;fm=26&amp;gp=0.jpg" alt="docker流程"  />
 
+
+
 # 6.Docker 网络
 
-## 6.1.理解Docker网络
+## 6.1. Docker 网络
 
 > 查看网络环境
 
@@ -1259,7 +1296,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
 
 ![docker网络](https://img-blog.csdnimg.cn/20190702230627173.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L21lbHRzbm93,size_16,color_FFFFFF,t_70)
 
-## 6.2.查看Docker网络
+## 6.2. 查看Docker网络
 
 ```shell
 # 1、docker network ls 查看所有的docker网络
@@ -1273,16 +1310,16 @@ NETWORK ID          NAME                DRIVER              SCOPE
 docker network inspect [NETWORK ID]
 ```
 
-## 6.3.自定义网络
+## 6.3. 自定义网络
 
-### 6.3.1.网络模式
+### 6.3.1. 网络模式
 
 - `bridge`：桥接模式（默认，自定义网络也用桥接模式）。
 - `none`：不配网络，一般不用。
 - `host`：主机模式，和宿主机共享网络。
 - `container`：容器间直接连通（用的少）。
 
-### 6.3.2.创建网络
+### 6.3.2. 创建网络
 
 ```shell
 # 1、我们直接启动的命令 --net bridge，这个就是我们的docker0
@@ -1305,14 +1342,14 @@ NETWORK ID          NAME                DRIVER              SCOPE
 5cfab10d71d0        none                null                local
 ```
 
-### 6.3.3.自定义网络的好处
+### 6.3.3. 自定义网络的好处
 
 - 使用docker0网络，容器和容器之间只能通过IP地址来ping通，不能使用容器名字来ping。
 - 我们自定义网络，容器之间不仅可以使用IP地址来通信，而且可以使用容器名字来通信。
 
 - 不同的集群可以使用不同的网络，保证集群式安全和健康的。
 
-## 6.4.网络联通
+## 6.4. 网络联通
 
 ```shell
 # docker network connect

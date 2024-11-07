@@ -2,8 +2,6 @@
 
 # Redis
 
-
-
 # 1. NoSQL 概述
 
 ## 1.1. 数据库发展历史
@@ -12,7 +10,7 @@
 
 <img src="images/20200628142237948.png" alt="单机MySQL" style="zoom: 150%;" />
 
-- 90年代，一个基本的网站访问量一般不会太大，单个数据库完全足够！
+- 90 年代，一个基本的网站访问量一般不会太大，单个数据库完全足够！
 
 - 那个时候更多的使用`Static HTML`！服务器根本没有太大压力。
 
@@ -27,22 +25,22 @@
 
 <img src="images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70.png" alt="数据库添加缓存" style="zoom:150%;"  />
 
-网站80%的数据都是在读，每次查询都要去数据库查询数据的话数据库性能会大大降低！所以我们希望减轻数据库的压力，我们可以使用缓存来保证效率！
+​	网站80%的数据都是在读，每次查询都要去数据库查询数据的话数据库性能会大大降低！所以希望减轻数据库的压力，可以使用缓存来保证效率！
 
 发展过程：优化数据结构和索引 ---> 文件缓存（IO）---> Memcached（当时最热门的技术）
 
-> 时代三：分库分表 + 水平拆分 + MySQL集群
+> 时代三：分库分表 + 水平拆分 + MySQL 集群
 
 <img src="images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70-1725984131021-9.png" alt="MySQL集群" style="zoom:150%;" />
 
-- 本质：数据库（读，写）。
+- 本质：数据库（读，写）
 
 - 早些年`MyISAM`：表锁，十分影响效率！高并发下会出现严重的问题！
 
-- 转战`InnoDB`：行锁，比表锁效率要高跟多。
-- 慢慢的就开始使用分库分表来解决写的压力。
+- 转战`InnoDB`：行锁，比表锁效率要高跟多
+- 慢慢的就开始使用分库分表来解决写的压力
 
-> 时代四：我们现在的时代
+> 时代四：现在的时代
 
 - 2010—2020十年之间，计算机互联网行业已经发生了很大的变化，数据变的越来越多元化。
 - MySQL等关系型数据库已经不够用了！数据量很多，变化超快。
@@ -51,22 +49,22 @@
 ## 1.2. 为什么要用 NoSQL
 
 - 用户的社交网络，地理位置，用户自定义的数据，用户日志等数据爆发式的增长，这些数据用关系型数据库就不合适了！
-- NoSQL数据库可以很好处理以上的情况。
+- NoSQL 数据库可以很好处理以上的情况。
 
 ## 1.3. 什么是 NoSQL
 
-- `NoSQL(Not Only SQL)`：不仅仅是SQL，泛指非关系型数据库，伴随着web2.0互联网的诞生！
+- `NoSQL(Not Only SQL)`：不仅仅是SQL，泛指非关系型数据库，伴随着 Web2.0 互联网的诞生！
 - 关系型数据库：有表格，由行和列组成。
-- 传统的关系型数据库很难对付web2.0时代！尤其是超大规模的高并发的社区，暴露出很多难以克服的问题。NoSQL在当今大数据环境下发展的十分迅速，Redis是发展最快的，是我们当下必须要掌握的一门技术。
+- 传统的关系型数据库很难对付web2.0时代！尤其是超大规模的高并发的社区，暴露出很多难以克服的问题。NoSQL在当今大数据环境下发展的十分迅速，Redis是发展最快的，是当下必须要掌握的一门技术
 - 很多的数据类型用户的个人信息，社交网络，地理位置，这些数据类型的存储不需要一个固定的格式！不需要多余的操作就可以横向扩展的！
 
-## 1.4. NoSQL特点
+## 1.4. NoSQL 特点
 
 - 方便扩展（数据之间没有关系，很好扩展）
 - 大数据量高性能（Redis一秒可以写8万次，读取11万次，NoSQL的缓存是一种细粒度的缓存）
 - 数据类型多样（不需要事先设计数据库！随取随用！如果是数据量十分大的表，很多人就无法设计了！）
 
-## 1.5.传统的 RDBMS 和 NoSQL
+## 1.5. 传统的 RDBMS 和 NoSQL
 
 ```
 传统的 RDBMS
@@ -84,7 +82,7 @@ NoSQL
 - 没有固定的查询语言
 - 键值对存储，列存储，文档存储，图形数据库(社交关系)
 - 最终一致性
-- CAP定理 和 BASE理论
+- CAP 定理 和 BASE 理论
 - 高性能，高可用，高可扩展
 ```
 
@@ -95,7 +93,7 @@ NoSQL
   - 美团：Redis + Tair
   - 阿里、百度：Redis + Memecache
 - **文档型数据库：**
-  - MongoDB(一般必须要掌握)：基于分布式文件存储的数据库，C++编写，主要用来处理大量的文档！
+  - MongoDB (一般必须要掌握)：基于分布式文件存储的数据库，C++ 编写，主要用来处理大量的文档！
   - **MongoDB是一个介于关系型数据库和非关系型数据库的中间产品**
 - **列存储数据库：**
   - HBase
@@ -110,7 +108,7 @@ NoSQL
 
 ​	Redis（Remote Dictionary Server)，即远程字典服务，是一个开源的使用ANSI [C语言](https://baike.baidu.com/item/C语言)编写、支持网络、可基于内存亦可持久化的日志型、Key-Value[数据库](https://baike.baidu.com/item/数据库/103728)，并提供多种语言的API。
 
-- Redis是内存存储、内存中是断电就会消失，所以说持久化很重要(rdb、aof)
+- Redis是内存存储、内存中是断电就会消失，所以说持久化很重要 (rdb、aof)
 - 效率高，可以用于告诉缓存
 - 发布订阅系统
 - 地图信息分析
@@ -185,7 +183,7 @@ make[1]: Leaving directory `/opt/redis/redis-6.0.1/src'
 
 ## 2.3. Redis 性能测试
 
-**redis-benchmark是一个压力测试工具，官方自带的性能测试工具！**
+**redis-benchmark 是一个压力测试工具，官方自带的性能测试工具！**
 
 ```shell
 redis-benchmark -h localhost -p 6379 -c 100 -n 100000
@@ -214,7 +212,7 @@ multi-thread: no
 OK
 127.0.0.1:6379> 
 
-# 2、查看DB大小 DBSIZE
+# 2、查看 DB 大小 DBSIZE
 127.0.0.1:6379> DBSIZE
 (integer) 5
 
@@ -224,7 +222,7 @@ OK
 127.0.0.1:6379> get name
 "ringo"
 
-# 4、查看数据库所有的key keys *
+# 4、查看数据库所有的 key   keys *
 127.0.0.1:6379> KEYS *
 1) "k1"
 2) "key:{tag}:__rand_int__"
@@ -241,7 +239,7 @@ OK
 # Redis是很快的，Redis是基于内存操作的，CPU不是Redis的性能瓶颈，Redis的瓶颈是根据机器的内存和网络带宽，既然可以使用单线程来实现，就使用单线程了！
 
 # 7、为什么单线程还这么快？
-# Redis是C语言写的，Redis是将所有的数据全部放在内存中的，所以用单线程去操作内存效率是最高的！(多线程会引起CPU的上下文切换)
+# Redis是 C 语言写的，Redis是将所有的数据全部放在内存中的，所以用单线程去操作内存效率是最高的！(多线程会引起CPU的上下文切换)
 ```
 
 # 3. 五大数据类型
@@ -250,15 +248,15 @@ OK
 
 - Redis 是一个开源（BSD许可）的内存数据结构存储，用作数据库、缓存和消息代理。
 - 它支持数据结构，如字符串、哈希、列表、集合、带范围查询的排序集合、位图、超日志、带半径查询的地理空间索引和流。
-- Redis具有内置的复制、Lua脚本、LRU逐出、事务和不同级别的磁盘持久性，并通过Redis Sentinel和带有Redis集群的自动分区提供高可用性。
+- Redis 具有内置的复制、Lua脚本、LRU逐出、事务和不同级别的磁盘持久性，并通过Redis Sentinel和带有Redis集群的自动分区提供高可用性。
 
 ## 3.2. Redis Key
 
 ```shell
 # 1、KEYS *               查看所有的key
-# 2、SET name ringo       设置key
+# 2、SET name ringo       设置 key
 # 3、EXISTS name          是否存在当前key
-# 4、MOVE name 1          将当前key移动到指定数据库
+# 4、MOVE name 1          将当前 key 移动到指定数据库
 # 5、EXPIRE name 10       设置key的过期时间
 # 6、TTL name             查看当前key的剩余时间
 # 7、TYPE name            查看当前key的数据类型
@@ -267,7 +265,22 @@ OK
 
 ## 3.3. String (字符串)
 
-> 基本操作
+​	字符串类型是Redis最基础的数据结构，其他几种数据结构都是在字符串类型基础上构建的。字符串类型的值是字符串（简单的字符串、复杂的字符串（例如JSON、XML））、数字（整数、浮点数），甚至是二进制（图片、音频、视频）等。
+
+​	字符串对象的内部编码有3种 ：**int**、**raw** 和 **embstr**，Redis会根据当前值的类型和长度来决定使用哪种编码来实现
+
+- int：如果一个字符串对象保存的是整数值,并且这个整数值可以用`long`类型来表示
+- raw：如果字符串对象保存的是一个字符串值,并且这个字符串值的长度大于32字节
+- embstr：如果字符串对象保存的是一个字符串值,并且这个字符申值的长度小于等于32字节
+
+​	Reids字符串的使用场景是最为广泛的，甚至有些对redis其它几种对象不太熟悉的人，基本所有场景都会使用字符串(序列化一下直接扔进去),这让本身很单纯的字符串承受了它这个年纪本不该承受的重量。其实Redis的主要使用场景主要有以下几种:
+
+- 作为缓存层,缓存热点数据
+- Redis字符串可以自增自减的特性可以用来做计数器、限速器、自增ID生成等
+- 分布式系统的Session共享
+- 二进制数据的存储
+
+基本操作
 
 ```shell
 # 1、SET k1 v1              设置k-v
@@ -278,7 +291,7 @@ OK
 # 6、STRLEN k1              获得k1对应的值的长度
 ```
 
-> INCR 和 DECR
+INCR 和 DECR
 
 ```shell
 # 1、SET views 0            设置views的值为"0"
@@ -288,7 +301,7 @@ OK
 # 5、DECRBY views 10        views的值直接减10，"10"变成"0"
 ```
 
-> GETRANGE截取字符串
+GETRANGE 截取字符串
 
 ```shell
 # 1、SET k1 “hello,ringo!”  设置k1的值
@@ -296,14 +309,14 @@ OK
 # 3、GETRANGE k1 1 -1       获得k1下标[1,maxLen]的值，就是"ello,ringo!"  
 ```
 
-> SETRANGE替换字符串
+SETRANGE 替换字符串
 
 ```shell
 # 1、SET k2 abcdefg        设置k2的值
 # 2、SETRANGE k2 2 xxx     从下标为2开始，3个字符替换为"xxx"，结果是"abxxxfg"
 ```
 
-> SETEX 和 SETNX
+SETEX 和 SETNX
 
 ```shell
 # 1、SETEX(set with expire)         设置过期时间
@@ -319,7 +332,7 @@ OK
 "hello,Ringo"
 ```
 
-> 批量设置
+批量设置
 
 ```shell
 # 1、MSET k1 v1 k2 v2 ......      可以批量设置多个k-v
@@ -346,7 +359,7 @@ OK
 3) "968"
 ```
 
-> 组合命令
+组合命令
 
 ```shell
 # 1、GETSET db redis 先获取db的值，由于没有设置GET的值是null，然后再SET db的值为redis
@@ -357,6 +370,23 @@ OK
 ```
 
 ## 3.4. List (列表)
+
+列表这种对象支持存储一组有序的，不重复的数据。因为其有序性，它可以获取指定范围的元素列表，可以在O(1)的时间复杂度获取指定索引的下标的元素等。
+
+![image-20200626105857594](images/image-20200626105857594.png)
+
+在Redis3.2版本以前列表类型的内部编码有两种。当满足下面两个条件的时候，Redis 列表对象使用ziplist（压缩列表）来实现。
+
+- 当列表的元素个数小于list-max-ziplist-entries配置（默认512个）
+- 当列表中每个元素的值都小于list-max-ziplist-value配置时（默认64字节）
+
+当列表类型无法满足ziplist条件时，Redis会使用linkedList作为列表的内部实现。
+
+而在Redis3.2版本开始怼列表数据结构进行改造，使用quickList代替了zipList和linkedList。
+
+由于列表对象的有序且不可重复的特性，它比较适合用来做文章、商品等列表的存储。
+
+列表类型可以lpush（左侧push），同时又可以使用rpop（右侧弹出）第一个元素，所以列表类型具有先进先出的特性，可以用来实现消息队列，也可以lpush（左侧push）和lpop（左侧弹出），具有后进先出的特性，因此开发中需要使用栈的时候，我们可以使用列表对象来实现。
 
 ```shell
 # 在Redis里面，可以把List玩成栈、队列、阻塞队列！
@@ -555,10 +585,23 @@ OK
 
 ## 3.5. Set (集合)
 
-> 基本操作
+集合对象是一个无序且唯一的键值集合。它的存储顺序不会按照插入的先后顺序进行存储，与列表不同的是它存储的数据是无序且不重复的。
+
+![image-20200626122033221](images/image-20200626122033221.png)
+
+集合对象的内部编码也有两种，intest（整数集合）与hashtable（哈希表），当满足下面两个条件的时候，集合对象使用intset来实现
+
+- 集合中的元素都是整数
+- 集合中元素的个数小于 set-maxintset-entries配置（默认512个）
+
+不满足上面两个条件时，集合对象使用hashtable来实现
+
+集合对象的主要两个特性就是：**无序**，**不可重复**，**支持并交差**，因此可以用来做标签系统
+
+而集合中的 SPOP(随机移除并返回集合中一个或多个元素 和 SRANDMEMBER(随机返回集合中一个或多个元素) 命令可以帮助我们实现一个抽奖系统
 
 ```shell
-# Set中的值是无序的并且不能重复的！
+# Set 中的值是无序的并且不能重复的！
 
 # 1、SADD set01 one  在集合set01中添加元素"one"
 127.0.0.1:6379[1]> SADD set01 one two three four five
@@ -591,7 +634,7 @@ OK
 3) "four"
 ```
 
-> SRANDMEMBER
+SRANDMEMBER
 
 ```shell
 # SRANDMEMBER 在set集合中随机抽取n个元素
@@ -614,7 +657,7 @@ OK
 3) "four"
 ```
 
-> SPOP
+SPOP
 
 ```shell
 # SPOP 随机删除Set集合中的元素
@@ -639,7 +682,7 @@ OK
 3) "hello"
 ```
 
-> SMOVE
+SMOVE
 
 ```shell
 # SMOVE     将源集合的元素移动到目标集合中
@@ -677,7 +720,7 @@ OK
 5) "s1"
 ```
 
-> S 
+SDIFF   SINTER   SUNION
 
 ```shell
 # 在集合key1插入元素
@@ -730,8 +773,25 @@ OK
 
 ## 3.6. Hash (哈希)
 
+哈希对象用来存储一组数据对。每个数据对又包含键值两部分
+
+<img src="images/image-20200626101327742.png" alt="image-20200626101327742" style="zoom: 80%;" />
+
+Hash对象也有两种实现方式：ziplist（压缩列表）和 hashtable（哈希表）
+
+同样，只有当存储的数据量比较小的情况下，Redis才使用压缩列表来实现哈希对象，具体需要满足两个条件
+
+- 字典中保存的键和值的大小都要小于64字节
+- 字典中键值对的个数要小于512个
+
+当不能同时满足上面的两个条件时，Redis就使用哈希表来实现Hash对象
+
+当存储的内容是对象的时候，Redis字符串对象很多功能使用 Redis 哈希对象也可以实现，如缓存用户信息的时候，使用Redis哈希对象存储，简单直观，如果使用合理可以减少内存空间的使用。
+
+但是也有其缺点，就是要控制哈希在ziplist和hashtable两种内部编码的转换，hashtable将会消耗更多的内存。
+
 ```shell
-# Hash就是Map集合 表述为 key-map,map 存储的是键值对！
+# Hash就是 Map 集合 表述为 key-map,map 存储的是键值对！
 # Redis Hash ---> Map<String, Map<Object, Object>>
 
 # HSET key field value [field value ...]
@@ -777,20 +837,20 @@ OK
 1) "name"
 2) "zhangsan"
 
-# 7、HLEN user1   查看user1字段的个数
+# 7、HLEN user1   查看 user1 字段的个数
 127.0.0.1:6379[1]> HLEN user1
 (integer) 1
 
-# 8、HEXISTS user1 name    查看user1的name字段是否存在
+# 8、HEXISTS user1 name    查看 user1 的 name 字段是否存在
 127.0.0.1:6379[1]> HEXISTS user1 name
 (integer) 1
 
-# 9、HVALS user1    获得user1所有的值
+# 9、HVALS user1    获得 user1 所有的值
 127.0.0.1:6379[1]> HVALS user1
 1) "zhangsan"
 ```
 
-> HINCREBY
+HINCREBY
 
 ```shell
 # 设置user2的字段age的值为2
@@ -810,7 +870,7 @@ OK
 "4"
 ```
 
-> HSETNX
+HSETNX
 
 ```shell
 # HSETNX user2 id 001 如果user不存在id字段就设置id的值
@@ -821,7 +881,20 @@ OK
 
 ## 3.7. Zset (有序集合)
 
-> 基本操作
+​	有序集合类型 (Sorted Set 或 ZSet) 相比于集合类型多了一个排序属性 score（分值），对于有序集合 ZSet 来说，每个存储元素相当于有两个值组成的，一个是有序结合的元素值，一个是排序值。有序集合保留了集合不能有重复成员的特性(分值可以重复)，但不同的是，有序集合中的元素可以排序。
+
+![image-20200626123309037](images/image-20200626123309037.png)
+
+有序集合是由 ziplist (压缩列表) 或 skiplist (跳跃表) 组成的。
+
+当数据比较少时，有序集合使用的是 ziplist 存储的，有序集合使用 ziplist 格式存储必须满足以下两个条件：
+
+- 有序集合保存的元素个数要小于 128 个；
+- 有序集合保存的所有元素成员的长度都必须小于 64 字节。
+
+如果不能满足以上两个条件中的任意一个，有序集合将会使用 skiplist 结构进行存储。
+
+有序集合比较典型的使用场景就是排行榜系统例如学生成绩的排名。某视频(博客等)网站的用户点赞、播放排名、电商系统中商品的销量排名等。
 
 ```shell
 # Zset是在Set的基础上，增加了一个值，set k1 v1; zset k1 score1 v1
@@ -861,7 +934,7 @@ OK
 
 ```
 
-> ZRANGEBYSCORE和ZREVRANGEBYSCORE
+ZRANGEBYSCORE   ZREVRANGEBYSCORE
 
 ```shell
 127.0.0.1:6379[1]> ZADD salary 2500 XiaoHong
@@ -912,7 +985,7 @@ OK
 127.0.0.1:6379> GEOADD china:city 106.54041 29.40268 "chongqing"
 (integer) 1
 
-# 2、GEO本质是Zset 我们可以使用Zset命令来操作GEO
+# 2、GEO本质是Zset 可以使用Zset命令来操作GEO
 127.0.0.1:6379> TYPE china:city
 zset
 
@@ -1231,7 +1304,7 @@ QUEUED
 在交易过程中可能会遇到两种命令错误：
 
 - 命令可能无法排队，因此在[`EXEC`](https://redis.io/docs/latest/commands/exec/)调用之前可能会出现错误。例如，命令可能语法错误（参数数量错误、命令名称错误等），或者可能存在某些严重情况，如内存不足（如果服务器使用指令配置了内存限制`maxmemory`）。
-- 命令*在* [`EXEC`](https://redis.io/docs/latest/commands/exec/)调用后可能会失败，例如因为我们对具有错误值的键执行了操作（如对字符串值调用列表操作）。
+- 命令*在* [`EXEC`](https://redis.io/docs/latest/commands/exec/)调用后可能会失败，例如因为对具有错误值的键执行了操作（如对字符串值调用列表操作）。
 
 从 Redis 2.6.5 开始，服务器将在命令累积期间检测到错误。然后它将拒绝执行事务并在期间返回错误[`EXEC`](https://redis.io/docs/latest/commands/exec/)，从而丢弃该事务。
 
@@ -1248,7 +1321,7 @@ WATCH已监视的键会受到监控，以检测针对它们的更改。如果在
 
 仅当只有一个客户端在给定时间内执行操作时，此操作才会可靠地工作。如果多个客户端尝试在大约同一时间增加密钥，则会出现竞争条件。例如，客户端 A 和 B 将读取旧值，例如 10。两个客户端都会将该值增加到 11，并最终[`SET`](https://redis.io/docs/latest/commands/set/)将其作为密钥的值。因此最终值将是 11，而不是 12。
 
-我们只需重复操作，希望这次不会出现新的竞争。这种锁定形式称为*乐观锁定*。在许多用例中，多个客户端将访问不同的密钥，因此不太可能发生冲突 - 通常不需要重复操作。
+只需重复操作，希望这次不会出现新的竞争。这种锁定形式称为*乐观锁定*。在许多用例中，多个客户端将访问不同的密钥，因此不太可能发生冲突 - 通常不需要重复操作。
 
 **悲观锁和乐观锁**
 
@@ -1267,7 +1340,7 @@ WATCH已监视的键会受到监控，以检测针对它们的更改。如果在
 
 ​	EXEC调用时，UNWATCH无论事务是否中止，所有键都将被编辑。此外，当客户端连接关闭时，所有内容都会被UNWATCH编辑。
 
-​	还可以使用UNWATCH命令（不带参数）来刷新所有受监视的键。有时这很有用，因为我们乐观地锁定了几个键，因为我们可能需要执行事务来更改这些键，但在读取键的当前内容后我们不想继续。当发生这种情况时，我们只需调用， UNWATCH以便连接可以自由用于新事务。
+​	还可以使用UNWATCH命令（不带参数）来刷新所有受监视的键。有时这很有用，因为乐观地锁定了几个键，因为可能需要执行事务来更改这些键，但在读取键的当前内容后不想继续。当发生这种情况时，只需调用， UNWATCH以便连接可以自由用于新事务。
 
 ```shell
 # 1、设置余额有100元
@@ -1311,7 +1384,7 @@ OK
 QUEUED
 127.0.0.1:6379> INCRBY out 10
 QUEUED
-127.0.0.1:6379> EXEC # 执行事务之前，有另外一个线程修改了我们的值，这个时候就会导致事务提交失败！！！
+127.0.0.1:6379> EXEC # 执行事务之前，有另外一个线程修改了的值，这个时候就会导致事务提交失败！！！
 (nil)
 ```
 
@@ -1495,11 +1568,11 @@ lettuce：采用netty，实例可以在多个线程中进行共享，不存在�
 ```java
 @Bean
 @ConditionalOnMissingBean(
-    name = {"redisTemplate"}  // 我们可以自定义RedisTemplate来替换这个默认的
+    name = {"redisTemplate"}  // 可以自定义RedisTemplate来替换这个默认的
 )
 public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) throws UnknownHostException {
     // 默认的RedisTemplate没有过多的设置，Redis对象都需要序列化
-    // 两个泛型都是Object类型，我们以后使用需要强制转换
+    // 两个泛型都是Object类型，以后使用需要强制转换
     RedisTemplate<Object, Object> template = new RedisTemplate();
     template.setConnectionFactory(redisConnectionFactory);
     return template;
@@ -1796,7 +1869,7 @@ appendfsync everysec     # 每秒都同步一次
 
 ![RDB](images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70-1725984145033-12.png)
 
-- RDB持久化是指在指定的时间间隔内将内存中的数据集快照写入磁盘，实际操作过程是fork一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用二进制压缩存储
+- RDB持久化是指在指定的时间间隔内将内存中的数据集快照写入磁盘，实际操作过程是 fork 一个子进程，先将数据集写入临时文件，写入成功后，再替换之前的文件，用二进制压缩存储
 - **RDB保存的文件是 dump.rdb**
 
 > RDB触发机制
@@ -1826,7 +1899,7 @@ LASTSAVE
 data -d @<timastamp>
 ```
 
-> RDB的优缺点
+**RDB 的优缺点**
 
 - 优点：
   - 适合大规模的数据恢复
@@ -1862,10 +1935,10 @@ rdb-del-sync-files no
 
 ![AOF](images/20200801141125975.png)
 
-- AOF 将我们所有的命令都记录下来，恢复的时候就把这个文件全部在执行一遍
+- AOF 将所有的命令都记录下来，恢复的时候就把这个文件全部在执行一遍
 - **AOF 只记录写的操作**
 - `redis.conf`配置文件中修改`appendonly yes`就开启了 AOF 持久化存储
-- 如果 AOF 文件内容出错，Redis 是无法启动的！Redis 给我们提供了工具`redis-check-aof --fix`
+- 如果 AOF 文件内容出错，Redis 是无法启动的！Redis 给提供了工具`redis-check-aof --fix`
 
 ![image-20240912200606889](images/image-20240912200606889.png)
 
@@ -1916,7 +1989,7 @@ appendonly.aof.manifest
 ```
 
 **MP-AOF 实现方案概述**
-AOF分为三种类型，分别为：
+AOF 分为三种类型，分别为：
 
 - **BASE**：表示基础AOF ，它一般由子进程通过重写产生，该文件最多只有一个。
 - **INCR**：表示增量AOF，它一般会在AOFRW开始执行时被创建，该文件可能存在多个。
@@ -2025,8 +2098,8 @@ Redis 的 Pub/Sub 展现了*最多一次*消息传递语义。顾名思义，这
 
 一条消息是一个包含三个元素的[数组回复](https://redis.io/docs/latest/develop/reference/protocol-spec/#array-reply)。
 
-- `subscribe`：表示我们成功订阅了回复中第二个元素给出的频道。第三个参数表示我们当前订阅的频道数量。
-- `unsubscribe`：表示我们已成功取消订阅回复中第二个元素给出的频道。第三个参数表示我们当前订阅的频道数。当最后一个参数为零时，我们不再订阅任何频道，并且客户端可以发出任何类型的 Redis 命令，因为我们处于 Pub/Sub 状态之外。
+- `subscribe`：表示成功订阅了回复中第二个元素给出的频道。第三个参数表示当前订阅的频道数量。
+- `unsubscribe`：表示已成功取消订阅回复中第二个元素给出的频道。第三个参数表示当前订阅的频道数。当最后一个参数为零时，不再订阅任何频道，并且客户端可以发出任何类型的 Redis 命令，因为处于 Pub/Sub 状态之外。
 - `message`：它是另一个客户端发出的命令的结果而收到的消息[`PUBLISH`](https://redis.io/docs/latest/commands/publish/)。第二个元素是原始通道的名称，第三个参数是实际的消息负载。
 
 **数据库和范围**
@@ -2420,9 +2493,9 @@ sentinel client-reconfig-script <master-name> <script-path>
 # 客户端重新配置主节点参数脚本
 ```
 
-> 文件的内容，在运行期间会被sentinel动态进行更改
-> Master-Slave切换后，master _redis.conf、slave_redis.conf和sentinel.conf的内容都会发生改变
-> 即master redis.conf中会多一行slaveof的配置，sentinel.conf的监控目标会随之调换
+> 文件的内容，在运行期间会被 `sentinel` 动态进行更改
+> Master-Slave 切换后，`master_redis.conf`、`slave_redis.conf` 和 `sentinel.conf` 的内容都会发生改变
+> 即 `master_redis.conf`中会多一行 `slaveof` 的配置，`sentinel.conf` 的监控目标会随之调换
 
 ### **自动选举**
 
@@ -2432,9 +2505,9 @@ sentinel client-reconfig-script <master-name> <script-path>
 
 1. SDown 主观下线 (Subjectively Down)
 
-   DOWN (主观不可用)是单个  Sentinel 自己主观上检测到的关于master的状态，从 Sentinel 的角度来看，如果发送了 PING 心跳后，在一定时间内没有收到合法的回复，就达到了SDOWN的条件。
+   ​	DOWN (主观不可用)是单个  Sentinel 自己主观上检测到的关于master的状态，从 Sentinel 的角度来看，如果发送了 PING 心跳后，在一定时间内没有收到合法的回复，就达到了SDOWN的条件。
 
-   Master 在多长时间内一直没有给 Sentinel 返回有效信息，则认定该 Master 主观下线。也就是说如果多久没联系上 redis-servevr，认为这个 redis-server 进入到失效(SDOWN)状态。
+   ​	Master 在多长时间内一直没有给 Sentinel 返回有效信息，则认定该 Master 主观下线。也就是说如果多久没联系上 redis-servevr，认为这个 redis-server 进入到失效(SDOWN)状态。
 
    > **sentinel** 配置文件中的 `down-after-milliseconds` 设置了判断主观下线的时间长度
    >
@@ -2442,18 +2515,18 @@ sentinel client-reconfig-script <master-name> <script-path>
 
 2. ODown 客观下线 (Objectively Down)
 
-   ODOWN 需要一定数量的 Sentinel ，多个哨兵达成一致意见才能认为一个 Master 客观上已经宕掉
+   ​	ODOWN 需要一定数量的 Sentinel ，多个哨兵达成一致意见才能认为一个 Master 客观上已经宕掉
 
-   `quorum` 这个参数是进行客观下线的一个依据，法定人数/法定票数
-   意思是至少有 `quorum` 个 Sentinel 认为这个 Master 有故障才会对这个 Master 进行下线以及故障转移。因为有的时候，某个 Sentinel 节点可能因为自身网络原因导致无法连接 Master ，而此时 Master 并没有出现故障，所以这就需要多个 Sentinel 都一致认为该 Master 有问题，才可以进行下一步操作，这就保证了公平性和高可用。
+   ​	`quorum` 这个参数是进行客观下线的一个依据，法定人数/法定票数
+   ​	意思是至少有 `quorum` 个 Sentinel 认为这个 Master 有故障才会对这个 Master 进行下线以及故障转移。因为有的时候，某个 Sentinel 节点可能因为自身网络原因导致无法连接 Master ，而此时 Master 并没有出现故障，所以这就需要多个 Sentinel 都一致认为该 Master 有问题，才可以进行下一步操作，这就保证了公平性和高可用。
 
 3. 选举出领导者哨兵 (哨兵中选出兵王)
 
-   当主节点被判断客观下线以后，各个哨兵节点会进行协商先选举出一个领导者哨兵节点(兵王)并由该领导者节点也即被选举出的兵王进行 `failover` (故障迁移)
+   ​	当主节点被判断客观下线以后，各个哨兵节点会进行协商先选举出一个领导者哨兵节点(兵王)并由该领导者节点也即被选举出的兵王进行 `failover` (故障迁移)
 
    <b><span style="color:red">Raft 算法</span></b>
 
-   基本思路是先到先得：即在一轮选举中，哨兵A向B发送成为领导者的申请，如果B没有同意过其他哨兵，则会同意A成为领导者
+   基本思路是先到先得：即在一轮选举中，哨兵A向B发送成为领导者的申请，如果 B 没有同意过其他哨兵，则会同意A成为领导者
 
    ![image-20240923220613565](images/image-20240923220613565.png)
 
@@ -2491,6 +2564,29 @@ Redis Cluster 是 Redis 的分布式实现，其设计目标按重要性排序�
 - 可用性：Redis 集群能够承受大多数主节点可访问的分区，并且对于每个不再可访问的主节点，至少有一个可访问的副本。此外，使用*副本迁移*，不再由任何副本复制的主节点将从由多个副本覆盖的主节点接收一个副本
 
 <img src="images/image-20240923224033763.png" alt="image-20240923224033763" style="zoom: 50%;" />
+
+**集群操作**
+
+不在同一个 `slot `槽位下的键值无法使用 `mset、mget` 等多键操作
+可以通过 `{}` 来定义同一个组的概念，使key中 `{}` 内相同内容的键值对放到一个 `slot` 槽位去，对照下图类似 `k1k2k3` 都映射为 `x`，和自然槽位一样
+
+`mset kl{x} 11 k2{x} 12 k3{x} 13`
+
+`CLUSTER COUNTKEYSINSLOT 槽位数字编号`：1，该槽位被占用；0，该槽位没占用
+
+`CLUSTER KEYSLOT 键名称` ：获取 键值 对应的槽位
+
+
+
+**集群特殊配置**
+
+1.  `cluster-require-full-coverage yes` 
+
+   默认YES，现在集群架构是3主3从的redis cluster由3个master平分16384个slot，每个master的小集群负责1/3的slot，对应一部分数据。
+   `cluster-require-full-coverage`：默认值 yes,即需要集群完整性，方可对外提供服务 通常情况，如果这3个小集群中，任何一个(1主1从)挂了，你这个集群对外可提供的数据只有2/3了， 整个集群是不完整的， redis 默认在这种情况下，是不会对外提供服务的。
+   如果你的诉求是，<span style="color:red">集群不完整的话也需要对外提供服务</span>，需要将该参数设置为no ，这样的话你挂了的那个小集群是不行了，但是其他的小集群仍然可以对外提供服务。
+
+
 
 ## 12.1. 集群算法
 
@@ -2595,7 +2691,6 @@ dir /myredis/cluster
 dbfilename dump6381.rdb
 
 appendonly yes
-
 appendfilename "appendonly6381.aof"
 
 requirepass 111111
@@ -2640,19 +2735,97 @@ Redis 集群中 16384 个哈希槽的存在是为了决定键值对应该存储�
 
 ## 12.3. 主从容错切换迁移
 
+```bash
+# 主 6381 和从机切换，先停止主机 6381
+SHUTDOWN
 
+redis-cli -a 111111 -p 6382
+CLUSTER nodes
+
+redis-cli -a 111111 -p 6384 -c
+info replication
+```
+
+<img src="images/image-20241106170756699.png" alt="image-20241106170756699" style="zoom: 50%;" />
+
+```bash
+# 重启 6381 
+redis-server /myredis/cluster/redisCluster6381.conf
+redis-cli -a 111111 -p 6381 -C
+info replication # Slave
+```
+
+```bash
+# 手动故障转移 or 节点从属调整处理
+CLUSTER FAILOVER
+```
+
+## 12.4. 主从集群扩容
+
+```bash
+# 新建 6387、6388 两个服务实例配置文件 + 新建后启动
+
+# 将新增的 6387 节点(空槽号)作为 master 节点加入原集群
+# redis-cli -a 密码 --cluster add-node 实际IP地址:6387 实际IP地址:6381
+redis-cli -a 111111 --cluster add-node 192.168.111.174:6387 192.168.111.175:6381
+# 检查集群情况
+redis-cli -a 111111 --cluster check 192.168.111.175:6381
+
+# 重新分派槽号   从旧节点分别分配出部分 Slots 给新实例
+# 命令: redis-cli -a 密码 --cluster reshard IP地址:端口号
+redis-cli -a 111111 --cluster reshard 192.168.111.175:6381
+# 输入接收槽位的 实例ID
+# all
+# yes
+
+# 为主节点 6387 分配从节点 6388
+# 命令: redis-cli -a 密码 --cluster add-node ip:新slave端口 ip:新master端口 --cluster-slave --cluster-master-id 新主机节点ID
+redis-cli -a 111111 --cluster add-node 192.168.111.174:6388 192.168.111.174:6387 --cluster-slave --cluster-master-id 4feb6a7ee0ed2b39ff86474cf4189ab2a554a40f -------这个是 6387 的编号，按照自己实际情况
+
+CLUSTER NODES
+```
+
+
+
+## 12.5. 主从集群缩容
+
+```bash
+# 1 获取 下线节点信息 ID
+redis-cli -a 111111--cluster check 192.168.111.184:6388
+
+# 2 先清除从节点 6388
+# 命令: redis-cli -a 密码 -cluster del-node ip:从机端口 从机节点ID 
+redis-cli -a 111111 -cluster del-node 192.168.111.174:6388 <从机节点ID>
+
+# 3 清出来的槽号重新分配给 6381
+redis-cli -a 111111 --cluster reshard 192.168.111.175:6381
+# 4096 // 需 6381 master 接收的槽位
+# <6381 ID>
+# <6387 ID>
+# done
+# yes
+
+# 4 再删除 从机 6387
+redis-cli -a 111111 -cluster del-node 192.168.111.184:6387 <从机节点ID>
+
+# 5 恢复成 3 主 3 从
+redis-cli -a 111111--cluster check 192.168.111.184:6381
+
+```
+
+<hr>
 
 # 13. Redis 缓存穿透和雪崩
 
 ​	Redis缓存的使用，极大的提升了应用程序的性能和效率，特别是数据查询方面。但同时，也带来了一些问题。其中，最要害的问题，就是数据一致性的问题，从严格意义上讲，这个问题无解。如果对数据的一致性要求很高，那么就不能使用缓存。另外的一些典型问题就是，缓存穿透、缓存雪崩和缓存击穿。目前，业界也都有比较流行的解决方案。
 
-## 13.1. 缓存穿透(查不到)
+## 13.1. 缓存穿透 (查不到)
 
 **缓存穿透**：假设用户想要查询一个数据，发现Redis内存数据库没有，也就是缓存没有命中，于是向关系型数据库查询。发现关系型数据库中也没有，于是本次查询失败。当用户很多的时候，缓存都没有命中，于是请求都到了持久层数据库。这会给持久层数据库造成很大的压力。这时候就相当于出现了缓存穿透。
 
 **布隆过滤器**：布隆过滤器是一种数据结构，対所有可能查询的参数以hash形式存储，在控制层先进行校验，不符合则丢弃，从而避免了対底层存储系统的查询压力。
 
-## 13.2. 缓存击穿(高并发,缓存过期)
+## 13.2. 缓存击穿 (高并发,缓存过期)
 
 这里注意缓存击穿和缓存穿透的区别，缓存击穿，是指一个key非常热点，在不停的扛着高并发，高并发集中対这一个点进行访问，当这个key在失效瞬间，持续的高并发就穿破缓存，直接请求数据库，就像在屏障上凿开了一个洞。
 

@@ -1,4 +1,40 @@
+
+
+
+
+# 多阶段 构建
+
+在一个 Dockerfile 中声明多个 FROM，选择性地将一个阶段生成的文件拷贝到另外一个阶段中
+从而实现最终的镜像只保留需要的环境和文件
+
+```dockerfile
+FROM golang:1.13 AS Builder
+WORKDIR /go/src/github.com/wilhelmguo/multi-stage-demo
+COPY main.go .
+RUN CGO_ENABLED=0 GOOS=linux go build -o http-server .
+
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=0或者Builder /go/src/github.com/wilhelmguo/multi-stage-demo/http-server .
+CMD ["./http-server"]
+```
+
+```bash
+docker build --no-cache -t http-server-with-multi-stage:latest .
+
+# 在编译阶段调试 Dockerfile 文件
+docker build --target Builder -t http-server:latest .
+
+# 想要拷贝 nginx 官方镜像的配置文件到自己的镜像中
+COPY --from=nginx:latest /etc/nginx/nginx.conf /etc/local/nginx.conf
+
+docker images ls http-server
+```
+
+
+
 # 一、Nginx
+
 ```shell
 # nginx 
 docker pull nginx:1.21.1-alpine
@@ -1081,6 +1117,41 @@ docker compose
 
 
 
+
+
+
+# 十、GitLab
+
+```bash
+docker run -d \
+  -hostname localhost \
+  -p 8080:80 -p 2222:22 \
+  --name gitlab \
+  --restart always \
+  --volume /tmp/gitlab/config:/etc/gitlab \
+  --volume /tmp/gitlab/logs:/var/log/gitlab \
+  --volume /tmp/gitlab/data:/var/opt/gitlab \
+  gitlab/gitlab-ce:13.3.8-ce.0
+```
+
+
+
+
+
+# 十一、Jenkins
+
+```bash
+docker run -d --name=jenkins \
+  -p 8888:8080 \
+  -u root \
+  --restart always \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /usr/bin/docker:/usr/bin/docker \
+  -v /tmp/jenkins_home:/var/jenkins_home \
+  jenkins/jenkins:lts
+  
+docker logs -f jenkins
+```
 
 
 

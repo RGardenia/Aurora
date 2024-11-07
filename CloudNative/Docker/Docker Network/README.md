@@ -13,10 +13,127 @@ CNM(ContainerNetwork Model)是 Docker发布的容器网络标准，只要满足 
 
 ## Libnetwork 
 
-Libnetwork 通过插件的形式为 Docker 提供网络功能
-Libnetwork 是开源的，使用 Golang编写，完全遵循CNM 网络规范，是CNM 的官方实现
+Libnetwork 通过<span style="color:orange">插件</span>的形式为 Docker 提供网络功能
+Libnetwork 是开源的，使用 Golang 编写，完全遵循 CNM 网络规范，是 CNM 的官方实现
 
 
+
+### Libnetwork 的工作流程
+
+第一步：Docker 通过调用 `libnetwork.New` 函数来创建 NetworkController 实例
+```go
+type NetworkControllerinterface {
+  // 创建一个新的网络。 options参数用于指定特性类型的网络选项
+  NewNetwork(networkType, name string, id string, options ..NetworkOption) (Network, error)
+  //.此次省略部分接口
+}
+```
+
+第二步：通过调用 NewNetwork 函数创建指定名称和类型的 Network
+```go
+type Network interface {
+  //为该网络创建一个具有唯一指定名称的接入点(Endpoint)
+  CreateEndpoint(name string, options ..EndpointOption)(Endpoint, error)
+  //删除网络
+  Delete() error
+  //…此次省略部分接口
+}
+```
+
+第三步：通过调用 CreateEndpoint 来创建接入点(Endpoint)
+```go
+// Endpoint 表示网络和沙箱之间的逻辑连接
+type Endpoint interface {
+  //将沙箱连接到接入点，并将为接入点分配的网络资源填充到沙箱中
+  //the network resources allocated for the endpoint.
+  Join(sandbox Sandbox,options ...EndpointOption) error
+  //删除接入点
+  Delete(force bool) error
+  //.此次省略部分接口
+}
+```
+
+第四步：调用 NewSandbox来创建容器沙箱，主要是初始化 Namespace 相关的资源
+第五步：调用 Endpoint的 Join 函数将沙箱和网络接入点关联起来
+
+### Libnetwork 常见网络模式
+
+- null 空网络模式
+  构建一个没有网络接入的容器环境
+- host 主机网络模式
+  可以让容器内的进程共享主机网络
+  从而监听或修改主机网络
+- container 网络模式
+  可以将两个容器放在同一个网络命名空间内
+- bridge 桥接模式
+  可以打通容器与容器间网络通信的需求
+
+1. **空网络模式**
+
+使用 Docker 创建 null 空网络模式的容器时，容器拥有自己独立的 Net Namespace
+在这种模式下，Docker除了为容器创建了 Net Namespace 外，没有创建任何网卡接口、IP 地址、路由等网络配置
+
+```bash
+# 使用 docker run 命令启动时，添加 --net=none 参数启动一个空网络模式的容器
+docker run --net=none -it busybox
+
+ifconfig
+route -n
+```
+
+2. **桥接模式**
+
+使用 bridge 网络可以实现容器与容器的互通，可以从一个容器直接通过容器 IP 访问到另外一个容器
+使用 bridge 网络可以实现主机与容器的互通，在容器内启动的业务，可以从主机直接请求
+
+```bash
+```
+
+> **Linux veth**
+> veth 是 Linux 中的虚拟设备接口，都是成对出现的，可以用来连接虚拟网络设备
+> 例如 veth 可以用来连通两个 Net Namespace，从而使得两个Net Namespace 之间可以互相访问
+>
+> **Linux bridge**
+> Linux bridge 是一个虚拟设备，是用来连接网络的设备，可以用来转发两个Net Namespace 内的流量
+>
+> <img src="images/image-20241029224516074.png" alt="image-20241029224516074" style="zoom: 50%;" />
+>
+> Docker启动时，libnetwork 会在主机上创建 docker0 网桥，而 Docker 创建出的 brige 模式的容器都会连接 docker0 上
+
+3. **网络模式**
+
+container 网络模式允许一个容器共享另一个容器的网络命名空间
+当两个容器需要共享网络，但其他资源仍然需要隔离时就可以使用 container 网络模式
+
+```bash
+# 启动一个 busybox1 容器
+docker run -d --name=busybox1 busybox sleep 3600
+docker exec -it busybox1 sh
+# ifconfig
+
+# busybox2 容器，通过 container 网络模式连接到 busybox1 的网络
+docker run -it --net=container:busybox1 --name=busybox2 busybox sh
+```
+
+
+
+4. 主机网络模式
+   - Libnetwork 不会为容器创建新的网络配置和 Net Namespace
+   - Docker 容器中的进程直接共享主机的网络配置，可以直接使用主机的网络信息
+   - 除了**网络共享主机的网络**外，其他的包括进程、文件系统、主机名等都是与主机隔离的
+
+```bash
+# 一个主机网络模式的 busybox 镜像
+docker run -it --net=host busybox
+
+ip a
+```
+
+![image-20241029225052263](images/image-20241029225052263.png)
+
+
+
+## NetWork
 
 网络栈”，就包括：网卡（Network Interface）、回环设备（Loopback Device）、路由表（Routing Table）和 iptables 规则
 
@@ -346,6 +463,6 @@ $ bridge fdb show flannel.1 | grep 5e:f8:4f:00:e3:37
 
 这时候，Node 2 的内核网络栈会发现这个数据帧里有 VXLAN Header，并且 VNI=1。所以 Linux 内核会对它进行拆包，拿到里面的内部数据帧，然后根据 VNI 的值，把它交给 Node 2 上的 flannel.1 设备。而 flannel.1 设备则会进一步拆包，取出“原始 IP 包”。接下来就回到了我在上一篇文章中分享的单机容器网络的处理流程。最终，IP 包就进入到了 container-2 容器的 Network Namespace 里。以上，就是 Flannel VXLAN 模式的具体工作原理了。
 
-## Reference
+### Reference
 
 - https://lion-wu.blog.csdn.net/article/details/124754827
