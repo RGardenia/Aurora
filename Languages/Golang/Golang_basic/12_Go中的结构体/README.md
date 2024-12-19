@@ -47,7 +47,7 @@ func main() {
 
 ### 类型别名
 
-> Golang 1.9 版本以后添加的新功能
+Golang 1.9 版本以后添加的新功能
 
 类型别名规定：`TypeAlias` 只是 Type 的别名，本质上 `TypeAlias` 与 Type 是同一个类型
 
@@ -77,6 +77,7 @@ type Person struct {
 	age int
 	sex string
 }
+
 func main() {
 	// 实例化结构体
 	var person Person

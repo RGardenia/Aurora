@@ -6,7 +6,7 @@
 
 **AMQP协议简介**：
 
-- AMQP全称：`Advanced Message Queuing Protocol` 高级消息队列协议。
+- AMQP全称：`Advanced Message Queuing Protocol` 高级消息队列协议
 - AMQP定义：是具有现代特征的二进制协议。是一个提供统一消息服务的应用层标准高级消息队列协议，是**应用层协议的一个开放标准，为面向消息的中间件设计**。
 
 <img src=".\image\2.3-1-AMQP协议模型.jpg" alt="AMQP协议模型"  />
@@ -17,23 +17,23 @@
 
 **AMQP概念**：
 
-- **Server**：又称作Broker，接受客户端的连接，实现AMQP实体服务。
+- **Server**：又称作 `Broker`，接受客户端的连接，实现 AMQP 实体服务。
 - **Connection**：连接，应用程序与Broker的网络连接， TCP/IP 三次握手和四次挥手。
-- **Channel**：网络信道，几乎所有的操作都在Channel中进行，Channel是进行消息读写的通道。客户端可以建立多个Channel，每个Channel代表一个会话任务。
-- **Message**：消息。服务器和应用程序之间传送的数据，由Properties和Body组成。
-  - Properties可以对消息进行修饰，比如消息的优先级、延迟等高级特性；
-  - Body就是消息体内容。
+- **Channel**：网络信道，几乎所有的操作都在 `Channel` 中进行，Channel 是进行消息读写的通道。客户端可以建立多个 Channel，每个 Channel 代表一个会话任务。
+- **Message**：消息。服务器和应用程序之间传送的数据，由 `Properties` 和 `Body` 组成。
+  - Properties 可以对消息进行修饰，比如消息的优先级、延迟等高级特性
+  - Body 就是消息体内容
 - **Virtual Host**：虚拟主机，用于进行逻辑隔离，最上层的消息路由。
   - 一个Virtual Host里面可以有若干个Exchange和Queue；
   - 同一个Virtual Host里面不能有相同名称的Exchange和Queue。
-- **Exchange**：交换机，接收消息。根据Routing Key转发消息到绑定的队列。
-- **Binding**：Exchange和Queue之间的虚拟连接，Binding中可以包含Routing Key。
+- **Exchange**：交换机，接收消息。根据 `Routing Key` 转发消息到绑定的队列。
+- **Binding**：Exchange 和 Queue 之间的虚拟连接，Binding 中可以包含 Routing Key。
 - **Routing Key**：一个路由规则，虚拟机可以用它来确定如何路由一个特点消息。
-- **Queue**：也成为了Message Queue，消息队列，保存消息并转发给消费者。
+- **Queue**：也成为了 Message Queue，消息队列，保存消息并转发给消费者。
 
 
 
-### 1.3. RabbitMQ架构
+### 1.3. RabbitMQ 架构
 
 ![2.5-1-RabbitMQ的整体架构图](.\image\2.5-1-RabbitMQ的整体架构图.jpg)
 
@@ -47,14 +47,11 @@
 
 
 
-## 2. RabbitMQ安装
+## 2. RabbitMQ 安装
 
 **官网地址：https://www.rabbitmq.com/**
 
 **Erlang和RabbitMQ版本对照表：https://www.rabbitmq.com/which-erlang.html**
-
-**相关软件包和资料：链接：https://pan.baidu.com/s/1uFP2YU7xPK2KBkaP4gXvLw** 
-**提取码：s6z8**
 
 
 
@@ -66,7 +63,7 @@ erlang-18.3-1.el7.centos.x86_64.rpm # Erlang语言安装包
 rabbitmq-server-3.6.5-1.noarch.rpm # RabbitMQ安装包
 socat-1.7.3.2-1.1.el7.x86_64.rpm # 秘钥
 
-# 2、安装Erlang环境
+# 2、安装 Erlang 环境
 rpm -ivh erlang-18.3-1.el7.centos.x86_64.rpm
 
 # 3、安装socat
@@ -233,7 +230,7 @@ rabbitmqctl rename_cluster_node [oldnode1] [newnode1]...
 
 
 
-## 4. RabbitMQ角色
+## 4. RabbitMQ 角色
 
 1、`none`：不能访问 management plugin，无法登录web界面。
 
@@ -280,19 +277,14 @@ rabbitmqctl rename_cluster_node [oldnode1] [newnode1]...
 
 
 
-### 5.1. simple模式
+### 5.1. simple 模式
 
-**simple简单模式**
-
-<img src="https://www.rabbitmq.com/img/tutorials/python-one.png" alt="simple模式"  />
-
-
+**simple 简单模式**
 
 ```java
 /**
  * 工具类：获取RabbitMQ连接
  *
- * @author Ringo
  * @since 2021/4/9 22:54
  */
 public class RabbitUtils {
@@ -300,14 +292,14 @@ public class RabbitUtils {
     /**
      * 创建 Connection
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/9
      */
     public static Connection newConnection(String connectionName) throws IOException, TimeoutException {
         ConnectionFactory connectionFactory = new ConnectionFactory();
         connectionFactory.setHost(xxxxx);
         connectionFactory.setPort(5672);
-        connectionFactory.setUsername("Ringo");
+        connectionFactory.setUsername("Gardenia");
         connectionFactory.setPassword("123");
         connectionFactory.setVirtualHost("/");
         return connectionFactory.newConnection(connectionName);
@@ -315,9 +307,7 @@ public class RabbitUtils {
 }
 ```
 
-
-
-> 消费者
+**消费者**
 
 **（1）方法参数**
 
@@ -357,7 +347,7 @@ String basicConsume(String queue, boolean autoAck, Consumer callback);
 /**
  * 消费者
  *
- * @author Ringo
+ * @author Gardenia
  * @since 2021/4/9 22:13
  */
 public class Consumer {
@@ -394,11 +384,7 @@ public class Consumer {
 }
 ```
 
-
-
-
-
-> 生产者
+**生产者**
 
 **（1）方法参数**
 
@@ -418,15 +404,13 @@ public class Consumer {
 void basicPublish(String exchange, String routingKey, BasicProperties props, byte[] body);
 ```
 
-
-
 **（2）生产者代码**
 
 ```java
 /**
  * 生产者
  *
- * @author Ringo
+ * @author Gardenia
  * @since 2021/4/9 22:13
  */
 public class Producer {
@@ -466,19 +450,15 @@ public class Producer {
 }
 ```
 
+问: 为什么不绑定交换机？
 
-
-### 5.2. 问: 不绑定交换机？
-
-> 问题：生产者发送消息，没有指定交换机但是routingKey为"test001"就可以路由到"test001"队列，为什么？
+> 问题：生产者发送消息，没有指定交换机但是 `routingKey` 为"test001"就可以路由到"test001"队列，为什么？
 >
-> 回答：RabbitMQ生产者投递消息如果**不指定Exchange**，那么就会默认使用**AMQP.default**这个Exchange，它的路由规则就是根据生产者指定的RoutingKey和Queue的名字去对比，如果名字一致就将生产者的消息发送给该队列。
-
-![image-20210410192213311](E:\Typora\image\image-20210410192213311.png)
+> 回答：RabbitMQ生产者投递消息如果**不指定Exchange**，那么就会默认使用**AMQP.default**这个Exchange，它的路由规则就是根据生产者指定的 RoutingKey 和 Queue 的名字去对比，如果名字一致就将生产者的消息发送给该队列。
 
 
 
-## 6. Exchange交换机
+## 6. Exchange 交换机
 
 ```java
 /**
@@ -506,25 +486,21 @@ Exchange.DeclareOk exchangeDeclare(String exchange,
 
 **Exchange属性**：
 
-- **Name**：Exchange名称。
-- **Type**：Exchange的类型。`direct、topic、fanout、headers`。
+- **Name**：Exchange 名称。
+- **Type**：Exchange 的类型。`direct、topic、fanout、headers`
 - **Durability**：是否需要持久化，true为持久化。false代表重启服务器后该交换机会被删除。
-- **Auto Delete**：当最后一个绑定到Exchange上的队列删除后，自动删除该Exchange。
-- **Internal**：当前Exchange是否用于RabbitMQ内部使用，默认为false。**(很少使用)**
-- **Arguments**：扩展参数，用于扩展AMQP协议自制定化使用。
+- **Auto Delete**：当最后一个绑定到Exchange上的队列删除后，自动删除该 Exchange。
+- **Internal**：当前 Exchange 是否用于 RabbitMQ 内部使用，默认为false。**(很少使用)**
+- **Arguments**：扩展参数，用于扩展 AMQP 协议自制定化使用。
 
 
 
-### 6.2. Direct Exchange
+### 6.1. Direct Exchange
 
 **（1）基本概念**
 
-- **所有发送到Direct Exchange的消息被转发到Routing key中指定的Queue。**
+- **所有发送到 Direct Exchange 的消息被转发到 Routing key 中指定的 Queue**
 - **一句话：直连的方式，生产者发送消息的Routing Key和Direct Exchange的Routing Key必须完全匹配，才会路由到绑定的Queue。**
-
-![direct](https://www.rabbitmq.com/img/tutorials/python-four.png)
-
-
 
 **（2）消费者代码**
 
@@ -641,7 +617,7 @@ public class ProducerDirectExchange {
 }
 ```
 
-### 6.3. Topic Exchange
+### 6.2. Topic Exchange
 
 **（1）基本概念**
 
@@ -649,13 +625,11 @@ public class ProducerDirectExchange {
 - Exchange将Routing Key和某个Topic进行模糊匹配，此时队列需要绑定一个Topic。
 - **一句话：Topic Exchange和Queue绑定Routing Key可以使用通配符，生产者发送消息的Routing Key只要和Topic Exchange的Routing Key匹配就能路由到Topic Exchange绑定的队列。**
 
-![topic](https://www.rabbitmq.com/img/tutorials/python-five.png)
-
 > 模糊匹配可以使用通配符
 >
 > - **符号 "#" 匹配0个或多个词。**
 > - **符号 "*" 匹配一个词。**
-> - **例如："log.#" 能够匹配到 "log.info.aa"。"log.*" 只能匹配到 "log.err"。**
+> - **例如："log.#" 能够匹配到 "log.info.aa"。"log.*" 只能匹配到 "log.err" **
 
 
 
@@ -770,7 +744,7 @@ public class ProducerTopicExchange {
 }
 ```
 
-### 6.4. Fanout Exchange
+### 6.3. Fanout Exchange
 
 **（1）基本概念**：
 
@@ -780,7 +754,7 @@ public class ProducerTopicExchange {
 
 **（2）发布订阅模式**
 
-![发布订阅模式](https://www.rabbitmq.com/img/tutorials/python-three.png)
+
 
 **（3）消费者代码**
 
@@ -897,7 +871,7 @@ public class ProducerFanoutExchange {
 
 
 
-### 6.5. Headers Exchange
+### 6.4. Headers Exchange
 
 **1: 不处理路由键**。而是根据发送的消息内容中的 `headers`属性进行匹配。
 
@@ -911,13 +885,13 @@ public class ProducerFanoutExchange {
 - x-match = all ：表示所有的键值对都匹配才能接受到消息；
 - x-match = any ：表示只要有键值对匹配就能接受到消息。
 
-![headers](https://imgconvert.csdnimg.cn/aHR0cDovL2ltZy5ibG9nLmNzZG4ubmV0LzIwMTcxMTI2MTkwNzM5NjM0)
+![headers](image/aHR0cDovL2ltZy5ibG9nLmNzZG4ubmV0LzIwMTcxMTI2MTkwNzM5NjM0.png)
 
 
 
 ## 7. work工作模式
 
-![work模式](https://www.rabbitmq.com/img/tutorials/python-two.png)
+
 
 ### 7.1. 轮询模式
 
@@ -949,15 +923,13 @@ while (true) {
 
 
 
-
-
 ### 7.2. 公平分配(能者多劳)
 
 **公平分配模式要注意**：
 
-- `Qos`默认为0，需要自己设置；
-- 自己设置手动ACK。
-- `basicConsume(autoAck)`需要设置为 false ，代表手动签收。
+- `Qos`默认为 0，需要自己设置
+- 自己设置手动ACK
+- `basicConsume(autoAck)`需要设置为 false ，代表手动签收
 
 **（1）自定义消费者**
 
@@ -965,7 +937,7 @@ while (true) {
 /**
  * 自定义消费者 ACK - 手动签收
  *
- * @author Ringo
+ * @author Gardenia
  * @since 2021/4/10 23:16
  */
 public class ManualAckQueueingConsumer extends DefaultConsumer {
@@ -1002,8 +974,6 @@ public class ManualAckQueueingConsumer extends DefaultConsumer {
 }
 ```
 
-
-
 **（2）消费者代码**
 
 ```java
@@ -1034,8 +1004,6 @@ public class ConsumeUtils {
 }
 ```
 
-
-
 **（3）设置两个worker**
 
 ```java
@@ -1053,8 +1021,6 @@ public class worker2 {
     }
 }
 ```
-
-
 
 **（3）运行结果**
 
@@ -1078,7 +1044,7 @@ amq.ctag-2iPHF0Zhumvz3K3oXljrdg
 
 
 
-## 8. 整合spring-boot
+## 8. 整合 Spring-boot
 
 ### 8.1. 公共配置和实体类
 
@@ -1089,7 +1055,7 @@ spring:
   rabbitmq:
     host: xxxxxx
     port: 5672
-    username: Ringo
+    username: Gardenia
     password: 123
     virtual-host: /
 ```
@@ -1124,14 +1090,12 @@ public class Order implements Serializable {
 
 ### 8.2. 消费端
 
-> RabbitMQ的配置类中需要定义：
->
-> - 交换机
-> - 队列
-> - 绑定关系
-> - 消息的序列化和反序列化！
+RabbitMQ 的配置类中需要定义：
 
-![image-20210411120645114](E:\Typora\image\image-20210411120645114.png)
+- 交换机
+- 队列
+- 绑定关系
+- 消息的序列化和反序列化
 
 ```java
 // 配置类
@@ -1143,7 +1107,7 @@ public class RabbitMQConfig {
      * FanoutExchange的接口是 {@link Exchange} 接口，顶级接口是 {@link Declarable}。
      * Exchange 接口的实现类中有各种类型的交换机。
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1156,7 +1120,7 @@ public class RabbitMQConfig {
      * smsQueue()：供短信服务消费
      * emailQueue()：供邮件服务消费
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1174,7 +1138,7 @@ public class RabbitMQConfig {
      * 3: 完成 交换机-队列 绑定关系
      * 在 {@link Binding} 中, 有提示可以配合 {@link BindingBuilder} 构造 Binding！
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1191,7 +1155,7 @@ public class RabbitMQConfig {
      * 消息序列化 - 
      * 实体类中有 LocalDateTime 则需要对Jackson2JsonMessageConverter增强
      * 
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1205,14 +1169,12 @@ public class RabbitMQConfig {
 }
 ```
 
+@RabbitListener 和 @RabbitHandler 搭配使用：
 
+- @RabbitListener 可以标注在类上面，需配合 @RabbitHandler 注解一起使用；
+- @RabbitListener 标注在类上面表示当有收到消息的时候，就交给 @RabbitHandler 的方法处理，具体使用哪个方法处理，根据 MessageConverter 转换后的参数类型。
 
-> @RabbitListener 和 @RabbitHandler 搭配使用：
->
-> - @RabbitListener 可以标注在类上面，需配合 @RabbitHandler 注解一起使用；
-> - @RabbitListener 标注在类上面表示当有收到消息的时候，就交给 @RabbitHandler 的方法处理，具体使用哪个方法处理，根据 MessageConverter 转换后的参数类型。
->
-> 使用 @Payload 和 @Headers 注解可以消息中的 body 与 headers 信息。
+使用 @Payload 和 @Headers 注解可以消息中的 body 与 headers 信息。
 
 ```java
 @Service  // 注意：这里一定要加入到 spring 容器中！
@@ -1232,7 +1194,7 @@ public class EmailConsumer {
 // 输出信息
 短信服务接收订单....
     
-body: Order(id=9df15e82-194f-4df3-997a-41ff0ceeb4c9, username=Ringo, productId=10, count=100, time=2021-04-11T13:38:32.376)
+body: Order(id=9df15e82-194f-4df3-997a-41ff0ceeb4c9, username=Gardenia, productId=10, count=100, time=2021-04-11T13:38:32.376)
     
 headers: {amqp_receivedDeliveryMode=PERSISTENT, amqp_contentEncoding=UTF-8, amqp_receivedExchange=fanout_order_exchange, amqp_deliveryTag=1, amqp_consumerQueue=sms.fanout.queue, amqp_redelivered=false, id=1a1423c9-bad5-43a3-89ac-a016defc1024, amqp_consumerTag=amq.ctag-OsLXAbsZzFvx3V87VKsN2g, amqp_lastInBatch=false, contentType=application/json, __TypeId__=com.ymy.boot.entity.Order, timestamp=1618119512665}
 ```
@@ -1249,7 +1211,7 @@ public class RabbitMQConfig {
     /**
      * 消息序列化
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1263,11 +1225,9 @@ public class RabbitMQConfig {
 }
 ```
 
+**RabbitTemplate** 在自动配置中已经加入到 Spring 容器了，可以直接使用。
 
-
-> **RabbitTemplate** 在自动配置中已经加入到 Spring 容器了，可以直接使用。
->
-> 在发送端，将消息发送给 exchange即可！
+在发送端，将消息发送给 exchange即可！
 
 ```java
 @Service
@@ -1279,7 +1239,7 @@ public class OrderService {
     /**
      * 模拟用户下单
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     public Order makeOrder(String username, String productId, int count) {
@@ -1300,18 +1260,14 @@ public class OrderService {
 
 
 
-
-
-
-
 ## 9. Message(消息)
 
-> Message基本概念
+Message基本概念
 
-- Message是服务器和应用程序之前传送的数据。
-- **Message本质上就是一段数据，由Properties和Payload(Body)组成。**
+- Message是服务器和应用程序之前传送的数据 
+- **Message 本质上就是一段数据，由Properties和Payload(Body)组成 **
 
-> Message的属性
+Message的属性
 
 ```java
 private String contentType;	
@@ -1330,7 +1286,7 @@ private String appId;
 private String clusterId;
 ```
 
-> 消费者接收消息Properties
+消费者接收消息 Properties
 
 ```java
 import com.rabbitmq.client.*;
@@ -1401,7 +1357,7 @@ public class MessageConsumer {
 }
 ```
 
-> 生产者设置消息Properties
+生产者设置消息 Properties
 
 ```java
 import com.rabbitmq.client.AMQP;
@@ -1457,10 +1413,6 @@ public class MessageProducer {
 }
 ```
 
-
-
-
-
 # 二、消息队列高级特性
 ## 1. TTL
 
@@ -1472,11 +1424,11 @@ public class MessageProducer {
 
 ### 1.2. 过期队列
 
-> 在声明队列的时候，可以给队列增加属性来设置队列的过期时间。
->
-> - `Map<String, Object> args = new HashMap<>();` 
-> -  `args.put("x-message-ttl", 5000);`     
-> - 声明 队列内消息有5秒过期时间， 这里的过期时间必须要使用 整数。
+在声明队列的时候，可以给队列增加属性来设置队列的过期时间。
+
+- `Map<String, Object> args = new HashMap<>();` 
+- `args.put("x-message-ttl", 5000);`     
+- 声明 队列内消息有5秒过期时间， 这里的过期时间必须要使用 整数。
 
 ```java
 @Configuration
@@ -1485,7 +1437,7 @@ public class TTLQueueConfig {
     /**
      * 1: 声明交换机
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1496,7 +1448,7 @@ public class TTLQueueConfig {
     /**
      * 2: 声明 ttl 队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1512,7 +1464,7 @@ public class TTLQueueConfig {
     /**
      * 3: 绑定 交换机 - 队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1522,11 +1474,9 @@ public class TTLQueueConfig {
 }
 ```
 
-![image-20210411144440700](E:\Typora\image\image-20210411144440700.png)
 
 
-
-### 1.3.过期消息
+### 1.3. 过期消息
 
 ```java
 // 在发送消息之前，设置消息的过期时间
@@ -1542,20 +1492,18 @@ rabbitTemplate.convertAndSend(exchange, routingKey, order, message -> {
 
 ### 1.4. 总结
 
-过期时间TTL表示可以对消息设置过期的时间，在这个时间内都可以被消费者接收获取，过了这段时间消息将会被自动删除。
+过期时间 TTL 表示可以对消息设置过期的时间，在这个时间内都可以被消费者接收获取，过了这段时间消息将会被自动删除。
 
 RabbitMQ 可以对消息和队列设置TTL，目前有两种方式可以设置：
 
 - 第一种方法是通过队列属性设置，队列中每条消息都有相同的过期时间。
 - 第二种方法是对消息进行单独设置，每条消息TTL可以不同。
 
+如果上述两种方法同时使用，则消息的过期时间以两者TTL较小的那个数值为准。
 
+消息在队列的生存时间一旦超过设置的TTL值，就成为 dead message 被投递到死信队列，消费者将无法收道该消息！
 
-> 如果上述两种方法同时使用，则消息的过期时间以两者TTL较小的那个数值为准。
->
-> 消息在队列的生存时间一旦超过设置的TTL值，就成为 dead message被投递到死信队列，消费者将无法收道该消息！
->
-> **注意：第一种方式可以将消息转移到死信队列中；第二种方式消息过期会直接被删除**。
+**注意：第一种方式可以将消息转移到死信队列中；第二种方式消息过期会直接被删除**。
 
 
 
@@ -1566,13 +1514,13 @@ RabbitMQ 可以对消息和队列设置TTL，目前有两种方式可以设置�
 - 利用`DLX（Dead-Letter-Exchange）`，当消息在一个队列中变成Dead Message后，它会被重新publish到另一个Exchange，这个Exchange就是DLX。
 - DLX也是一个正常的Exchange，和一般的Exchange没有区别，它能在任何的队列上被指定，实际上就是设置某个队列的属性。
 - 当这个队列中有Dead Message时，RabbitMQ就会自动的将这个消息重新发布到设置的Exchange上去，进而被路由到另一个队列。
-- 可以监听这个死信队列中消息做相应的处理，这个特性可以弥补RabbitMQ3.0以前支持的immediate参数的功能。
+- 可以监听这个死信队列中消息做相应的处理，这个特性可以弥补RabbitMQ3.0以前支持的 `immediate` 参数的功能。
 
-> **消息变成Dead Message的情况**：
->
-> - 消息被消费者拒绝（basicReject/basicNack）并且不能重回队列requeue=false。
-> - 消息TTL过期。
-> - 队列达到最大长度。
+**消息变成 Dead Message 的情况**：
+
+- 消息被消费者拒绝（basicReject/basicNack）并且不能重回队列 requeue=false
+- 消息 TTL 过期
+- 队列达到最大长度
 
 
 
@@ -1586,7 +1534,7 @@ public class DeadQueueConfig {
     /**
      * 1: 声明交换机
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1597,7 +1545,7 @@ public class DeadQueueConfig {
     /**
      * 2: 声明死信队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1608,7 +1556,7 @@ public class DeadQueueConfig {
     /**
      * 3: 绑定 交换机 - 队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1617,8 +1565,6 @@ public class DeadQueueConfig {
     }
 }
 ```
-
-
 
 **（2）带有过期时间的队列与死心队列绑定**
 
@@ -1629,7 +1575,7 @@ public class TTLQueueConfig {
     /**
      * 1: 声明交换机
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1640,7 +1586,7 @@ public class TTLQueueConfig {
     /**
      * 2: 声明 ttl 队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1658,7 +1604,7 @@ public class TTLQueueConfig {
     /**
      * 3: 绑定 交换机 - 队列
      *
-     * @author Ringo
+     * @author Gardenia
      * @date 2021/4/11
      */
     @Bean
@@ -1668,11 +1614,9 @@ public class TTLQueueConfig {
 }
 ```
 
-![image-20210411161321566](E:\Typora\image\image-20210411161321566.png)
-
-- `TTL`：带有过期时间的队列。
-- `DLX`：连接了死信交换机。
-- `DLK`：需要死信交换机的routing key。
+- `TTL`：带有过期时间的队列
+- `DLX`：连接了死信交换机
+- `DLK`：需要死信交换机的 Routing key
 
 
 
@@ -1690,11 +1634,9 @@ rabiitmqctl set_vm_memory_high_watermark absolute 2GB
 
 **通过命令修改内存阈值，服务器重启后会失效，通过配置文件修改将会永久修改**！
 
-
-
 ### 3.2. 配置文件修改
 
-> 配置文件位置：/etc/rabbitmq/rabbitmq.conf
+配置文件位置：`/etc/rabbitmq/rabbitmq.conf`
 
 ```shell
 # 默认
@@ -1705,9 +1647,7 @@ vm_memory_high_watermark.relative = 0.6
 vm_memory_high_watermark.absolute = 2GB
 ```
 
-**内存不够就会出现这种情况**：
-
-![image-20210411170353776](E:\Typora\image\image-20210411170353776.png)
+**内存不够就会出现这种情况**
 
 
 
@@ -1731,23 +1671,17 @@ vm_memory_high_watermark_paging_ratio = 0.5 (设置小于1的值)
 
 ## 4. 消息的可靠性投递 
 
-![image-20210412002739401](E:\Typora\image\image-20210412002739401.png)
 
 
-
-参考：https://github.com/RingoTangs/spring-boot-rabbitmq-delivery
-
-
-
-
+参考：https://github.com/GardeniaTangs/spring-boot-rabbitmq-delivery
 
 
 
 4. 分布式事务
 
-> 分布式事务：事务的操作位于不同的结点上，需要保证事务ACID的特性。
->
-> 例如在下单场景下，库存和订单如果不在同一个结点上，就涉及到分布式事务。
+分布式事务：事务的操作位于不同的结点上，需要保证事务ACID的特性。
+
+例如在下单场景下，库存和订单如果不在同一个结点上，就涉及到分布式事务。
 
 
 
@@ -1758,8 +1692,6 @@ vm_memory_high_watermark_paging_ratio = 0.5 (设置小于1的值)
 - 假设一个场景，首先我们的Rabbitmq服务器上有上万条未处理的消息，我们随便打开一个消费者客户端，会出现以下情况：
   - 巨量的消息瞬间全部推送过来，但是我们单个客户端无法同时处理这么多数据！
 - **RabbitMQ提供一种qos（服务质量保证）功能，即在非自动确认消息（一定不能设置AutoACK）的前提下，如果一定数目的消息（通过基于consume或者channel设置Qos的值）未被确认前，不进行消费新的消息。**
-
-> void basicQos(int prefetchSize, int prefetchCount, boolean global)
 
 ```java
 /**
@@ -1772,7 +1704,7 @@ void basicQos(int prefetchSize, int prefetchCount, boolean global)
 
 - **注意：在AutoACK的情况下，Qos是不会生效的，一定要设置手动签收。**
 
-> 自定义消费者手动ACK
+自定义消费者手动 ACK
 
 ```java
 import com.rabbitmq.client.AMQP;
@@ -1785,7 +1717,7 @@ import java.io.IOException;
 /**
  * 自定义的消费者
  * 需要继承 com.rabbitmq.client.DefaultConsumer
- * 重写handleDelivery()方法
+ * 重写 handleDelivery() 方法
  */
 public class CustomConsumer extends DefaultConsumer {
 
@@ -1818,7 +1750,7 @@ public class CustomConsumer extends DefaultConsumer {
 }
 ```
 
-> 消费端
+消费端
 
 ```java
 import com.rabbitmq.client.Channel;
@@ -1889,7 +1821,7 @@ public class QosConsumer {
 - 消费端重回队列是为了对没有处理成功的消息，把消息重新会递给Broker！
 - **一般在实际应用中，都会关闭重回队列，也就是设置为false。**
 
-> 自定义消费者ACK、NACK和重回队列 
+自定义消费者ACK、NACK和重回队列 
 
 ```java
 import com.rabbitmq.client.AMQP;
@@ -1940,7 +1872,7 @@ public class CstConsumer extends DefaultConsumer {
 }
 ```
 
-> 消费端
+消费端
 
 ```java
 import com.rabbitmq.client.Channel;
@@ -1993,7 +1925,7 @@ public class AckConsumer {
 }
 ```
 
-> 生产端
+生产端
 
 ```java
 import com.rabbitmq.client.*;
@@ -2033,10 +1965,6 @@ public class AckProducer {
 }
 ```
 
-
-
-
-
 # 三、RabbitMQ整合Spring
 
 ## 1. RabbitMQ整合Spring AMQP
@@ -2046,8 +1974,6 @@ public class AckProducer {
 - **注意：autoStartUp必须要设置为true，否则Spring容器不会加载RabbitAdmin类。**
 - RabbitAdmin底层实现就是从Spring容器中获取Exchange、Binding、RoutingKey以及Queue的@Bean声明。
 - 然后使用RabbitTemplate的execute()方法执行对应的声明、修改、删除等一系列RabbitMQ基础功能操作。例如：添加一个Exchange、删除一个Binding、清空队列里的消息等等。
-
-> pom
 
 ```xml
 <!--踩坑记：amqp-client低版本和spring-amqp整合会报错-->
@@ -2064,8 +1990,6 @@ public class AckProducer {
     <artifactId>spring-boot-starter-amqp</artifactId>
 </dependency>
 ```
-
-> 配置类
 
 ```java
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -2110,7 +2034,7 @@ public class RabbitMQConf {
 }
 ```
 
-> RabbitAdmin基础API
+RabbitAdmin 基础 API
 
 ```java
 import org.junit.Test;
@@ -2180,7 +2104,7 @@ public class RabbitMQTest {
 }
 ```
 
-> Spring容器声明Exchange、Queue和Binding
+Spring容器声明Exchange、Queue和Binding
 
 ```java
 /**
@@ -2213,8 +2137,6 @@ public Binding binding01() {
 - RabbitTemplate是RabbitMQ在与SpringAMQP整合的时候进行发送消息的关键类。
 - RabbitTemplate提供了可靠性消息投递方法、回调监听消息接口ConfirmCallback、返回值确认接口ReturnCallback等等。同样我们需要进行注入到spring容器中，然后直接使用。
 - 在与Spring整合时需要实例化，但是在与SpringBoot整合时，在配置文件里添加配置即可。
-
-> 配置类
 
 ```java
 import org.springframework.amqp.core.Binding;
@@ -2295,7 +2217,7 @@ public class RabbitMQConf {
 }
 ```
 
-> RabbitTemplate发送消息
+RabbitTemplate发送消息
 
 ```java
 import org.junit.Test;
@@ -2358,8 +2280,6 @@ public class RabbitTemplateTest {
 - **注意：SimpleMessageListenerContainer可以进行动态设置，比如在运行中的应用可以动态的修改其消费者数量的大小、接收消息的模式等。**
 - 很多基于RabbitMQ的自制定化后端管控台在进行动态设置的时候，也是根据这个动态设置特性去实现的。所以可以看出SpringAMQP非常的强大。
 
-> 配置
-
 ```java
 /**
 * SimpleMessageListenerContainer
@@ -2405,9 +2325,9 @@ public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionF
 
 #### 4.1.4.MessageListenerAdapter
 
-- MessageListenerAdapter：消息监听适配器。
+- MessageListenerAdapter：消息监听适配器
 
-> 自定义的消息委托者
+自定义的消息委托者
 
 ```java
 /**
@@ -2419,8 +2339,6 @@ public class MessageDelegate {
     }
 }
 ```
-
-> 配置
 
 ```java
 /**
@@ -2474,8 +2392,6 @@ public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionF
 
 #### 4.2.1.生产端
 
-> pom
-
 ```xml
 <!--spring-amqp version 2.2.2-->
 <dependency>
@@ -2483,8 +2399,6 @@ public SimpleMessageListenerContainer simpleMessageListenerContainer(ConnectionF
     <artifactId>spring-boot-starter-amqp</artifactId>
 </dependency>
 ```
-
-> application.yml
 
 ```yaml
 server:
@@ -2503,8 +2417,6 @@ spring:
     template:
       mandatory: true # 设置true 监听器会收到路由不可达消息
 ```
-
-> 配置类
 
 ```java
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -2536,11 +2448,7 @@ public class RabbitMQConfig {
 }
 ```
 
-
-
-
-
-> 发送消息并设置Confirm和Return
+发送消息并设置 Confirm 和 Return
 
 ```java
 import org.springframework.amqp.rabbit.connection.CorrelationData;
@@ -2605,7 +2513,7 @@ public class RabbitSender {
     }
 ```
 
-> 测试
+
 
 ```java
 @RunWith(SpringRunner.class)
@@ -2624,14 +2532,12 @@ public class SendAndCallbackTest {
 
 #### 4.2.2.消费端
 
-> 消费端配置详解
+消费端配置详解
 
 - 首先配置手工确认模式，用于ACK的手工处理，这样我们可以保证消息的可靠性送达，或者再消费端消费失败的时候可以做到重回队列、根据业务记录日志等处理。
 - 可以设置消费端的监听个数和最大个数，用于控制消费端的并发情况。
 - **消费端监听@RabbitMQListener注解，这个在实际工作中非常好用。**
 - @RabbitMQListener是一个组合注解，里面可以注解配置@QueueBinding、@Queue、@Exchange直接通过这个组合注解一次性搞定消费端Exchange、Queue、Binding、Routing Key，并且配置监听功能等。
-
-> pom
 
 ```xml
 <!--web-->
@@ -2653,8 +2559,6 @@ public class SendAndCallbackTest {
 </dependency>
 ```
 
-> application.yml
-
 ```yaml
 server:
   port: 8802
@@ -2673,8 +2577,6 @@ spring:
         concurrency: 5 # 最小的监听者数量
         max-concurrency: 10 # 最大的监听者数量
 ```
-
-> 配置类
 
 ```java
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
@@ -2706,7 +2608,7 @@ public class RabbitMQConf {
 }
 ```
 
-> 消息的监听
+消息的监听
 
 ```java
 import com.rabbitmq.client.Channel;
@@ -2761,8 +2663,6 @@ public class RabbitReceiverObject {
 
 #### 4.3.2.生产端
 
-> pom
-
 ```xml
 <dependencies>
     <!--web-->
@@ -2791,8 +2691,6 @@ public class RabbitReceiverObject {
     </dependency>
 </dependencies>
 ```
-
-> application.yml
 
 ```yaml
 server:
@@ -2820,7 +2718,7 @@ spring:
           binder: rabbit # 这里和binders.rabbit对应
 ```
 
-> 发送消息
+发送消息
 
 ```java
 import org.springframework.beans.factory.annotation.Autowired;
@@ -2846,8 +2744,6 @@ public class RabbitSender {
 }
 ```
 
-> 测试
-
 ```java
 import com.ymy.spring.cloud.stream.sender.RabbitSender;
 import org.junit.Test;
@@ -2871,8 +2767,6 @@ public class SendTest {
 ```
 
 #### 4.3.3.消费端
-
-> pom
 
 ```xml
 <dependencies>
@@ -2902,8 +2796,6 @@ public class SendTest {
     </dependency>
 </dependencies>
 ```
-
-> application.yml
 
 ```yaml
 server:
@@ -2939,7 +2831,7 @@ spring:
               max-concurrency: 5
 ```
 
-> 消费端监听
+消费端监听
 
 ```java
 package com.ymy.spring.cloud.stream.receive;

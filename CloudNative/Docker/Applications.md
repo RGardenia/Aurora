@@ -48,15 +48,20 @@ docker cp nginx:/etc/nginx/conf.d /root/nginx/conf.d
 
 # 注意 nginx.conf 结尾：include /etc/nginx/conf.d/*.conf;
 # 所以, nginx 配置 server 需要在 conf.d 文件夹下配置
+# docker run --name nginx --net host
 
-# 以配置文件启动
-docker run --name nginx --net host \
--v /root/nginx/conf/nginx.conf:/etc/nginx/nginx.conf \
--v /root/nginx/conf.d:/etc/nginx/conf.d \
--v /root/nginx/web:/web \
--v /root/nginx/web1:/web1 \
--v /root/nginx/web2:/web2 \
--d nginx:1.21.1-alpine
+docker run --name nginx -p 3309:80 \
+  -v /home/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro \
+  -v /home/docker/nginx/conf.d:/etc/nginx/conf.d \
+  -v /home/docker/nginx/web:/web \
+  -d nginx
+
+# 挂载配置文件
+-v /host/path/nginx.conf:/etc/nginx/nginx.conf:ro
+-v /mnt:/mnt
+
+# 
+-v /some/content:/usr/share/nginx/html:ro
 ```
 
 ## 1.1 部署 Front Project
@@ -73,6 +78,44 @@ docker build -t soybean-admin .
 
 docker run -d -p 8081:80 soybean-admin
 ```
+
+## 1.2 部署临时网盘
+
+```bash
+user root;
+worker_processes auto;
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+worker_rlimit_nofile 65535;
+
+events {
+    worker_connections 65535;
+}
+http {
+    default_type  application/octet-stream;
+    sendfile        on;
+    keepalive_timeout  65000;
+    
+    server {
+        listen       80;
+        server_name gardenia.com;
+        error_page 500  502 504 503  /50x.html;
+
+        location /download {
+              alias  /mnt;
+              sendfile on;
+              autoindex on;  # 开启目录文件列表
+              autoindex_exact_size on;  # 显示出文件的确切大小，单位是bytes
+              autoindex_localtime on;  # 显示的文件时间为文件的服务器时间
+              charset utf-8,gbk;  # 避免中文乱码
+              client_max_body_size 10000M;
+        }
+    }
+}
+```
+
+
 
 
 
@@ -92,10 +135,20 @@ docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=333 \
 docker cp mysql8:/etc/mysql/my.cnf /root/mysql8/conf/my.cnf
 
 # 以外部配置文件启动
-docker run --name mysql8 -e MYSQL_ROOT_PASSWORD=333 -p 3309:3306 \
--v /root/mysql8/conf/my.cnf:/etc/mysql/my.cnf \
--v /root/mysql8/data:/var/lib/mysql \
--d mysql:8.0.26
+docker run --name mysql_jeecg -e MYSQL_ROOT_PASSWORD=333666 -p 3309:3306 \
+  -v /home/docker/mysql/conf:/etc/mysql/my.cnf \
+  -v /home/docker/mysql/logs:/logs \
+  -v /home/docker/mysql/data:/var/lib/mysql \
+  -d mysql
+
+# 此命令中仅使用自定义配置文件的目录路径
+docker run -p 3309:3306 \
+	--name mysql_jeecg \
+  -v /home/docker/mysql/conf:/etc/mysql/my.cnf \
+  -v /home/docker/mysql/logs:/logs \
+  -v /home/docker/mysql/data:/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD=333666 \
+  -d mysql
 ```
 
 
@@ -1154,6 +1207,19 @@ docker logs -f jenkins
 ```
 
 
+
+
+
+# 十二、Redis
+
+```bash
+docker run -p 6379:6379 \
+  --name redis_jeecg \
+  -v /home/docker/redis/redis.conf:/etc/redis/redis.conf \
+  -v /home/docker/redis/data:/data \
+  -d redis redis-server /etc/redis/redis.conf \
+  --appendonly yes --requirepass Zdk@2024
+```
 
 
 

@@ -24,7 +24,7 @@
 
 - [Balsamiq](https://balsamiq.com/wireframes/desktop/#)         Bmpr 文件
 
-## Tools
+## Tricks
 
 - 图吧工具箱
 
@@ -195,6 +195,7 @@
 - Motrix
 - FDM
 - utorrent （种子）
+- [GoPeed](https://github.com/GopeedLab/gopeed)
 
 #### 清理工具	 
 

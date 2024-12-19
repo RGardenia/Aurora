@@ -230,6 +230,7 @@ func main() {
 ​	其一大特点是`goroutine` 的调度是在用户态下完成的， 不涉及内核态与用户态之间的频繁切换，包括内存的分配与释放，都是在用户态维护着一块大的内存池， 不直接调用系统的 `malloc` 函数（除非内存池需要改变），成本比调度 OS 线程低很多。 另一方面充分利用了多核的硬件资源，近似的把若干`goroutine` 均分在物理线程上， 再加上本身`goroutine` 的超轻量，以上种种保证了 go 调度方面的性能。
 
 <hr>
+
 ## 等待组
 
 `sync.waitgroup`，用来等 `goroutine` 执行完在继续，是一个结构体，值类型，给函数传参数的时候要传指针
@@ -238,13 +239,13 @@ func main() {
 var wg sync.WaitGroup
 
 wg.add(1) // 起几个 goroutine 就加几个数
-wg.Done() // 在goroutine对应的函数中，函数要结束的时候调用，表示goroutine完成，计数器减1
+wg.Done() // 在 goroutine 对应的函数中，函数要结束的时候调用，表示 goroutine 完成，计数器减1
 wg.Wait() // 阻塞，等待所有的goroutine都结束
 ```
 
 ## sync.WaitGroup
 
-> 等待协程
+**等待协程**
 
 首先需要创建一个协程计数器
 

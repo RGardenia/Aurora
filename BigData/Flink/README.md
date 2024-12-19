@@ -1553,15 +1553,15 @@ Flink官方提供了连接工具flink-connector-kafka，直接帮实现了一个
 
 所以想要以Kafka作为数据源获取数据，只需要引入Kafka连接器的依赖。Flink官方提供的是一个通用的Kafka连接器，它会自动跟踪最新版本的Kafka客户端。目前最新版本只支持0.10.0版本以上的Kafka。这里需要导入的依赖如下。
 
-\<dependency\>
+```xml
+<dependency\>
+<groupId\>org.apache.flink\</groupId\>
+<artifactId\>flink-connector-kafka\</artifactId\>
+<version\>\${flink.version}\</version\>
+</dependency\>
+```
 
-\<groupId\>org.apache.flink\</groupId\>
 
-\<artifactId\>flink-connector-kafka\</artifactId\>
-
-\<version\>\${flink.version}\</version\>
-
-\</dependency\>
 
 代码如下：
 
