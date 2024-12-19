@@ -79,7 +79,22 @@ DCL用来控制数据库的访问，包括如下SQL语句：
 - SAVEPOINT：设置保存点
 - LOCK：对数据库的特定部分进行锁定
 
-![image-20220530093258342](../images/image-20220530093258342.png)
+<img src="../images/image-20220530093258342.png" alt="image-20220530093258342" style="zoom:67%;" />
+
+
+
+
+
+## 安装
+
+
+
+```bash
+# mysql 8.0 以后的语法
+create user root@'%' identified by '123456';
+
+grant all privileges on *.* to root@'%' with grant option;
+```
 
 
 
@@ -87,13 +102,9 @@ DCL用来控制数据库的访问，包括如下SQL语句：
 
 
 
+## 权限管理
 
-
-
-
-# 权限管理
-
-## 用户管理
+### 用户管理
 
 启动MySQL服务后，可以通过mysql命令来登录MySQL服务器，命令如下：
 
@@ -109,7 +120,7 @@ create user 'zy'@'%' identified by '123456';
 
 
 
-## 权限管理
+### 权限管理
 
 查看可使用权限 ： 这里展示一部分
 
@@ -154,9 +165,7 @@ mysql> show privileges;
 +-----------------------------+---------------------------------------+
 ```
 
-
-
-## 角色管理
+### 角色管理
 
 创建角色
 
@@ -189,7 +198,9 @@ set default role db_classmates to cej;
 
 
 
-# 日志
+
+
+## 日志
 
 
 

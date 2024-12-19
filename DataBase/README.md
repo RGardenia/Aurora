@@ -82,3 +82,28 @@
 
 对于多数应用程序，可以优先考虑把数据库系统的隔离级别设为`Read Committed`，它能够避免脏读取，而且具有较好的并发性能。尽管它会导致不可重复读、虚读和第二类丢失更新这些并发问题，在可能出现这类问题的个别场合，可以由应用程序采用悲观锁或乐观锁来控制。
 MySQL支持四种事务隔离级别，其中`REPEATABLE READ`为默认事务隔离级别。
+
+
+
+
+
+# Redis
+
+Spring Boot
+
+```yaml
+# ---------------- Redis 集群-----------------
+spring.redis.password=111111
+# 获取失败 最大重定向次数
+spring.redis.cluster.max-redirects=3
+spring.redis.lettuce.pool.max-active=8
+spring.redis.lettuce.pool.max-wait=-1ms
+spring.redis.lettuce.pool.max-idle=8
+spring.redis.lettuce.pool.min-idle=0
+# 支持集群拓扑动态感应刷新，自适应拓扑刷新是否使用所有可用的更新，默认false关闭
+spring.redis.lettuce.cluster.refresh.adaptive=true
+# 定时刷剂
+spring.redis.lettuce.cluster.refresh.period=2000
+spring.redis.cluster.nodes=192.168.111.185:6381,192.168.111.185:6382,192.168.111.172:6383,192.168.111.172:6384
+```
+

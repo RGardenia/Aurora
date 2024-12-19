@@ -24,7 +24,7 @@ func main() {
 `if` 的另外一种写法，下面的方法的区别是 num2 是局部变量
 
 ```go
-if num2:= 10; num2>=10 {
+if num2 := 10; num2 >= 10 {
     fmt.Println("hello >=10")
 }
 ```

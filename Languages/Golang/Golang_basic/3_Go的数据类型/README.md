@@ -77,7 +77,8 @@ fmt.Printf("%x\n", number)
 
 Go 语言支持两种浮点型数：float32 和 float64。这两种浮点型数据格式遵循 IEEE754 标准：
 
-float32 的浮点数的最大范围约为 3.4e38，可以使用常量定义：math.MaxFloat32。float64 的浮点数的最大范围约为 1.8e308，可以使用一个常量定义：math.MaxFloat64
+float32 的浮点数的最大范围约为 3.4e38，可以使用常量定义：math.MaxFloat32。
+float64 的浮点数的最大范围约为 1.8e308，可以使用一个常量定义：math.MaxFloat64
 
 打印浮点数时，可以使用 fmt 包配合动词 `%f`，代码如下：
 
@@ -169,7 +170,7 @@ func main() {
 	// 通过 len 来循环的，相当于打印的是 ASCII码
 	s := "你好 golang"
 	for i := 0; i < len(s); i++ {
-		fmt.Printf("%v(%c)\t", s[i], s[i])	
+		fmt.Printf("%v(%c)\t", s[i], s[i])
         // 228(ä)  189(½)  160( )  229(å)  165(¥)  189(½)  32( )   103(g)  111(o)  108(l) 97(a)    110(n)  103(g)
 	}
 
@@ -194,10 +195,10 @@ byteS1[0] = 'p'
 fmt.Println(string(byteS1))	// pig
 ```
 
-转换为rune类型
+转换为 `rune` 类型
 
 ```go
-// rune类型
+// rune 类型
 s2 := "你好golang"
 byteS2 := []rune(s2)
 byteS2[0] = '我'

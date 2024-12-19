@@ -730,3 +730,54 @@ Proxy_set_header THE-TIME $date_gmt;
 
 - 将php-fpm.conf的0s的0s改成一个时间
 
+
+
+
+
+# 403 Forbidden 的几种解决方案
+
+```bash
+一、启动用户和nginx工作用户不一致所致
+查看nginx的启动用户：打开nginx.conf文件
+
+vi conf/nginx.conf
+
+user nginx；
+改为
+user root；
+
+二、nginx.conf中缺少index的指定的文件。
+查看nginx的配置：打开nginx.conf文件
+
+server {  
+	listen       80;  
+	server_name  localhost;
+	index  index.html;
+	root  /opt/html/;
+	}
+
+如果在/opt/html/下面没有index.html的时候，会报403 forbidden。
+
+三、权限问题，如果nginx没有操作权限，也会出现403错误。
+1，解决办法：修改/opt/html/目录的读写权限，或者是把nginx的启动用户改成目录的所属用户，重启Nginx即可解决
+
+chmod -R 777 /opt/html/
+
+
+四、SELinux设置为开启状态（enabled）的原因。
+1，查看当前selinux的状态。
+
+  /usr/sbin/sestatus
+
+2，将SELINUX=enforcing 修改为 SELINUX=disabled 状态。
+
+vi /etc/selinux/config
+#SELINUX=enforcing
+SELINUX=disabled   #注释之前，替换为这个
+
+3，重启生效：reboot。
+
+ reboot
+```
+
+> https://blog.51cto.com/u_16099194/11338497
