@@ -69,7 +69,7 @@ unique index_name column
 那么就可以创建一个普通索引
 
 ```sql
-create index  index_name on table(column)
+create index index_name on table(column)
 ```
 
 或者创建表时指定
@@ -110,7 +110,7 @@ MySQL每次只使用一个索引，与其说 数据库查询只能用一个索�
 
 - 主键，unique字段
 - 和其他表做连接的字段需要加索引
-- 在where 里使用 >, >=, = , <, <=, is null 和 between等字段。
+- 在 where 里使用 >, >=, = , <, <=, is null 和 between 等字段。
 - 使用不以通配符开始的like，where A like ‘China%’
 - 聚合函数里面的 MIN()， MAX()的字段
 - order by  和 group by字段

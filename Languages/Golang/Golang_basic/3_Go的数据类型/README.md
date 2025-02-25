@@ -129,7 +129,95 @@ var str = `第一行
 fmt.Println(str)
 ```
 
-### 字符串常见操作
+### 字符串 查找
+
+| 方法名                                      | 描述                                                         |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| `Count(s, substr string)int`                | 返回字符串s包含字符串substr的个数                            |
+| `Contains(s, substr string)bool`            | 判断字符串s是否包含substr字符串                              |
+| `ContainsAny(s, chars string)bool`          | 判断字符串s是否包含chars字符串中的任意一个字符               |
+| `ContainsRune(s string, r rune)bool`        | 判断字符串s是否包含unicode的码值 r                           |
+| `LastIndex(s, substr string)int`            | 返回字符串s中字符串substr最后一次出现的位置                  |
+| `Index(s, substr string)int`                | 返回字符串s中字符串substr首次出现的位置                      |
+| `IndexByte(s string, c byte)int`            | 返回字符串s中字符 c 首次出现的位置                           |
+| `IndexRune(s string, r rune)int`            | 返回unicode的码值 r 在字符串s中首次出现的位置                |
+| `IndexAny(s, chars string)int`              | 返回字符串chars中的任意一个字符unicode码值, 在s中首次出现的位置 |
+| `LastIndexAny(s, chars string)int`          | 返回字符串chars中的任意一个字符unicode码值, 在s中最后一次出现的位置 |
+| `LastIndexByte(s string, c byte)int`        | 返回字符串s中字符c最后一次出现的位置                         |
+| `HasPrefix(s, prefix string)bool`           | 判断字符串s是否有前缀prefix                                  |
+| `HasSuffix(s, suffix string)bool`           | 判断字符串s是否有后缀suffix                                  |
+| `IndexFunc(s string, f func(r)bool)int`     | 返回字符串s中满足函数f(r)==true, 字符首次出现的位置          |
+| `LastIndexFunc(s string, f func(r)bool)int` | 返回字符串s中满足函数f(r)==true , 字符最后一次出现的位置     |
+
+### 字符串 分割
+
+| 方法名                                         | 描述                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------ |
+| `Fields(s string)[]string`                     | 将字符串s以空白字符分割，返回切片                            |
+| `FieldsFunc(s string, f func(r) bool)[]string` | 将字符串s以满足f(r)==true的字符分割， 分割后返回切片         |
+| `Split(s,sep string)[]string`                  | 将字符串s以sep作为分割符进行分割， 分割后字符最后去掉sep,返回切片 |
+| `SplitAfter(s,sep string)[]string`             | 将字符串s以sep作为分割符进行分割， 分割后字符最后加上sep,返回切片 |
+| `SplitAfterN(s,sep string, n int)[]string`     | 将字符串s以sep作为分割符进行分割， 分割后字符最后加上sep,n决定分割成切片长度 |
+| `SplitN(s,sep string, n int)[]string`          | 将字符串s以sep作为分割符进行分割， 分割后字符最后去掉sep,n决定分割成切片长度 |
+
+
+
+### 字符串 删除
+
+| 方法名                                           | 描述                                        |
+| ------------------------------------------------ | ------------------------------------------- |
+| `Trim(s,cutset string)string`                    | 将字符串s首尾包含在cutset中的任一字符去掉   |
+| `TrimFunc(s string,f func(r)bool)string`         | 将字符串s首尾满足函数f(r)==true的字符串去掉 |
+| `TrimLeft(s,cutset string)string`                | 将字符串s左边包含在cutset中的任一字符去掉   |
+| `TrimLeftFunc(s string,f func(r)bool) string`    | 将字符串s左边满足函数f(r)==true的字符串去掉 |
+| `TrimPrefix(s,prefix string)string`              | 将字符串s中前缀字符串prefix去掉             |
+| `TrimRight(s,cutset string) string`              | 将字符串s右边包含在cutset中的任一字符去掉   |
+| `TrimRightFunc(s string, f func(r) bool) string` | 将字符串s右边满足函数f(r)==true的字符串去掉 |
+| `TrimSpace(s string) string`                     | 将字符串首尾空白去掉                        |
+| `TrimSuffix(s, suffix string) string`            | 将字符串s中后缀字符串suffix去掉             |
+
+
+
+### 字符串 拼接 & 重复
+
+| 方法名                                    | 描述                               |
+| ----------------------------------------- | ---------------------------------- |
+| `Join(elems []string, sep string) string` | 将字符串切片elems，使用sep进行拼接 |
+| `Repeat(s string, count int) string`      | 将字符串s,重复count次              |
+
+
+
+### 字符串 替换
+
+| 方法名                                     | 描述                                                         |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| `Replace(s, old, new string, n int)string` | 将字符串s前n个不重叠old子串都替换为new的新字符串 如果n<0会替换所有old子串。 |
+| `ReplaceAll(s, old, new string) string`    | 将字符串s中的old子串全部替换为new的新字符串                  |
+
+
+
+### 字符串 比较
+
+| 方法名                        | 描述                                                         |
+| ----------------------------- | ------------------------------------------------------------ |
+| `Compare(a, b string) int`    | 按字典顺序比较a和b字符串的大小 如果 a > b，返回一个大于 0 的数 如果 a == b，返回 0 如果 a < b，返回一个小于 0 的数 |
+| `EqualFold(s, t string) bool` | 判断s和t两个UTF-8字符串是否相等，忽略大小写                  |
+
+### 字符串 大小写
+
+| 方法名                                                  | 描述                                                   |
+| ------------------------------------------------------- | ------------------------------------------------------ |
+| `Title(s string)string`                                 | 将字符串s每个单词首字母大写                            |
+| `ToLower(s string)string`                               | 将字符串s转换成小写返回                                |
+| `ToLowerSpecial(c unicode.SpecialCase,s string)string`  | 将字符串s中所有字符串按c指定的 映射转换成小写返回      |
+| `ToTitle(s string)string`                               | 将字符串s转换成大写返回，处理某些`unicode`编码字符不同 |
+| `ToTitleSpecial(c unicode.SpecialCase,s string) string` | 将字符串s中所有的字符按c指定的 映射转换成大写返回      |
+| `ToUpper(s string)string`                               | 将字符串s转换成大写返回                                |
+| `ToUpperSpecial(c unicode.SpecialCase,s string) string` | 将字符串s中所有的字符按c指定的 映射转换成大写返回      |
+
+
+
+### 🌰
 
 - len(str)：长度
 - `+` 或 fmt.Sprintf：拼接字符串
@@ -137,8 +225,43 @@ fmt.Println(str)
 - strings.contains：判断是否包含
 - strings.HasPrefix      strings.HasSuffix：前缀/后缀判断
 - strings.Index()      strings.LastIndex()：子串出现的位置
-- strings.Join()：join操作
+- strings.Join()：join 操作
 - strings.Index()：判断在字符串中的位置
+- strings.ToLower ：转 小写
+
+```go
+str := "apple,banana,cherry"
+parts := strings.Split(str, ",")
+
+str := "Hello, World!"
+substr1 := "World"
+substr2 := "Go"
+fmt.Println(strings.Contains(str, substr1)) // 输出: true
+fmt.Println(strings.Contains(str, substr2)) // 输出: false
+
+str := "https://example.com"
+fmt.Println(strings.HasPrefix(str, "https")) // 输出: true
+fmt.Println(strings.HasPrefix(str, "http"))  // 输出: false
+
+str := "filename.go"
+fmt.Println(strings.HasSuffix(str, ".go"))  // 输出: true
+fmt.Println(strings.HasSuffix(str, ".txt")) // 输出: false
+
+str := "banana"
+substr := "an"
+index := strings.Index(str, substr)
+
+str := "banana"
+substr := "an"
+index := strings.LastIndex(str, substr)
+
+parts := []string{"Go", "is", "awesome"}
+result := strings.Join(parts, " ")
+
+s = strings.ToLower(s)
+```
+
+
 
 ## byte 和 rune 类型
 
@@ -146,14 +269,14 @@ fmt.Println(str)
 
 Go语言中的字符有以下两种类型
 
-- uint8 类型：或者叫 byte 型，代表了 ACII 码的一个字符
-- rune 类型：代表一个 UTF-8 字符
+- `uint8` 类型：或者叫 byte 型，代表了 ASCII 码的一个字符
+- `rune` 类型：代表一个 UTF-8 字符
 
-当需要处理中文，日文或者其他复合字符时，则需要用到 rune 类型，rune 类型实际上是一个 int32
+当需要处理中文，日文或者其他复合字符时，则需要用到 rune 类型，rune 类型实际上是一个 `int32`
 
-Go使用了特殊的 rune 类型来处理 Unicode，让基于 Unicode 的文本处理更为方便，也可以使用 byte 型进行默认字符串处理，性能和扩展性都有照顾。
+Go 使用了特殊的 rune 类型来处理 Unicode，让基于 Unicode 的文本处理更为方便，也可以使用 byte 型进行默认字符串处理，性能和扩展性都有照顾。
 
-需要注意的是，在go语言中，一个汉字占用 3个字节（utf-8），一个字母占用 1 个字节
+需要注意的是，在 Go 语言中，一个汉字占用 3个字节（`utf-8`），一个字母占用 1 个字节
 
 ```go
 package main

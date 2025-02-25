@@ -380,13 +380,13 @@ OK
 - 当列表的元素个数小于list-max-ziplist-entries配置（默认512个）
 - 当列表中每个元素的值都小于list-max-ziplist-value配置时（默认64字节）
 
-当列表类型无法满足ziplist条件时，Redis会使用linkedList作为列表的内部实现。
+当列表类型无法满足ziplist条件时，Redis会使用 linkedList 作为列表的内部实现。
 
-而在Redis3.2版本开始怼列表数据结构进行改造，使用quickList代替了zipList和linkedList。
+而在Redis3.2版本开始怼列表数据结构进行改造，使用 quickList 代替了zipList 和 linkedList。
 
 由于列表对象的有序且不可重复的特性，它比较适合用来做文章、商品等列表的存储。
 
-列表类型可以lpush（左侧push），同时又可以使用rpop（右侧弹出）第一个元素，所以列表类型具有先进先出的特性，可以用来实现消息队列，也可以lpush（左侧push）和lpop（左侧弹出），具有后进先出的特性，因此开发中需要使用栈的时候，我们可以使用列表对象来实现。
+列表类型可以 lpush（左侧 push），同时又可以使用 rpop（右侧弹出）第一个元素，所以列表类型具有先进先出的特性，可以用来实现消息队列，也可以 lpush（左侧push）和 lpop（左侧弹出），具有后进先出的特性，因此开发中需要使用栈的时候，我们可以使用列表对象来实现。
 
 ```shell
 # 在Redis里面，可以把List玩成栈、队列、阻塞队列！
