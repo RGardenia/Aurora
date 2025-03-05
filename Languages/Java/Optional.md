@@ -4,30 +4,30 @@
 
 ### 1.前言
 
-相信不少小伙伴已经被java的NPE(`Null Pointer Exception`)所谓的空指针异常搞的头昏脑涨,有大佬说过“防止 NPE，是程序员的基本修养。”但是修养归修养，也是我们程序员最头疼的问题之一，尽可能的利用Java8的新特性`Optional`来尽量简化代码同时高效处理NPE（`Null Pointer Exception`空指针异常）
+相信不少小伙伴已经被 java 的NPE(`Null Pointer Exception`)所谓的空指针异常搞的头昏脑涨,有大佬说过“防止 NPE，是程序员的基本修养。”但是修养归修养，也是程序员最头疼的问题之一，尽可能的利用Java8的新特性`Optional`来尽量简化代码同时高效处理NPE（`Null Pointer Exception`空指针异常）
 
 ### 2.认识 Optional 并使用
 
-简单来说，Opitonal类就是Java提供的为了解决大家平时判断对象是否为空用 会用 null!=obj 这样的方式存在的判断，从而令人头疼导致NPE（`Null Pointer Exception`空指针异常），同时Optional的存在可以让代码更加简单，可读性跟高，代码写起来更高效.
+简单来说，Opitonal 类就是Java提供的为了解决大家平时判断对象是否为空用 会用 null!=obj 这样的方式存在的判断，从而令人头疼导致NPE（`Null Pointer Exception`空指针异常），同时Optional的存在可以让代码更加简单，可读性跟高，代码写起来更高效.
 
 常规判断：
 
 ```java
 //对象 人
 //属性有 name，age
-Person person=new Person();
-if (null==person){
+Person person = new Person();
+if (null == person){
      return "person为null";
  }
 return person;
 ```
 
-使用Optional：
+使用 Optional：
 
 ```java
 //对象 人
 //属性有 name，age
-Person person=new Person();
+Person person = new Person();
 return Optional.ofNullable(person).orElse("person为null");
 ```
 
@@ -64,18 +64,16 @@ public class Person {
 }
 ```
 
-下面，我们就高效的学习一下神奇的Optional类！
-
 ##### 2.1 Optional对象创建
 
-首先我们先打开Optional的内部,去一探究竟 先把几个创建Optional对象的方法提取出来
+首先先打开Optional的内部,去一探究竟 先把几个创建Optional对象的方法提取出来
 
 ```java
 public final class Optional<T> {
    private static final Optional<?> EMPTY = new Optional<>();
    private final T value;
-   //我们可以看到两个构造方格都是private 私有的
-   //说明 我们没办法在外面去new出来Optional对象
+   //可以看到两个构造方格都是private 私有的
+   //说明 没办法在外面去new出来Optional对象
    private Optional() {
         this.value = null;
     }
@@ -111,7 +109,7 @@ Optional<String> optOfNullable1 = Optional.ofNullable(null);
 Optional<String> optOfNullable2 = Optional.ofNullable("optional");
 ```
 
-我们关于创建Optional对象的内部方法大致分析完毕 接下来也正式的进入Optional的学习与使用中
+关于创建Optional对象的内部方法大致分析完毕 接下来也正式的进入Optional的学习与使用中
 
 ##### 2.2 Optional.get()方法(返回对象的值)
 
@@ -136,7 +134,7 @@ Optional.ofNullable(person).get();
 
 ##### 2.3 Optional.isPresent()方法(判读是否为空)
 
-`isPresent()`方法就是会返回一个boolean类型值，如果对象不为空则为真，如果为空则false 源码:
+`isPresent()`方法就是会返回一个 boolean 类型值，如果对象不为空则为真，如果为空则 false
 
 ```java
  public boolean isPresent() {
@@ -147,14 +145,14 @@ Optional.ofNullable(person).get();
 简单的实例展示:
 
 ```java
-Person person=new Person();
+Person person = new Person();
 person.setAge(2);
 if (Optional.ofNullable(person).isPresent()){
-//写不为空的逻辑
-System.out.println("不为空");
+  //写不为空的逻辑
+  System.out.println("不为空");
 }else{
- //写为空的逻辑
- System.out.println("为空");
+   //写为空的逻辑
+   System.out.println("为空");
 }
 ```
 
@@ -175,10 +173,10 @@ public void ifPresent(Consumer<? super T> consumer) {
 ```java
 Person person=new Person();
 person.setAge(2);
-Optional.ofNullable(person).ifPresent(p -> System.out.println("年龄"+p.getAge()));
+Optional.ofNullable(person).ifPresent(p -> System.out.println("年龄" + p.getAge()));
 ```
 
-如果对象不为空，则会打印这个年龄，因为内部已经做了NPE（非空判断），所以就不用担心空指针异常了
+如果对象不为空，则会打印这个年龄，因为内部已经做了 NPE（非空判断），所以就不用担心空指针异常了
 
 ##### 2.5 Optional.filter()方法(过滤对象)
 
@@ -353,7 +351,7 @@ Optional.ofNullable(member).orElseThrow(() -> new ServiceException("没有查询
  Optional.ofNullable(member).orElseThrow(() -> new ServiceException("没有查询的相关数据"));
 ```
 
-场景2：我们可以在dao接口层中定义返回值时就加上Optional 例如：我使用的是jpa，其他也同理
+场景2：可以在dao接口层中定义返回值时就加上Optional 例如：我使用的是jpa，其他也同理
 
 ```
 public interface LocationRepository extends JpaRepository<Location, String> {
@@ -371,7 +369,7 @@ public TerminalVO findById(String id) {
         if (terminalOptional.isPresent()) {
         //使用get()方法获取对象值
             Terminal terminal = terminalOptional.get();
-            //在实战中，我们已经免去了用set去赋值的繁琐，直接用BeanCopy去赋值
+            //在实战中，已经免去了用set去赋值的繁琐，直接用BeanCopy去赋值
             TerminalVO terminalVO = BeanCopyUtils.copyBean(terminal, TerminalVO.class);
             //调用dao层方法返回包装后的对象
             Optional<Location> location = locationRepository.findLocationById(terminal.getLocationId());
@@ -411,7 +409,7 @@ if(StringUtils.isNotBlank(person.getName())){
 Optional.ofNullable(person).map(p -> p.getName()).orElse("name为空");
 ```
 
-我觉得这个例子就能很好的说明这个问题，只是一个很简单判断，如果用了Optional我们还需要考虑包装值，考虑代码书写，考虑方法调用，虽然只有一行，但是可读性并不好，如果别的程序员去读，我觉得肯定没有if看的明显
+我觉得这个例子就能很好的说明这个问题，只是一个很简单判断，如果用了Optional还需要考虑包装值，考虑代码书写，考虑方法调用，虽然只有一行，但是可读性并不好，如果别的程序员去读，我觉得肯定没有if看的明显
 
 ### 5.jdk1.9对Optional优化
 

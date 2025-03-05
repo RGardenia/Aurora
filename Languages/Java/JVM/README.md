@@ -6,7 +6,7 @@
 - 内存快照如何抓取？怎么分析Dump文件？
 - 谈谈JVM中，类加载器你的认识？`rt.jar`
 
-# 2.JVM 的体系结构
+# 2. JVM 的体系结构
 
 **JVM 的位置**
 
@@ -32,9 +32,9 @@
 
 - 启动类加载器：这个类加载器负责放在`<JAVA_HOME>\lib`目录中的，或者被`-Xbootclasspath`参数所指定的路径中的，并且是虚拟机识别的类库。==用户无法直接使用==。
 
-- 扩展类加载器：这个类加载器由`sun.misc.Launcher$ExtClassLoader`r实现。它负责`<JAVA_HOME>\lib\ext`目录中的，或者被`java.ext.dirs`系统变量所指定的路径中的所有类库。==用户可以直接使用==。
+- 扩展类加载器：这个类加载器由`sun.misc.Launcher$ExtClassLoader`实现。它负责`<JAVA_HOME>\lib\ext`目录中的，或者被`java.ext.dirs`系统变量所指定的路径中的所有类库。==用户可以直接使用==。
 
-- 应用程序类加载器：这个类由`sun.misc.Launcher$AppClassLoader`实现。是`ClassLoader中getSystemClassLoader()`方法的返回值。它负责用户路径（ClassPath）所指定的类库。用户可以直接使用。==如果用户没有自己定义类加载器，默认使用这个==。
+- 应用程序类加载器：这个类由`sun.misc.Launcher$AppClassLoader`实现。是`ClassLoader 中 getSystemClassLoader()`方法的返回值。它负责用户路径（ClassPath）所指定的类库。用户可以直接使用。==如果用户没有自己定义类加载器，默认使用这个==。
 
 - 自定义加载器：用户自己定义的类加载器。
 
@@ -83,14 +83,14 @@ public class Car {
 
 ## 4.1.Native Method Stack
 
-- **凡是带了`native`关键字的，说明java的作用范围达不到了，需要回去调用本地C语言的库。这些本地方法会进入到本地方法栈(Native Method Stack)，调用本地方法接口(Java Native Interface)，就可以调用本地方法库了！**
-- **JNI的作用：扩展Java的使用，融合不同的编程语言为Java所用！最初是融合C、C++。Java诞生的时候C、C++横行，Java想要立足，必须要有调用C、C++的方法。**
-- **在内存区域中专门开辟了一块标记区域：Native Method Stack，登记 native方法，最终执行的时候，通过JNI加载本地方法库中的方法。**
+- **凡是带了`native`关键字的，说明 java 的作用范围达不到了，需要回去调用本地C语言的库。这些本地方法会进入到本地方法栈(Native Method Stack)，调用本地方法接口(Java Native Interface)，就可以调用本地方法库了！**
+- **JNI 的作用：扩展Java的使用，融合不同的编程语言为Java所用！最初是融合C、C++。Java诞生的时候C、C++横行，Java想要立足，必须要有调用C、C++的方法。**
+- **在内存区域中专门开辟了一块标记区域：Native Method Stack，登记 native 方法，最终执行的时候，通过 JNI 加载本地方法库中的方法。**
 - **Java程序需要驱动硬件会调用本地方法，现在用的很少，掌握即可！**
 
 ## 4.2.Program Counter Register
 
-程序计数器：Program Counter Register。
+程序计数器：Program Counter Register
 
 **==每个线程都有一个程序计数器，是线程私有的==**，就是一个指针，指针方法区中的方法字节（用来存储指向一条指令的地址，也即将要执行的指令代码），在执行引擎读取下一条指令，是一个非常小的内存空间，几乎可以忽略不计。
 
