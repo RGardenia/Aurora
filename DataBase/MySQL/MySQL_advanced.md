@@ -434,7 +434,7 @@ MySQL数据库和其他数据库相比，MySQL有点与众不同，主要体现�
 
 # 3.存储引擎
 
-`show engines;`命令查看MySQL5.7支持的存储引擎。
+`show engines;`命令查看MySQL5.7支持的存储引擎
 
 ```shell
 mysql> show engines;
@@ -462,7 +462,7 @@ mysql> show variables like 'default_storage_engine%';
 
 > 什么是change buffer？
 
-在MySQL5.5之前，叫插入缓冲(insert buffer)，只针对insert做了优化；现在对delete和update也有效，叫做写缓冲(change buffer)。
+在MySQL5.5之前，叫插入缓冲(insert buffer)，只针对insert做了优化；现在对delete和update也有效，叫做写缓冲(change buffer)
 
 它是一种应用在**非唯一普通索引页**(non-[unique](https://so.csdn.net/so/search?q=unique&spm=1001.2101.3001.7020) secondary index page)不在缓冲池中，对页进行了写操作，并不会立刻将磁盘页加载到缓冲池，而仅仅记录缓冲变更(buffer changes)，等未来数据被读取时，再将数据合并(merge)恢复到缓冲池中的技术。写缓冲的目的是降低写操作的磁盘IO，提升数据库性能。
 
@@ -470,12 +470,10 @@ mysql> show variables like 'default_storage_engine%';
 
 我们说 free 链表的添加条件是什么？
 
-1. 这个页已经从磁盘读入了Buffer Pool中。
-2. 当我们修改了此页数据，此缓存页变为了脏页，加入到flush链表中等待刷盘。
+1. 这个页已经从磁盘读入了Buffer Pool中
+2. 当我们修改了此页数据，此缓存页变为了脏页，加入到flush链表中等待刷盘
 
 ### change buffer的作用
-
-不清楚change buffer作用的同学，做了下面的对比应该清楚了
 
 **<font size=5>没有change buffer时，更新一条内存中不存在的页</font>**
 
@@ -597,7 +595,7 @@ select * from t where k in (k1, k2)
 
 这时候大家又要抢答了。我知道有个redo log日志，InnoDB就是靠他保证数据不丢失的！对，但是redo log日志中记录的是对页的物理操作。而如果发生 partial page write（部分页写 入）问题时，此时重做日志(Redo Log)无能为力。 那么这种页写了一半的情况该如何解决呢？
 
-### doublewrite buffer解决页的部分写入
+### doublewrite buffer 解决页的部分写入
 
 doublewrite buffer 是 InnoDB 在表空间上的 128 个页（2 个区，extend1 和 extend2），大小是 2MB。为了解决部分页写入问题。
 

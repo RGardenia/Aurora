@@ -310,3 +310,89 @@ JVM在上下文切换的时候使用了Unsafe中的两个非常牛逼的方法pa
 # Gradle 
 
 > https://www.yuque.com/youyi-ai1ik/emphm9/kyhenl
+
+
+
+
+
+
+
+# Socket
+
+
+
+## Clinet
+
+```java
+Socket client = new Socket(host, port);
+new OutputStreamWriter(client.getOutputStream());
+
+client.close();
+```
+
+
+
+## Server
+
+```java
+ServerSocket server = new ServerSocket(port);
+Socket socket = server.accept();
+new InputStreamReader(socket.getInputStream());
+
+socket.close();
+server.close();
+```
+
+
+
+
+
+
+
+#  I/O Stream
+
+
+
+## 字节流 (Byte Streams)
+
+字节流用于处理所有类型的 I/O，包括字符、图片、音频等二进制数据。字节流的基类是 `InputStream` 和 `OutputStream`。
+
+#### 常见的字节流类
+
+- **`InputStream`**：字节输入流的基类。
+  - **`FileInputStream`**：用于从文件中读取字节数据。
+  - **`ByteArrayInputStream`**：从字节数组中读取数据。
+  - **`BufferedInputStream`**：带缓冲区的输入流，提高读取效率。
+  - **`DataInputStream`**：读取原始数据类型，如 `int`、`long` 等。
+- **`OutputStream`**：字节输出流的基类。
+  - **`FileOutputStream`**：用于向文件中写入字节数据。
+  - **`ByteArrayOutputStream`**：向字节数组中写入数据。
+  - **`BufferedOutputStream`**：带缓冲区的输出流，提供更高的写入效率。
+  - **`DataOutputStream`**：写入原始数据类型。
+
+## 字符流 (Character Streams)
+
+字符流专门用于处理字符数据，字符流的基类是 `Reader` 和 `Writer`，它们通过字符集（如 UTF-8）来处理字符数据。
+
+#### 常见的字符流类
+
+- **`Reader`**：字符输入流的基类。
+  - **`FileReader`**：用于从文件中读取字符。
+  - **`BufferedReader`**：带缓冲区的字符输入流，通常用于读取行。
+  - **`InputStreamReader`**：将字节流转换为字符流。
+- **`Writer`**：字符输出流的基类。
+  - **`FileWriter`**：用于向文件中写入字符数据。
+  - **`BufferedWriter`**：带缓冲区的字符输出流，通常用于写入行。
+  - **`OutputStreamWriter`**：将字节流转换为字符流。
+
+## **字节流和字符流的区别**
+
+| 特性       | 字节流 (Byte Stream)                          | 字符流 (Character Stream)              |
+| ---------- | --------------------------------------------- | -------------------------------------- |
+| 继承体系   | `InputStream` / `OutputStream`                | `Reader` / `Writer`                    |
+| 处理的数据 | 所有类型的原始二进制数据                      | 主要处理字符数据（文本）               |
+| 默认的编码 | 不进行编码/解码                               | 根据字符编码（如 UTF-8）进行编码和解码 |
+| 常见子类   | `FileInputStream`，`FileOutputStream`         | `FileReader`，`FileWriter`             |
+| 缓冲区支持 | `BufferedInputStream`，`BufferedOutputStream` | `BufferedReader`，`BufferedWriter`     |
+| 适用场景   | 处理图片、音频、视频等二进制文件              | 处理文本文件（字符数据）               |
+
