@@ -221,6 +221,64 @@ func isSymmetric(root *TreeNode) bool {
 
 
 
+# `strconv`
+
+`strconv.Atoi(s string) (i int, err error)`
+
+`strconv.Itoa(i int) string`
+
+
+
+## Parse 系列
+
+Parse类函数用于转换字符串为给定类型的值：ParseBool()、ParseFloat()、ParseInt()、ParseUint()
+
+```go
+// 返回字符串表示的bool值，它只接受值为1、0、t、f、T、F、true、false、True、False、TRUE、FALSE的字符串，否则返回错误
+
+fmt.Println(strconv.ParseBool("1"))    // true
+fmt.Println(strconv.ParseBool("t"))    // true
+fmt.Println(strconv.ParseBool("T"))    // true
+fmt.Println(strconv.ParseBool("true")) // true
+fmt.Println(strconv.ParseBool("True")) // true
+fmt.Println(strconv.ParseBool("TRUE")) // true
+fmt.Println(strconv.ParseBool("0"))     // false
+fmt.Println(strconv.ParseBool("f"))     // false
+fmt.Println(strconv.ParseBool("F"))     // false
+fmt.Println(strconv.ParseBool("false")) // false
+fmt.Println(strconv.ParseBool("False")) // false
+fmt.Println(strconv.ParseBool("FALSE")) // false
+
+//转换成功
+s1 := "123"
+ps1,err := strconv.ParseInt(s1, 10, 8) // 指将s1转换为10进制数，8指的是转换结果最大值不超过int8，即127
+if err != nil{
+	fmt.Printf("err is %v\n", err)
+	return
+}else{
+	fmt.Printf("类型： %T ，值： %d", ps1, ps1) //类型： int64 ，值： 123
+}
+
+//转换失败
+s1 := "129" // 超过int8最大值127
+ps1,err := strconv.ParseInt(s1, 10, 8) // 指将s1转换为10进制数，8指的是转换结果最大值不超过int8，即127
+if err != nil{
+	fmt.Printf("err is %v\n", err)
+	return
+}else{
+	fmt.Printf("类型： %T ，值： %d", ps1, ps1) //err is strconv.ParseInt: parsing "129": value out of range
+}
+
+f := "1.2342332"
+f1, err := strconv.ParseFloat(f, 64)
+if err != nil {
+  fmt.Printf("err is %v\n", err)
+  return
+} else {
+  fmt.Printf("类型为：%T,值为：%f", f1, f1)
+} //类型为：float64,值为：1.234230
+```
+
 
 
 

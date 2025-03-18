@@ -23,7 +23,7 @@ centos              latest        8efe422e6104      210 MB
 
 ## Alpine操作系统
 
-Alpine操作系统主要是面向安全的轻量级Linux发行版，它和其它的发行版不同之处在于，Alpine采用了musllibc 和 busybox以减少系统体积和运行时资源消耗，但功能上比busybox又完善的多 ，因此越来越得到开源社区的青睐。在保持瘦身的同时，Alpine还提供了自己的包管理工具【CentOS是yum，ubuntu是 apt-get】，可以通过 [Alpine包查询网站](https://pkgs.alpinelinux.org/packages) ，来进行查看，例如下图所示，搜索自己需要安装的包进行查看
+Alpine操作系统主要是面向安全的轻量级Linux发行版，它和其它的发行版不同之处在于，Alpine采用了 musllibc 和 busybox 以减少系统体积和运行时资源消耗，但功能上比busybox又完善的多 ，因此越来越得到开源社区的青睐。在保持瘦身的同时，Alpine还提供了自己的包管理工具【CentOS 是 yum，ubuntu 是 apt-get】，可以通过 [Alpine包查询网站](https://pkgs.alpinelinux.org/packages) ，来进行查看，例如下图所示，搜索自己需要安装的包进行查看
 
 ![image-20201206093447554](images/image-20201206093447554.png)
 

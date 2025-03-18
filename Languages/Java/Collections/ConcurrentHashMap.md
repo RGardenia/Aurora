@@ -16,7 +16,7 @@ ConcurrentHashMap 在 JDK1.7 和 JDK1.8 的实现方式是不同的。
 
 **先来看下JDK1.7**
 
-JDK1.7 中的 ConcurrentHashMap 是由 `Segment` 数组结构和 `HashEntry` 数组结构组成，即 ConcurrentHashMap 把哈希桶数组切分成小数组（Segment），每个小数组有 n 个 HashEntry 组成。
+JDK1.7 中的 ConcurrentHashMap 是由 `Segment` 数组结构和 `HashEntry` 数组结构组成，即 ConcurrentHashMap 把**哈希桶数组**切分成小数组（Segment），每个小数组有 n 个 HashEntry 组成。
 
 如下图所示，首先将数据分为一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一段数据时，其他段的数据也能被其他线程访问，实现了真正的并发访问。
 
@@ -34,15 +34,15 @@ Segment 继承了 ReentrantLock，所以 Segment 是一种可重入锁，扮演�
 
 >  其中，用 volatile 修饰了 HashEntry 的数据 value 和 下一个节点 next，保证了多线程环境下数据获取时的**可见性**！
 
-**再来看下JDK1.8**
+**再来看下 JDK1.8**
 
-在数据结构上， JDK1.8 中的 ConcurrentHashMap 选择了与 HashMap 相同的**Node数组+链表+红黑树**结构；在锁的实现上，抛弃了原有的 Segment 分段锁，采用`CAS + synchronized`实现更加细粒度的锁。
+在数据结构上， JDK1.8 中的 ConcurrentHashMap 选择了与 HashMap 相同的**Node 数组+链表+红黑树**结构；在锁的实现上，抛弃了原有的 Segment 分段锁，采用`CAS + synchronized`实现更加细粒度的锁。
 
 将锁的级别控制在了更细粒度的哈希桶数组元素级别，也就是说只需要锁住这个链表头节点（红黑树的根节点），就不会影响其他的哈希桶数组元素的读写，大大提高了并发度。
 
 ![img](images/3e0ef497f95c88e6d409cd6f0737bfe3.png)
 
-> JDK1.8 中为什么使用内置锁 synchronized替换 可重入锁 ReentrantLock？★★★★★
+> JDK1.8 中为什么使用内置锁 synchronized 替换 可重入锁 ReentrantLock？★★★★★
 
 - 在 JDK1.6 中，对 synchronized 锁的实现引入了大量的优化，并且 synchronized 有多种锁状态，会从无锁 -> 偏向锁 -> 轻量级锁 -> 重量级锁一步步转换。
 - 减少内存开销 。假设使用可重入锁来获得同步支持，那么每个节点都需要通过继承 AQS 来获得同步支持。但并不是每个节点都需要获得同步支持的，只有链表的头节点（红黑树的根节点）需要同步，这无疑带来了巨大内存浪费。
@@ -55,16 +55,16 @@ Segment 继承了 ReentrantLock，所以 Segment 是一种可重入锁，扮演�
 
 ![img](images/d74b564ac361f2b01f314198eb5dc8ea.png)
 
-先定位到相应的 Segment ，然后再进行 put 操作。
+先定位到相应的 Segment ，然后再进行 put 操作
 
 源代码如下：
 
 ![img](images/76cc8ca680a660a3a04b65b29801cb0b.png)
 
-首先会尝试获取锁，如果获取失败肯定就有其他线程存在竞争，则利用 `scanAndLockForPut()` 自旋获取锁。
+首先会尝试获取锁，如果获取失败肯定就有其他线程存在竞争，则利用 `scanAndLockForPut()` 自旋获取锁
 
-1. 尝试自旋获取锁。
-2. 如果重试的次数达到了 `MAX_SCAN_RETRIES` 则改为阻塞锁获取，保证能获取成功。
+1. 尝试自旋获取锁
+2. 如果重试的次数达到了 `MAX_SCAN_RETRIES` 则改为阻塞锁获取，保证能获取成功
 
 **再来看JDK1.8**
 
@@ -94,7 +94,7 @@ Segment 继承了 ReentrantLock，所以 Segment 是一种可重入锁，扮演�
 
 ![img](images/19e8e13c0fc91718739fbc3388c9797f.png)
 
-**再来看JDK1.8**
+**再来看 JDK1.8**
 
 大致可以分为以下步骤：
 
@@ -109,7 +109,7 @@ Segment 继承了 ReentrantLock，所以 Segment 是一种可重入锁，扮演�
 
 > ConcurrentHashMap 的 get 方法是否要加锁，为什么？★★★
 
-get 方法不需要加锁。因为 Node 的元素 value 和指针 next 是用 volatile 修饰的，在多线程环境下线程A修改节点的 value 或者新增节点的时候是对线程B可见的。
+get 方法不需要加锁。因为 Node 的元素 value 和指针 next 是用 volatile 修饰的，在多线程环境下线程 A 修改节点的 value 或者新增节点的时候是对线程 B 可见的。
 
 这也是它比其他并发集合比如 Hashtable、用 `Collections.synchronizedMap()`包装的 HashMap 效率高的原因之一。
 
@@ -143,13 +143,13 @@ get 方法不需要加锁。因为 Node 的元素 value 和指针 next 是用 vo
 
 > ConcurrentHashMap 的并发度是什么？★★
 
-并发度可以理解为程序运行时能够同时更新 ConccurentHashMap且不产生锁竞争的最大线程数。在JDK1.7中，实际上就是ConcurrentHashMap中的分段锁个数，即Segment[]的数组长度，默认是16，这个值可以在构造函数中设置。
+并发度可以理解为程序运行时能够同时更新 ConccurentHashMap 且不产生锁竞争的最大线程数。在JDK1.7中，实际上就是ConcurrentHashMap中的分段锁个数，即Segment[]的数组长度，默认是16，这个值可以在构造函数中设置。
 
-如果自己设置了并发度，ConcurrentHashMap 会使用大于等于该值的最小的2的幂指数作为实际并发度，也就是比如你设置的值是17，那么实际并发度是32。
+如果自己设置了并发度，ConcurrentHashMap 会使用**大于等于该值的最小的 2 的幂指数作为实际并发度**，也就是比如你设置的值是17，那么实际并发度是32。
 
 如果并发度设置的过小，会带来严重的锁竞争问题；如果并发度设置的过大，原本位于同一个Segment内的访问会扩散到不同的Segment中，CPU cache命中率会下降，从而引起程序性能下降。
 
-在JDK1.8中，已经摒弃了Segment的概念，选择了Node数组+链表+红黑树结构，并发度大小依赖于数组的大小。
+在JDK1.8中，已经摒弃了Segment的概念，选择了Node数组+链表+红黑树结构，**并发度大小依赖于数组的大小**。
 
 
 
@@ -185,9 +185,9 @@ Hashtable 是使用 synchronized来实现线程安全的，给整个哈希表加
 
 ![img](images/e26eda0d1e01618208c559e264bad8ea.png)
 
-> 多线程下安全的操作 map还有其他方法吗？★★★
+> 多线程下安全的操作 map 还有其他方法吗？★★★
 
-还可以使用`Collections.synchronizedMap`方法，对方法进行加同步锁。
+还可以使用`Collections.synchronizedMap`方法，对方法进行加同步锁
 
 ![img](images/1e537606d716a73c972b0ebf7aa10da6.png)
 
