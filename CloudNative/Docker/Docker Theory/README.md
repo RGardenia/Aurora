@@ -6,7 +6,7 @@
 
 
 
-Docker 是基于 Linux Kernel的 Namespace 和 Cgroups 技术实现的
+Docker 是基于 Linux Kernel 的 Namespace 和 Cgroups 技术实现的
 
 
 
@@ -254,7 +254,7 @@ ip a
 
 ## Cgroups
 
-cgroups 是 control groups 的缩写，linux的分组有很多，比如进程的分组，用户的分组，而 cgroups 用来统一将进程进行分组，并在分组的基础上对进程进行监控和资源控制管理等，它是linux 内核提供的一个物理资源隔离机制。
+cgroups 是 control groups 的缩写，linux的分组有很多，比如进程的分组，用户的分组，而 cgroups 用来统一将进程进行分组，并在分组的基础上对进程进行监控和资源控制管理等，它是 linux 内核提供的一个物理资源隔离机制。
 
 可以实现限制进程或者进程组的资源(如 CPU、内存、磁盘 IO等)
 
@@ -434,8 +434,7 @@ ls -l mnt/
 
 在 CentOS 系统中，通常使用 Devicemapper 作为 Docker 的联合文件系统
 
-Devicemapper 从 Linux 内核 2.6.9 版本开始引入，是一种<span style="color:orange">映射块设备的技术框架</span>
-提供了一种将<span style="color:orange">物理块设备映射到虚拟块设备</span>的机制
+Devicemapper 从 Linux 内核 2.6.9 版本开始引入，是一种<span style="color:orange">映射块设备的技术框架</span>，提供了一种将<span style="color:orange">物理块设备映射到虚拟块设备</span>的机制
 目前 Linux 下比较流行的 LVM 和软件磁盘阵列都是基于 Devicemapper 机制实现的
 
 - 用户空间：负责配置具体的设备映射策略，与相关的内核空间控制逻辑
@@ -457,7 +456,7 @@ Devicemapper 在内核中通过很多模块化的映射驱动 `(target driver)` 
 当 Docker 使用 Devicemapper 作为文件存储驱动时，Docker 将镜像和容器的文件存储在瘦供给池 `(thin pool)`中，并将这些内容挂载在 `/var/lib/docker/devicemapper/` 目录下
 
 - `devicemapper` 目录：`/var/lib/docker/devicemapper/devicemapper/` 存储镜像和容器实际内容，该目录由一个或多个块设备构成
-- `metadata` 目录：`/var/lib/docker/devicemapper/metadata/` 包含 Devicemapper 本身配置的元数据信息，以 json 的形式配置
+- `metadata` 目录：`/var/lib/docker/devicemapper/metadata/` 包含 Devicemapper 本身配置的**元数据信息**，以 json 的形式配置
   这些元数据记录了镜像层和容器层之间的关联信息
 - `mnt` 目录：`/var/lib/docker/devicemapper/mnt/` 是容器的联合挂载点目录，未生成容器时，该目录为空
   容器存在时，该目录下的内容跟容器中一致
@@ -491,7 +490,7 @@ docker info
 vim /etc/docker/daemon.json
 {
 	"storage-driver": "devicemapper'
-  'storage-opts":[
+  "storage-opts":[
     "dm.directlvm_device=/dev/xdf",
     "dm.thinp_percent=95",
     "dm.thinp_metapercent=1",
@@ -499,9 +498,7 @@ vim /etc/docker/daemon.json
     "dm.thinp_autoextend_percent=20",
     "dm.directlvm_device_force=false"
   ]
- }
-
-
+}
 ```
 
 Devicemapper 使用块设备来存储文件，运行速度会比直接操作文件系统更快，Devicemapper 一直作为 Docker 默认的联合文件系统驱动，为 Docker 在 Red Hat 或 CentOS 稳定运行提供强有力的保障
@@ -510,7 +507,7 @@ Devicemapper 使用块设备来存储文件，运行速度会比直接操作文�
 
 ### OverlayFS
 
-`overlay2` 将所有目录称之为层 `(layer)` ，把这些层统一展现到同一的目录下的过程称为<span style="color:orange">联合挂载 `(union mount)`</span>
+`overlay2` 将所有目录称之为层 `(layer)` ，把这些层统一展现到同一的目录下的过程称为 <span style="color:orange">联合挂载 `(union mount)`</span>
 把目录的下一层叫作 `lowerdir` ，上一层叫作 `upperdir`，联合挂载后的结果叫作 `merged`
 
 最好搭配 xfs 文件系统使用，并且使用 xfs 作为底层文件系统时，`d_type` 必须开启
@@ -560,9 +557,9 @@ docker image inspect ubuntu:16.04
 
 ```
 
-Overlay2 将镜像层和容器层都放在单独的目录，并且有唯一ID，每一层仅存储发生变化的文件，最终使用联合挂载技术将容器层和镜像层的所有文件统一挂载到容器中，使得容器中看到完整的系统文件
+Overlay2 将**镜像层和容器层都放在单独的目录**，并且有唯一ID，每一层仅存储发生变化的文件，最终使用联合挂载技术将容器层和镜像层的所有文件统一挂载到容器中，使得容器中看到完整的系统文件
 
-第一次修改文件：Overlay2 会触发写时复制操作，首先从镜像层复制文件到容器层，然后在容器层执行对应的文件修改操作
+第一次修改文件：Overlay2 会触发**写时复制操作**，首先从镜像层复制文件到容器层，然后在容器层执行对应的文件修改操作
 
 删除文件或目录：Overlay2 会创建一个特殊的文件或目录，这种特殊的文件或目录会阻止容器的访问
 

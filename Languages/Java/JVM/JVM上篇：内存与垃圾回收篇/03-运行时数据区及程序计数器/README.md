@@ -30,7 +30,7 @@
 
 ![image-20210509174543026](https://img-blog.csdnimg.cn/img_convert/bbf59f2544890b06cdb69b2d7719c060.png)
 
-我们通过磁盘或者网络 IO 得到的数据，都需要先加载到内存中，然后 CPU 从内存中获取数据进行读取，也就是说内存充当了 CPU 和磁盘之间的桥梁
+通过磁盘或者网络 IO 得到的数据，都需要先加载到内存中，然后 CPU 从内存中获取数据进行读取，也就是说内存充当了 CPU 和磁盘之间的桥梁
 
 ![image-20200705112416101](https://img-blog.csdnimg.cn/img_convert/d9139f792f2d10eb03fb827da25b3b28.png)
 
@@ -69,7 +69,7 @@ Java 虚拟机定义了若干种程序运行期间会使用到的运行时数据
 
 ## 3.2. 程序计数器(PC 寄存器)
 
-JVM 中的程序计数寄存器（Program Counter Register）中，Register 的命名源于 CPU 的寄存器，寄存器存储指令相关的现场信息。CPU 只有把数据装载到寄存器才能够运行。这里，并非是广义上所指的物理寄存器，或许将其翻译为 PC 计数器（或指令计数器）会更加贴切（也称为程序钩子），并且也不容易引起一些不必要的误会。<mark>JVM 中的 PC 寄存器是对物理 PC 寄存器的一种抽象模拟</mark>。
+​	JVM 中的程序计数寄存器（Program Counter Register）中，Register 的命名源于 CPU 的寄存器，寄存器存储指令相关的现场信息。CPU 只有把数据装载到寄存器才能够运行。这里，并非是广义上所指的物理寄存器，或许将其翻译为 PC 计数器（或指令计数器）会更加贴切（也称为程序钩子），并且也不容易引起一些不必要的误会。<mark>JVM 中的 PC 寄存器是对物理 PC 寄存器的一种抽象模拟</mark>。
 
 ![image-20200705155551919](https://img-blog.csdnimg.cn/img_convert/e6785d89d74d694f7cfe22ba74a164d9.png)
 

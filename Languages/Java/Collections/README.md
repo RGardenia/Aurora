@@ -4,11 +4,61 @@
 
 ![img](images/249993-20170119151138921-1550766941.jpg)
 
-> 底层以数组的形式实现：EnumMap、ArrayList、ArrayQueue
-> 底层以链表的形式实现：LinkedHashSet、LinkedList、LinkedHashMap
-> 底层以 HashTable 的形式实现：HashMap、HashSet、LinkedHashMap、LinkedHashSet、WeakHashMap、IdentityHashMap
-> 底层以红黑树的形式实现：TreeMap、TreeSet
-> 底层以二叉堆的形式实现：PriorityQueue
+> ### **底层以数组的形式实现**
+>
+> - **`ArrayList`**
+> - **`ArrayDeque`**（双端队列，循环数组）
+> - **`EnumMap`**（根据枚举序数索引的数组）
+> - **`Vector`**（线程安全版 ArrayList，已不推荐使用）
+> - **`Stack`**（继承 Vector，已不推荐使用）
+> - **`CopyOnWriteArrayList`**（写时复制数组，并发安全）
+> - **`ArrayBlockingQueue`**（固定容量阻塞队列，数组实现）
+>
+> ------
+>
+> ### **底层以链表的形式实现**
+>
+> - **`LinkedList`**（双向链表）
+> - **`LinkedHashMap`**（哈希表 + 双向链表维护插入/访问顺序）
+> - **`LinkedHashSet`**（基于 LinkedHashMap 实现）
+> - **`ConcurrentLinkedQueue`**（无锁并发队列，CAS + 链表）
+> - **`LinkedBlockingQueue`**（可选容量的阻塞队列，链表实现）
+>
+> ------
+>
+> ### **底层以哈希表（散列表）的形式实现**
+>
+> - **`HashMap`**（数组 + 链表/红黑树，Java 8+ 优化冲突）
+> - **`HashSet`**（基于 HashMap 实现）
+> - **`Hashtable`**（线程安全版哈希表，已不推荐使用）
+> - **`WeakHashMap`**（弱引用键的哈希表）
+> - **`IdentityHashMap`**（使用 `==` 比较键的哈希表）
+> - **`ConcurrentHashMap`**（分段锁或 CAS 实现的并发哈希表）
+> - **`LinkedHashMap`**/**`LinkedHashSet`**（结合哈希表和链表）
+>
+> ------
+>
+> ### **底层以红黑树（平衡二叉搜索树）的形式实现**
+>
+> - **`TreeMap`**
+> - **`TreeSet`**（基于 TreeMap 实现）
+> - **`ConcurrentSkipListMap`**（跳表实现，类似树结构，并发安全）
+> - **`ConcurrentSkipListSet`**（基于 ConcurrentSkipListMap 实现）
+>
+> ------
+>
+> ### **底层以二叉堆的形式实现**
+>
+> - **`PriorityQueue`**（小顶堆）
+> - **`DelayQueue`**（基于 PriorityQueue 实现的阻塞队列）
+>
+> ------
+>
+> ### **其他特殊实现**
+>
+> - **`EnumSet`**（位向量或数组实现，依赖枚举类型）
+> - **`CopyOnWriteArraySet`**（基于 CopyOnWriteArrayList 实现）
+> - **`BitSet`**（位向量实现，严格来说不属于集合框架，但类似集合操作）
 
 ![img](images/1010726-20170621004756882-1379253225.gif)
 
@@ -16,9 +66,21 @@
 
 
 
+## CopyOnWriteXXX
+
+​	CopyOnWrite，也被称为写时复制（Copy-On-Write，简称COW），是程序设计领域中的一种优化策略。这种策略的核心思想是，当多个调用者（或线程）同时访问同一份资源时，会共同获取一个指向该资源的指针。只要没有调用者尝试修改这份资源，所有的调用者都可以继续访问同一个资源。但是，一旦有调用者尝试修改资源，系统就会复制一份该资源的副本给这个调用者，而其他调用者所见到的仍然是原来的资源。这个过程对其他的调用者都是透明的，他们并不知道资源已经被复制。
+
+​	在Java中，`CopyOnWriteArrayList` 和 `CopyOnWriteArraySet` 就是使用了这种策略的两个类。这两个类都位于java.util.concurrent包下，是线程安全的集合类。当需要修改集合中的元素时，它们不会直接在原集合上进行修改，而是复制一份新的集合，然后在新的集合上进行修改。修改完成后，再将指向原集合的引用指向新的集合。这种设计使得读操作可以在不加锁的情况下进行，从而提高了并发性能。
+
+​	`CopyOnWriteArrayList` 在遍历时不会对列表进行任何修改，因此它不会抛出ConcurrentModificationException的异常。它在修改操作（如add、set等）时，会**复制一份底层数组**，然后在新的数组上进行修改，修改完成后再将指向底层数组的引用切换到新的数组。这种设计使得读操作可以在不加锁的情况下进行，从而提高了并发性能，这个特性使得它在多线程环境下进行遍历操作时更为安全。
+
+​	CopyOnWriteArrayList 并没有“扩容”的概念。每次写操作（如add或remove）都需要复制一个全新的数组，这在写操作较为频繁时可能会导致性能问题，因为复制整个数组的操作是相当耗时的。因此，在使用CopyOnWriteArrayList时，需要特别注意其适用场景，一般来说，它更适合于**读多写少**的场景。
 
 
-## Stream
+
+
+
+# Stream
 
 ​	`Stream`将要处理的元素集合看作一种流，在流的过程中，借助`Stream API`对流中的元素进行操作，比如：筛选、排序、聚合等。
 
@@ -29,9 +91,9 @@
 
 特性：
 
-1. stream不存储数据，而是按照特定的规则对数据进行计算，一般会输出结果。
-2. stream不会改变数据源，通常情况下会产生一个新的集合或一个值。
-3. stream具有延迟执行特性，只有调用终端操作时，中间操作才会执行。
+1. stream 不存储数据，而是按照特定的规则对数据进行计算，一般会输出结果。
+2. stream 不会改变数据源，通常情况下会产生一个新的集合或一个值。
+3. stream 具有延迟执行特性，只有调用终端操作时，中间操作才会执行。
 
 
 

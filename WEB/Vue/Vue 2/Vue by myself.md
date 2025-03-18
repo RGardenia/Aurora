@@ -10,35 +10,33 @@ Vue (读音 /vjuː/，类似于 **view**) 是一套用于构建用户界面的**
 
 ### 1.1、 Vue的优点：
 
-- 在有[HTML](https://baike.baidu.com/item/HTML/97049)，[CSS](https://baike.baidu.com/item/CSS/5457)，[JavaScript](https://baike.baidu.com/item/JavaScript/321142)的基础上，快速上手。
-- 简单小巧的核心，渐进式技术栈，足以应付任何规模的应用。
+- 在有[HTML](https://baike.baidu.com/item/HTML/97049)，[CSS](https://baike.baidu.com/item/CSS/5457)，[JavaScript](https://baike.baidu.com/item/JavaScript/321142)的基础上，快速上手
+- 简单小巧的核心，渐进式技术栈，足以应付任何规模的应用
 - 20kb min+gzip 运行大小、超快虚拟 [DOM](https://baike.baidu.com/item/DOM/50288) 、最省心的优化 
-- 简单轻巧，功能强大，拥有非常容易上手的 API；
-- 可组件化 和 响应式设计；
-- 实现数据与结构分离，高性能，易于浏览器的加载速度；
-- MVVM 模式，数据双向绑定，减少了 DOM 操作，将更多精力放在数据和业务逻辑上。
+- 简单轻巧，功能强大，拥有非常容易上手的 API
+- 可组件化和响应式设计
+- 实现数据与结构分离，高性能，易于浏览器的加载速度
+- MVVM 模式，数据双向绑定，减少了 DOM 操作，将更多精力放在数据和业务逻辑上
 
-虚拟dom和数据双向绑定
+- 虚拟 dom 和数据双向绑定
 
-### 1.2、mvvm框架
+### 1.2、mvvm 框架
 
-MVVM是对mvc和mvp两种模式的进一步改进的模式
+MVVM 是对 mvc 和 mvp 两种模式的进一步改进的模式
 
-view：视图层(UI用户界面)
-
-ViewModel：业务逻辑层（一切 js 可视为业务逻辑）,及时修改，及时编译
-
-Model：数据层（存储数据及对数据的处理如增删改查）
+- view：视图层(UI用户界面)
+- ViewModel：业务逻辑层（一切 js 可视为业务逻辑）,及时修改，及时编译
+- Model：数据层（存储数据及对数据的处理如增删改查）
 
 - MVVM将数据双向（data-binding）绑定作为核心思想，view和model之间没有练习
-- 他们通过ViewModel这个桥梁进行交互。
-- Model和Veiw之间是双向的，只要二者有一个发生变化，veiwmodel就会使另一个跟着发生同样的变化，
+- 他们通过ViewModel这个桥梁进行交互
+- Model和Veiw之间是双向的，只要二者有一个发生变化，veiwmodel就会使另一个跟着发生同样的变化
 
 流程图：
 
 ![image-20210726100911981](Vue.assets/image-20210726100911981.png)
 
-### vue七大常用对象：
+### vue 七大常用对象：
 
 - el属性
 - - 用来指示vue编译器从什么地方开始解析 vue的语法，可以说是一个占位符。
@@ -57,7 +55,7 @@ Model：数据层（存储数据及对数据的处理如增删改查）
   - 监听data中数据的变化
   - 两个参数，一个返回新值，一个返回旧值，
 
-## 2、vue的基础语法
+## 2、vue 的基础语法
 
 ### 2.1、v-if
 
@@ -90,14 +88,17 @@ Model：数据层（存储数据及对数据的处理如增删改查）
 
 - v-for
 
+```html
 1. `<div id="hello-vue">`
 2. `<li v-for="(item,index) in items">`
 3. `    { {item.message} }--- { {index} }`
 4. `</li>`
 5. `</div>`
+```
 
 根据使用了的v-for的js
 
+```html
 1. `<script>`
 2. `    var vm  = new Vue({`
 3. `        el:"#hello-vue",`
@@ -110,6 +111,9 @@ Model：数据层（存储数据及对数据的处理如增删改查）
 10. `        }`
 11. `    });`
 12. `</script>`
+```
+
+
 
 
 
@@ -229,7 +233,7 @@ history模式**直接指向history对象**，它表示当前窗口的浏览历�
 - 当使用history模式时，URL就像这样：hhh.com/user/id。相比hash模式更加好看。
 - 虽然history模式不需要#。但是，它也有自己的缺点，就是在刷新页面的时候，如果没有相应的路由或资源，就会刷出404来。
 
-history api可以分为两大部分，**切换历史状态** 和 **修改历史状态**：
+history api 可以分为两大部分，**切换历史状态** 和 **修改历史状态**
 
 **修改历史状态：**
 包括了 HTML5 History Interface 中新增的 pushState() 和 replaceState() 方法，这两个方法应用于浏览器的历史记录栈，提供了对历史记录进行修改的功能。只是当他们进行修改时，虽然修改了url，但浏览器不会立即向后端发送请求。如果要做到改变url但又不刷新页面的效果，就需要前端用上这两个API。

@@ -1,6 +1,6 @@
 # 一、SpringMVC流程
 
-是⼀个基于 [MVC](https://so.csdn.net/so/search?q=MVC&spm=1001.2101.3001.7020) 架构的⽤来简化 web 应⽤程序开发框架，它是 Spring 的 ⼀个模块，⽆需中间整合层来整合，它和 Struts2 ⼀样都属于表现层的框架，在 web 模型中， MVC 是⼀种很流⾏的框架，把 Model，View，Controller 分离，把较为复杂的 web 应⽤分为 逻辑清晰的⼏部分，简化开发，减少出错，⽅便组内开发⼈员之间的配合。
+​	SpringMVC 是⼀个基于 MVC 架构的⽤来简化 web 应⽤程序开发框架，它是 Spring 的 ⼀个模块，⽆需中间整合层来整合，它和 Struts2 ⼀样都属于表现层的框架，在 web 模型中， MVC 是⼀种很流⾏的框架，把 Model，View，Controller 分离，把较为复杂的 web 应⽤分为 逻辑清晰的⼏部分，简化开发，减少出错，⽅便组内开发⼈员之间的配合。
 
 
 
@@ -17,12 +17,12 @@
 \10. DispatcherServlet 响应⽤户。
 
 **SpringMVC 的工作原理**
-a.用户向服务器发送请求，请求被 [springMVC](https://so.csdn.net/so/search?q=springMVC&spm=1001.2101.3001.7020) 前端控制器 DispatchServlet 捕获；
+a.用户向服务器发送请求，请求被 springMVC 前端控制器 DispatchServlet 捕获；
 b.DispatcherServle 对请求 URL 进行解析，得到请求资源标识符（URL），然后根据该 URL 调用HandlerMapping将请求映射到处理器 HandlerExcutionChain；
 c.DispatchServlet 根据获得 Handler 选择一个合适的 HandlerAdapter 适配器处理；
 d.Handler 对数据处理完成以后将返回一个 ModelAndView（）对象给 DisPatchServlet;
 e.Handler 返回的 ModelAndView()只是一个逻辑视图并不是一个正式的视图DispatcherSevlet 通过ViewResolver 试图解析器将逻辑视图转化为真正的视图 View;
-h.DispatcherServle 通过 [model](https://so.csdn.net/so/search?q=model&spm=1001.2101.3001.7020) 解析出 ModelAndView()中的参数进行解析最终展现出完整的 view并返回给客户端;
+h.DispatcherServle 通过 model 解析出 ModelAndView()中的参数进行解析最终展现出完整的 view并返回给客户端;
 
 **SpringMVC 如何设定重定向和转发的？**
 在返回值前⾯ forward,就可以让结果转发，譬如 forward:user.do?name=method4
@@ -32,7 +32,7 @@ h.DispatcherServle 通过 [model](https://so.csdn.net/so/search?q=model&spm=1001
 有两种写法，⼀种是实现 HandlerInterceptor 接⼝，另⼀种是继承适配器类，接着在接⼝⽅法 当中实现处理逻辑，然后在 SpringMVC 的配置⽂件中配置拦截器即可
 
 **SpringMVC 的异常处理**
-可以将异常抛给 Spring [框架](https://so.csdn.net/so/search?q=框架&spm=1001.2101.3001.7020)，由 Spring 的 AOP 来处理，我们只需要配置简单的异常处理器
+可以将异常抛给 Spring 框架，由 Spring 的 AOP 来处理，我们只需要配置简单的异常处理器
 在异常处理器中添加视图⻚⾯即可。
 
 **SpringMVC 的控制器是不是单例模式，如果是，有什么问题，如何解决。**
@@ -100,15 +100,15 @@ session=request.getSession();即可，获取 Response 也是需要在⽅法的�
 
 
 
-## 1. DispatcherServlet结构图
+## 1. DispatcherServlet 结构图
 
 ![DispatcherServlet继承图](images/DispatcherServlet%E7%BB%93%E6%9E%84.6us8563buow0.png)
 
-注：`HttpServlet、HttpServletBean、FrameworkServlet` 都是抽象类。
+注：`HttpServlet、HttpServletBean、FrameworkServlet` 都是抽象类
 
-客户端向服务器发送请求，首先会来到 `HttpServlet` 的 `doGet()/doPost()`。
+客户端向服务器发送请求，首先会来到 `HttpServlet` 的 `doGet()/doPost()`
 
-`FrameworkServlet` 一路继承下来, 表示它也是一个 `HttpServlet`。并且重写了 `doGet/doPost()`。
+`FrameworkServlet` 一路继承下来, 表示它也是一个 `HttpServlet`  并且重写了 `doGet/doPost()`
 
 ```java
 public abstract class FrameworkServlet extends HttpServletBean 
@@ -295,7 +295,7 @@ protected HandlerAdapter getHandlerAdapter(Object handler)
 
 
 
-# 三、SpringMVC九大组件
+# 三、SpringMVC 九大组件
 
 ## 1. 组件名称
 

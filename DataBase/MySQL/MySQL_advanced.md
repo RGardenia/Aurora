@@ -464,20 +464,20 @@ mysql> show variables like 'default_storage_engine%';
 
 在MySQL5.5之前，叫插入缓冲(insert buffer)，只针对insert做了优化；现在对delete和update也有效，叫做写缓冲(change buffer)
 
-它是一种应用在**非唯一普通索引页**(non-[unique](https://so.csdn.net/so/search?q=unique&spm=1001.2101.3001.7020) secondary index page)不在缓冲池中，对页进行了写操作，并不会立刻将磁盘页加载到缓冲池，而仅仅记录缓冲变更(buffer changes)，等未来数据被读取时，再将数据合并(merge)恢复到缓冲池中的技术。写缓冲的目的是降低写操作的磁盘IO，提升数据库性能。
+它是一种应用在**非唯一普通索引页**(non-[unique](https://so.csdn.net/so/search?q=unique&spm=1001.2101.3001.7020) secondary index page)不在缓冲池中，对页进行写操作，并不会立刻将磁盘页加载到缓冲池，而仅仅记录缓冲变更(buffer changes)，等未来数据被读取时，再将数据合并(merge)恢复到缓冲池中的技术。写缓冲的目的是降低写操作的磁盘IO，提升数据库性能。
 
 **<font size=5>flush 链表的添加元素的条件</font>**
 
 我们说 free 链表的添加条件是什么？
 
-1. 这个页已经从磁盘读入了Buffer Pool中
-2. 当我们修改了此页数据，此缓存页变为了脏页，加入到flush链表中等待刷盘
+1. 这个页已经从磁盘读入**Buffer Pool**中
+2. 当修改此页数据，此缓存页变为了脏页，加入到flush链表中等待刷盘
 
 ### change buffer的作用
 
 **<font size=5>没有change buffer时，更新一条内存中不存在的页</font>**
 
-那么假设我们现在读取的元素不在内存中，此时有人写了一个update语句更新数据页，InnoDB引擎的工作流程如下：
+那么假设现在读取的元素不在内存中，此时有人写了一个update语句更新数据页，InnoDB引擎的工作流程如下：
 
 1. 从磁盘加载数据页到缓冲池，一次磁盘随机读操作；
 2. 修改缓冲池中的页，一次内存操作；
@@ -490,13 +490,13 @@ mysql> show variables like 'default_storage_engine%';
 1. 在写缓冲中记录这个操作，一次内存操作；
 2. 写入redo log，一次磁盘顺序写操作；
 
-可以发现，这样change buffer的出现直接减少了一次磁盘IO。
+可以发现，这样change buffer的出现直接减少了一次磁盘IO
 
 ### 读取数据是否会出现一致性问题？
 
-当然不会，我们change buffer中，相当于以页为单位，存储了许多数据修改的逻辑。当change buffer没有刷到磁盘时，磁盘中的数据肯定是脏数据。那么读出来的数据肯定是不对的。
+当然不会，change buffer中，相当于以页为单位，存储了许多数据修改的逻辑。当change buffer没有刷到磁盘时，磁盘中的数据肯定是脏数据。那么读出来的数据肯定是不对的。
 
-解决方案也很简单，就是先把脏数据读到内存中，再根据change buffer中对此数据页修改记录，还原出最新版本的数据页信息即可。（注意，这时候change buffer相关此页的数据就没了，同步到缓存中了。之后再修改此磁盘页的数据，就会进入flush链表中了）。
+解决方案也很简单，就是先把脏数据读到内存中，再根据change buffer中对此数据页修改记录，还原出最新版本的数据页信息即可。（注意，这时候change buffer相关此页的数据就没了，同步到缓存中了。之后再修改此磁盘页的数据，就会进入flush链表中了）
 
 ### change buffer的刷盘时机
 
@@ -697,7 +697,7 @@ SELECT <select_list> FROM TableA A RIGHT JOIN TableB B ON A.Key = B.Key WHERE A.
 
 # 7.索引
 
-## 7.1.索引简介
+## 7.1. 索引简介
 
 > 索引是什么？
 
@@ -716,7 +716,7 @@ MySQL官方对索引的定义为：**索引（INDEX）是帮助MySQL高效获取
 一般来说，索引本身也很大，不可能全部存储在内存中，因此索引往往以索引文件的形式存储在磁盘上。
 
 ```shell
-# Linux下查看磁盘空间命令 df -h 
+# Linux下查看磁盘空间命令 df -h
 [root@Ringo ~]# df -h
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/vda1        40G   16G   23G  41% /
@@ -727,7 +727,7 @@ tmpfs           920M     0  920M   0% /sys/fs/cgroup
 overlay          40G   16G   23G  41% 
 ```
 
-我们平时所说的索引，如果没有特别指明，都是指B树（多路搜索树，并不一定是二叉的）结构组织的索引。其中聚集索引，次要索引，覆盖索引，复合索引，前缀索引，唯一索引默认都是使用B+树索引，统称索引。当然，除了B+树这种数据结构的索引之外，还有哈希索引（Hash Index）等。
+平时所说的索引，如果没有特别指明，都是指 B 树（多路搜索树，并不一定是二叉的）结构组织的索引。其中**聚集索引，次要索引，覆盖索引，复合索引，前缀索引**，唯一索引默认都是使用 B+ 树索引，统称索引。当然，除了B+树这种数据结构的索引之外，还有哈希索引（Hash Index）等。
 
 
 
@@ -744,13 +744,13 @@ overlay          40G   16G   23G  41%
 - 虽然索引大大提高了查询速度，但是同时会降低表的更新速度，例如对表频繁的进行`INSERT`、`UPDATE`和`DELETE`。因为更新表的时候，MySQL不仅要保存数据，还要保存一下索引文件每次更新添加的索引列的字段，都会调整因为更新所带来的键值变化后的索引信息。
 - 索引只是提高效率的一个因素，如果MySQL有大数据量的表，就需要花时间研究建立最优秀的索引。
 
-## 7.2.MySQL索引分类
+## 7.2. MySQL索引分类
 
 索引分类：
 
-- 单值索引：一个索引只包含单个列，一个表可以有多个单列索引。
-- 唯一索引：索引列的值必须唯一，但是允许空值。
-- 复合索引：一个索引包含多个字段。
+- 单值索引：一个索引只包含单个列，一个表可以有多个单列索引
+- 唯一索引：索引列的值必须唯一，但是允许空值
+- 复合索引：一个索引包含多个字段
 
 **建议：一张表建的索引最好不要超过5个！**
 
@@ -785,7 +785,7 @@ ALTER TABLE tabName ADD INDEX indexName(column_list);
 ALTER TABLE tabName ADD FULLTEXT indexName(column_list);
 ```
 
-## 7.3MySQL索引数据结构
+## 7.3. MySQL索引数据结构
 
 索引数据结构：
 
@@ -800,7 +800,7 @@ ALTER TABLE tabName ADD FULLTEXT indexName(column_list);
 
 ![BTree](https://img-blog.csdnimg.cn/20200801233134931.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70)
 
-## 7.4.哪些情况需要建索引
+## 7.4. 建索引情况
 
 - 主键自动建立主键索引（唯一 + 非空）。
 - 频繁作为查询条件的字段应该创建索引。
@@ -810,7 +810,7 @@ ALTER TABLE tabName ADD FULLTEXT indexName(column_list);
 
 
 
-## 7.5.那些情况不要建索引
+## 7.5. 不建索引情况
 
 - 记录太少的表。
 - 经常增删改的表。
@@ -821,7 +821,7 @@ ALTER TABLE tabName ADD FULLTEXT indexName(column_list);
 
 # 8.性能分析
 
-## 8.1.EXPLAIN简介
+## 8.1.EXPLAIN 简介
 
 > EXPLAIN是什么？
 
@@ -860,7 +860,7 @@ possible_keys: NULL
 - `ref`：表之间的引用。
 - `rows`：每张表有多少行被优化器查询。
 
-## 8.2.EXPLAIN字段
+## 8.2.EXPLAIN 字段
 
 > id
 
@@ -2672,7 +2672,7 @@ mysql> SHOW STATUS LIKE 'innodb_row_lock%';
 
 ## 18.1.复制基本原理
 
-![主从复制](https://img-blog.csdnimg.cn/20200806170415401.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70)
+![主从复制](images/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1JyaW5nb18=,size_16,color_FFFFFF,t_70.png)
 
 MySQL复制过程分为三步：
 
@@ -2682,47 +2682,59 @@ MySQL复制过程分为三步：
 
 ## 18.2.复制基本原则
 
-- 每个Slave只有一个Master。
-- 每个Slave只能有一个唯一的服务器ID。
-- 每个Master可以有多个Salve。
+- 每个Slave只有一个Master
+- 每个Slave只能有一个唯一的服务器ID
+- 每个Master可以有多个Salve
 
 ## 18.3.一主一从配置
 
-> 1、基本要求：Master和Slave的MySQL服务器版本一致且后台以服务运行。
+> 1、基本要求：Master和Slave的MySQL服务器版本一致且后台以服务运行
 
 ```shell
-# 创建mysql-slave1实例
+# 创建 mysql-slave1 实例
 docker run -p 3307:3306 --name mysql-slave1 \
 -v /root/mysql-slave1/log:/var/log/mysql \
 -v /root/mysql-slave1/data:/var/lib/mysql \
 -v /root/mysql-slave1/conf:/etc/mysql \
 -e MYSQL_ROOT_PASSWORD=333 \
--d mysql:5.7
+-d mysql:8.0.35
 ```
 
 > 2、主从配置都是配在[mysqld]节点下，都是小写
 
 ```shell
-# Master配置
+# Master 配置
 [mysqld]
-server-id=1 # 必须
-log-bin=/var/lib/mysql/mysql-bin # 必须
+# 服务器唯一id，默认值 1
+server-id=1
 read-only=0
+# 设置日志格式，默认值ROW
+binlog_format=STATEMENT
+# 二进制日志名，默认 binlog
+# log-bin=binlog
+# 设置需要复制的数据库，默认复制全部数据库
+# binlig-do-db=mytestdb
+# 设置 不需要复制的数据库
 binlog-ignore-db=mysql
+# binlog-ignore-db=infomation_schema
 ```
 
 ```shell
-# Slave配置
+# Slave 配置
 [mysqld]
 server-id=2 # 必须
 log-bin=/var/lib/mysql/mysql-bin
+# 中继日志名，默认 xxxxxxxxxxxxx-relay-bin
+relay-log=relay-bin
 ```
 
-> 3、Master配置
+`docker exec -it mysql-slave1 env LANG=C.UTF-8 /bin/bash`
+
+> 3、Master 配置
 
 ```shell
 # 1、GRANT REPLICATION SLAVE ON *.* TO 'username'@'从机IP地址' IDENTIFIED BY 'password';
-mysql> GRANT REPLICATION SLAVE ON *.* TO 'zhangsan'@'172.18.0.3' IDENTIFIED BY '123456';
+mysql> GRANT REPLICATION SLAVE ON *.* TO 'zhangYu'@'172.18.0.3' IDENTIFIED BY '123456';
 Query OK, 0 rows affected, 1 warning (0.01 sec)
 
 # 2、刷新命令
@@ -2740,20 +2752,43 @@ mysql> SHOW MASTER STATUS;
 1 row in set (0.00 sec)
 ```
 
-> 4、Slave从机配置
+```bash
+# 修改默认密码校验方式
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+```
 
-```shell
-CHANGE MASTER TO MASTER_HOST='172.18.0.4',
-MASTER_USER='zhangsan',
-MASTER_PASSWORD='123456',
-MASTER_LOG_FILE='mysql-bin.File的编号',
-MASTER_LOG_POS=Position的最新值;
+```bash
+# 主机中创建 slave 用户
+create USER 'test_slave'@'%';
+--设置密码
+ALTER USER 'test_slave'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+--授予复制权限
+GRANT REPLICATION SLAVE ON *.* TO 'test_slave'@'%';
+--刷新权限
+FLUSH PRIVILEGES;
+
+SHOW MASTER STATUS
+-- 记下 File 和 Position 的值   执行完此步骤后不要再操作主服务器MYSL，防止主服务器状态值变化
 ```
 
 
 
+> 4、Slave 从机配置
+
 ```shell
-# 1、使用用户名密码登录进Master
+# SQL 操作
+CHANGE MASTER TO MASTER_HOST='172.18.0.4',
+MASTER_USER='zhangYu',
+MASTER_PASSWORD='123456',
+MASTER_PORT=3306,
+MASTER_LOG_FILE='mysql-bin.File的编号',
+MASTER_LOG_POS=4252;
+```
+
+> 5. 启动主从复制
+
+```shell
+# 1、使用用户名密码登录进 Master
 mysql> CHANGE MASTER TO MASTER_HOST='172.18.0.4',
     -> MASTER_USER='zhangsan',
     -> MASTER_PASSWORD='123456',
@@ -2761,17 +2796,22 @@ mysql> CHANGE MASTER TO MASTER_HOST='172.18.0.4',
     -> MASTER_LOG_POS=602;
 Query OK, 0 rows affected, 2 warnings (0.02 sec)
 
-# 2、开启Slave从机的复制
-mysql> START SLAVE;
-Query OK, 0 rows affected (0.00 sec)
-
-# 3、查看Slave状态
-# Slave_IO_Running 和 Slave_SQL_Running 必须同时为Yes 说明主从复制配置成功！
+# 1、停止从服务器的 I/O 线程
+STOP REPLICA IO_THREAD;
+# 注意：mysql8.0+ 中，SLAVE 关键字已经被废弃，应该使用 REPLICA 关键字。在mysql5.7及之前版本中，可以使用STOP SLAVE IO_THREAD;
+# 2、等待 I/O 线程停止，可以通过检查从服务器的状态确认
+SHOW SLAVE STATUS \G;
+# 3、重新执行 change master to 语句来更新主服务器信息
+change master to master_host='192.168.2.177',master_user='slave',master_password='123456',master_port=3306,master_log_file='binlog.000071',master_log_pos=1672;                        
+# 4、启动从服务器的I/O线程，如果是 mysql5.7 及更早版本，使用 START SLAVE IO_THREAD;
+START REPLICA IO_THREAD;
+# 5、检查从服务器的状态以确保复制正常运行
+# Slave_IO_Running 和 Slave_SQL_Running 必须同时为 Yes 说明主从复制配置成功！
 mysql> SHOW SLAVE STATUS\G
 *************************** 1. row ***************************
                Slave_IO_State: Waiting for master to send event # Slave待命状态
                   Master_Host: 172.18.0.4
-                  Master_User: zhangsan
+                  Master_User: zhangYu
                   Master_Port: 3306
                 Connect_Retry: 60
               Master_Log_File: mysql-bin.000001
@@ -2829,7 +2869,7 @@ Master_SSL_Verify_Server_Cert: No
 1 row in set (0.00 sec)
 ```
 
-> 5、测试主从复制
+> 6. 测试主从复制
 
 ```shell
 # Master创建数据库
@@ -2850,15 +2890,21 @@ mysql> show databases;
 5 rows in set (0.00 sec)
 ```
 
-> 6、停止主从复制功能
+> 7. 停止 主从复制功能
 
 ```shell
-# 1、停止Slave
+# 1、停止 Slave      在从机上执行。功能：停止I/O线程和SQL线程的操作
 mysql> STOP SLAVE;
 Query OK, 0 rows affected (0.00 sec)
 
+# 在从机上执行。功能：用于删除slave数据库的relaylog日志文件，并查询启动新的relaylog文件
+reset slave；
+# 在主机上执行。功能：删除所有的binglog日志文件，并将日志索引文件清空，重新开始所有新的日志文件
+# 用于第一次搭建主从库时，进行主从binlog初始化工作；
+reset master;
+
 # 2、重新配置主从
-# MASTER_LOG_FILE 和 MASTER_LOG_POS一定要根据最新的数据来配
+# MASTER_LOG_FILE 和 MASTER_LOG_POS 一定要根据最新的数据来配
 mysql> CHANGE MASTER TO MASTER_HOST='172.18.0.4',
     -> MASTER_USER='zhangsan',
     -> MASTER_PASSWORD='123456',
@@ -2869,66 +2915,7 @@ Query OK, 0 rows affected, 2 warnings (0.01 sec)
 mysql> START SLAVE;
 Query OK, 0 rows affected (0.00 sec)
 
-mysql> SHOW SLAVE STATUS\G
-*************************** 1. row ***************************
-               Slave_IO_State: Waiting for master to send event
-                  Master_Host: 172.18.0.4
-                  Master_User: zhangsan
-                  Master_Port: 3306
-                Connect_Retry: 60
-              Master_Log_File: mysql-bin.000001
-          Read_Master_Log_Pos: 797
-               Relay_Log_File: b030ad25d5fe-relay-bin.000002
-                Relay_Log_Pos: 320
-        Relay_Master_Log_File: mysql-bin.000001
-             Slave_IO_Running: Yes
-            Slave_SQL_Running: Yes
-              Replicate_Do_DB: 
-          Replicate_Ignore_DB: 
-           Replicate_Do_Table: 
-       Replicate_Ignore_Table: 
-      Replicate_Wild_Do_Table: 
-  Replicate_Wild_Ignore_Table: 
-                   Last_Errno: 0
-                   Last_Error: 
-                 Skip_Counter: 0
-          Exec_Master_Log_Pos: 797
-              Relay_Log_Space: 534
-              Until_Condition: None
-               Until_Log_File: 
-                Until_Log_Pos: 0
-           Master_SSL_Allowed: No
-           Master_SSL_CA_File: 
-           Master_SSL_CA_Path: 
-              Master_SSL_Cert: 
-            Master_SSL_Cipher: 
-               Master_SSL_Key: 
-        Seconds_Behind_Master: 0
-Master_SSL_Verify_Server_Cert: No
-                Last_IO_Errno: 0
-                Last_IO_Error: 
-               Last_SQL_Errno: 0
-               Last_SQL_Error: 
-  Replicate_Ignore_Server_Ids: 
-             Master_Server_Id: 1
-                  Master_UUID: bd047557-b20c-11ea-9961-0242ac120002
-             Master_Info_File: /var/lib/mysql/master.info
-                    SQL_Delay: 0
-          SQL_Remaining_Delay: NULL
-      Slave_SQL_Running_State: Slave has read all relay log; waiting for more updates
-           Master_Retry_Count: 86400
-                  Master_Bind: 
-      Last_IO_Error_Timestamp: 
-     Last_SQL_Error_Timestamp: 
-               Master_SSL_Crl: 
-           Master_SSL_Crlpath: 
-           Retrieved_Gtid_Set: 
-            Executed_Gtid_Set: 
-                Auto_Position: 0
-         Replicate_Rewrite_DB: 
-                 Channel_Name: 
-           Master_TLS_Version: 
-1 row in set (0.00 sec)
+mysql> SHOW SLAVE STATUS\G;
 ```
 
 

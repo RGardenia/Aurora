@@ -1,4 +1,35 @@
+# Kubernetes
 
+
+
+
+
+常用的 `kind` 资源类型：
+
+| kind                                 | 说明                                                     |
+| ------------------------------------ | -------------------------------------------------------- |
+| **Pod**                              | 最小的部署单元，包含一个或多个容器                       |
+| **ReplicaSet**                       | 保证某个 Pod 副本数                                      |
+| **Deployment**                       | 管理 ReplicaSet，实现滚动升级、回滚等                    |
+| **StatefulSet**                      | 有状态应用的控制器，Pod 有固定序号，持久化存储           |
+| **DaemonSet**                        | 每个 Node 上部署一个 Pod，适合日志、监控等               |
+| **Job**                              | 执行一次性任务，直到成功                                 |
+| **CronJob**                          | 定时任务，周期性调度                                     |
+| **Service**                          | 稳定暴露一组 Pod，支持 ClusterIP、NodePort、LoadBalancer |
+| **Ingress**                          | 七层 HTTP 路由，外部访问入口                             |
+| **ConfigMap**                        | 存储配置信息                                             |
+| **Secret**                           | 存储敏感数据，如密码、密钥                               |
+| **PersistentVolume (PV)**            | 预先配置的存储资源                                       |
+| **PersistentVolumeClaim (PVC)**      | 申请使用 PV 的声明                                       |
+| **Namespace**                        | 资源隔离                                                 |
+| **ResourceQuota**                    | 限制 Namespace 中资源使用量                              |
+| **LimitRange**                       | 限制 Pod/Container 的资源使用范围                        |
+| **HPA (HorizontalPodAutoscaler)**    | 自动横向扩缩容                                           |
+| **VPA (VerticalPodAutoscaler)**      | 自动调整 Pod 资源 request/limit                          |
+| **NetworkPolicy**                    | 网络访问控制策略                                         |
+| **Role / ClusterRole**               | 权限定义（细粒度 RBAC）                                  |
+| **RoleBinding / ClusterRoleBinding** | 权限绑定                                                 |
+| **ServiceAccount**                   | Pod 访问 API Server 时使用的身份凭证                     |
 
 
 

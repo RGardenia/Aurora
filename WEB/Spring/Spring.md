@@ -16,9 +16,9 @@
 
 **（1）四个核心一个依赖**：
 
-- 导入Spring5的核心 jar：`Beans、Core、Context、Expression`。
+- 导入Spring5的核心 jar：`Beans、Core、Context、Expression`
 
-- 导入一个依赖 jar：`commons-logging`。
+- 导入一个依赖 jar：`commons-logging`
 
 ```xml
 <!-- 1: spring 的四个核心包 -->

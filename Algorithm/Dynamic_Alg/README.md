@@ -1265,3 +1265,73 @@ int main()
 
 
 
+
+
+
+
+## 最大子序和
+
+给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。子数组 是数组中的一个连续部分。
+
+ 
+
+示例 1：
+
+输入：nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出：6
+解释：连续子数组 [4,-1,2,1] 的和最大，为 6 
+
+```go
+func maxSubArray(nums []int) int {
+    if len(nums) == 0 {
+        return 0
+    }
+    currentMax := nums[0]
+    globalMax := nums[0]
+    for i := 1; i < len(nums); i++ {
+        currentMax = max(nums[i], currentMax + nums[i])
+        globalMax = max(globalMax, currentMax)
+    }
+    return globalMax
+}
+
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+```
+
+
+
+### Kadane 算法
+
+​	`Kadane's` 算法是一种用于解决最大子数组和问题的动态规划算法。这类问题的目标是在给定整数数组中找到一个连续的子数组，使其元素之和最大（数组含有负数）。
+
+​	算法的核心思想是通过迭代数组的每个元素，维护两个变量来跟踪局部最优解和全局最优解。
+
+- 初始化：
+
+​	令 maxEndingHere 表示在当前位置结束的最大子数组和，初始值为数组的第一个元素。
+​	令 maxSoFar 表示全局最大子数组和，初始值也为数组的第一个元素。
+
+- 迭代：
+
+​	从数组的第二个元素开始迭代。
+
+​	对于每个元素，计算在当前位置结束的最大子数组和：
+​		`maxEndingHere = max(nums[i], maxEndingHere + nums[i]);`
+​	这表示要么继续当前子数组，要么从当前位置开始一个新的子数组。
+
+​	更新全局最大子数组和：
+​		`maxSoFar = max(maxSoFar, maxEndingHere);`
+​	如果在当前位置结束的子数组和大于全局最大和，更新全局最大和。
+
+- 返回结果：
+
+​	当迭代完成后，maxSoFar 中存储的即为最大子数组和。
+
+<img src="images/6a1d32731782270942bbab9c9e40d47d.png" alt="在这里插入图片描述" style="zoom:50%;" />
+
+如过**当前值**比前面的**局部最大值+当前值**还大，那么就从当前值开始继续计算局部最大值

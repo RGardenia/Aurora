@@ -1,6 +1,6 @@
 # JUC  并发编程
 
-​		编写优质的`并发代码`是一件难度极高的事情。Java语言从第一版本开始内置了对多线程的支持，当我们对并发编程有了更深刻的认识和更多的实践后，实现并发编程就有了更多的方案和更好的选择。
+​		编写优质的`并发代码`是一件难度极高的事情。Java语言从第一版本开始内置了对多线程的支持，当对并发编程有了更深刻的认识和更多的实践后，实现并发编程就有了更多的方案和更好的选择。
 
 # 概览
 
@@ -371,8 +371,8 @@ public class RunnableDemo {
 }
 
 //1.定义一个类实现Runnable
-class MyRunnale implements Runnable{
-    //2.重写run方法
+class MyRunnale implements Runnable {
+    //2.重写 run 方法
     @Override
     public void run() {
         //3.将要执行的代码写在run方法中
@@ -397,20 +397,19 @@ class MyRunnale implements Runnable{
 >     a.好处是：即使自己定义的线程类有了父类也没有关系，因为有了父类可以实现接口，而且接口可以多现实的
 >     b.弊端是：不能直接使用Thread中的方法需要先获取到线程对象后，才能得到Thread的方法，代码复杂
 
-### ③. Callable接口(创建线程)
+### ③. Callable 接口(创建线程)
 
-> Callable接口中的call方法和Runnable接口中的run方法的区别
+> Callable 接口中的 call 方法和 Runnable 接口中的 run 方法的区别
 >
-> 1. 是否有返回值(Runnable接口没有返回值 Callable接口有返回值)
-> 2. 是否抛异常(Runnable接口不会抛出异常 Callable接口会抛出异常)
-> 3. 落地方法不一样，一个是call() ，一个是run()
+> 1. 是否有返回值(Runnable 接口没有返回值 Callable 接口有返回值)
+> 2. 是否抛异常( Runnable 接口不会抛出异常 Callable 接口会抛出异常)
 
 ![image-20220617204426408](pics/image-20220617204426408.png)
 
 #### Future 接口概述
 
 > 1. FutureTask 是 Future 接口的唯一的实现类
-> 2. FutureTask 同时实现了 Runnable、Future接口。它既可以作为 Runnable 被线程执行，又可以作为Futrue得到 Callable 的返回值
+> 2. FutureTask 同时实现了 Runnable、Future 接口。它既可以作为 Runnable 被线程执行，又可以作为Futrue 得到 Callable 的返回值
 
 ![image-20220617204509456](pics/image-20220617204509456.png)
 

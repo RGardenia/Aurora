@@ -76,7 +76,7 @@ cookie.remove(key, {path: '/'});
 
 ## 1. 携带cookie
 
-`axios` 请求在跨域的情况下不会携带cookie。
+`axios` 请求在跨域的情况下不会携带cookie
 
 ```javascript
 // 设置axios请求携带cookie。
@@ -89,7 +89,7 @@ axios.defaults.withCredentials = true;				// 该配置axios就会携带cookie了
 
 
 
-`withCredentials=true`开启后，spring-security应该开启接受跨域cookie。
+`withCredentials=true`开启后，spring-security应该开启接受跨域cookie
 
 ```java
 /**
