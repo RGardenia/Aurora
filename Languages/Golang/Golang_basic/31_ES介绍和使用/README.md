@@ -1,20 +1,18 @@
 # ES 介绍和使用
 
-## 今日内容
-
 ### Logtransfer
 
 从Kafka里面把日志取出来，写入ES，使用Kibana做可视化展示
 
 ### 系统监控
 
-psutil：采集系统信息的，写入到influxDB，使用 Grafana做展示
+psutil：采集系统信息的，写入到influxDB，使用 Grafana 做展示
 
-promethenus监控：采集性能指标数据，保存起来，使用grafana做展示
+promethenus 监控：采集性能指标数据，保存起来，使用 grafana 做展示
 
 ### ElasticSearch
 
-Elasticsearch（ES）是一个基于Lucene构建的开源、分布式、RESTful接口的全文搜索引擎。Elasticsearch还是一个分布式文档数据库，其中每个字段均可被索引，而且每个字段的数据均可被搜索，ES能够横向扩展至数以百计的服务器存储以及处理PB级的数据。可以在极短的时间内存储、搜索和分析大量的数据。通常作为具有复杂搜索场景情况下的核心发动机。
+Elasticsearch（ES）是一个基于Lucene构建的开源、分布式、RESTful接口的全文搜索引擎。Elasticsearch还是一个**分布式文档数据库**，其中每个字段均可被索引，而且每个字段的数据均可被搜索，ES能够横向扩展至数以百计的服务器存储以及处理PB级的数据。可以在极短的时间内存储、搜索和分析大量的数据。通常作为具有复杂搜索场景情况下的核心发动机。
 
 ## ElasticSearch安装
 

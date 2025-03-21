@@ -2,7 +2,7 @@
 
 # 一、Ribbon概述
 
-SpringCloud Ribbon 是基于Netflix Ribbon实现的一套客户端，负载均衡的工具。
+SpringCloud Ribbon 是基于 Netflix Ribbon 实现的一套客户端，负载均衡的工具。
 
 
 

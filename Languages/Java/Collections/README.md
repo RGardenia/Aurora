@@ -82,12 +82,14 @@
 
 # Stream
 
-​	`Stream`将要处理的元素集合看作一种流，在流的过程中，借助`Stream API`对流中的元素进行操作，比如：筛选、排序、聚合等。
+`Stream`将要处理的元素集合看作一种流，在流的过程中，借助`Stream API`对流中的元素进行操作，比如：筛选、排序、聚合等。
 
-​	Stream可以由数组或集合创建，对流的操作分为两种：
+Stream可以由数组或集合创建，对流的操作分为两种：
 
-​	中间操作，每次返回一个新的流，可以有多个。（筛选filter、映射map、排序sorted、去重组合skip—limit）
+中间操作，每次返回一个新的流，可以有多个。（筛选filter、映射map、排序sorted、去重组合skip—limit）
 终端操作，每个流只能进行一次终端操作，终端操作结束后流无法再次使用。终端操作会产生一个新的集合或值。（遍历foreach、匹配find–match、规约reduce、聚合max–min–count、收集collect）
+
+<img src="images/image-20250319175917639.png" alt="image-20250319175917639" style="zoom: 67%;" />
 
 特性：
 

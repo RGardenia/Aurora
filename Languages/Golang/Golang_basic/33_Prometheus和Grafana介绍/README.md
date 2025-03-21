@@ -1,4 +1,4 @@
-# Prometheus和Grafana介绍
+# Prometheus & Grafana
 
 ## 系统监控
 
@@ -100,7 +100,7 @@ http://127.0.0.1:3000
 
 ## 结语
 
-如果要监控其它的一些服务，比如redis、mysql、Memcache等等，需要自己到官网下载对应的包
+如果要监控其它的一些服务，比如 redis、mysql、Memcache 等等，需要自己到官网下载对应的包
 
 https://prometheus.io/download/
 

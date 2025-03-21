@@ -1,6 +1,6 @@
-# 06、Gateway 新一代网关
+# Gateway 新一代网关
 
-# 一、Gateway概述
+# 一、Gateway 概述
 
 ## 1、Gateway是什么
 

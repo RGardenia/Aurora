@@ -38,6 +38,53 @@ func main() {
 
 logger 会打印每条日志信息的日期、时间，默认输出到系统的标准错误。Fatal 系列函数会在写入日志信息后调用 `os.Exit(1)` 。Panic 系列函数会在写入日志信息后 `panic` 
 
+
+
+## 基础错误处理
+
+```go
+import (
+    "errors"
+    "fmt"
+)
+
+func main() {
+    err := errors.New("Error")
+    if err != nil {
+        fmt.Println(err)
+    }
+}
+```
+
+Go 1.13 之后，引入了 **`errors` 包的 `Is` 和 `As` 函数**，以及 **`errors.Unwrap`**，可以进行错误链处理。
+
+```go
+import (
+    "errors"
+    "fmt"
+)
+
+func main() {
+    baseErr := errors.New("database connection failed")
+    wrappedErr := fmt.Errorf("failed to fetch user data: %w", baseErr)
+
+    fmt.Println(wrappedErr) // 打印完整的错误链
+
+    if errors.Is(wrappedErr, baseErr) {
+        fmt.Println("Detected database connection issue")
+    }
+}
+```
+
+可以使用`log.SetPrefix`函数设置日志前缀：
+
+```go
+func main() {
+    log.SetPrefix("Prefix: ")
+    log.Println("Log message")
+}
+```
+
 ## 日志输出到文件中
 
 正常的日志文件，是存储在文件中的，因此可以使用以下的方式，将日志存储在文件中
