@@ -12,7 +12,7 @@ Docker 是基于 Linux Kernel 的 Namespace 和 Cgroups 技术实现的
 
 
 
-![image-20241029213242990](images/image-20241029213242990.png)
+<img src="images/image-20241029213242990.png" alt="image-20241029213242990" style="zoom: 50%;" />
 
 
 
@@ -40,25 +40,25 @@ chroot /root/dockerTmp/rootfs /bin/sh
 pwd
 ```
 
-![image.png](images/image.png)
+<img src="images/image.png" alt="image.png" style="zoom:50%;" />
 
-![image-20241029213223717](images/image-20241029213223717.png)
+<img src="images/image-20241029213223717.png" alt="image-20241029213223717" style="zoom:50%;" />
 
 
 
 ## Docker 组件
 
-![image.png](images/image-1730208772786-3.png)
+<img src="images/image-1730208772786-3.png" alt="image.png" style="zoom:50%;" />
 
-![image.png](images/image-1730208778545-6.png)
+<img src="images/image-1730208778545-6.png" alt="image.png" style="zoom: 50%;" />
 
-![image-20241029213307372](images/image-20241029213307372.png)
+<img src="images/image-20241029213307372.png" alt="image-20241029213307372" style="zoom:50%;" />
 
 
 
 ### Docker Init
 
-![image-20241029213323897](images/image-20241029213323897.png)
+<img src="images/image-20241029213323897.png" alt="image-20241029213323897" style="zoom:50%;" />
 
 ```Shell
 docker run -it busybox sh
@@ -72,7 +72,7 @@ ps auX
 
 ### Docker Proxy
 
-![image.png](images/image-1730208819032-9.png)
+<img src="images/image-1730208819032-9.png" alt="image.png" style="zoom:50%;" />
 
 
 
@@ -86,7 +86,7 @@ sudo ps aux | grep docker-proxy
 sudo iptables -L -nv -t nat
 ```
 
-![image.png](images/image-1730208833141-12.png)
+<img src="images/image-1730208833141-12.png" alt="image.png" style="zoom:50%;" />
 
 
 
@@ -99,11 +99,11 @@ sudo iptables -L -nv -t nat
 - 管理网络相关资源
 - 管理存储相关资源
 
-![image.png](images/image-1730208833141-14.png)
+<img src="images/image-1730208833141-14.png" alt="image.png" style="zoom: 50%;" />
 
-![image.png](images/image-1730208833141-15.png)
+<img src="images/image-1730208833141-15.png" alt="image.png" style="zoom: 50%;" />
 
-![image.png](images/image-1730208833141-16.png)
+<img src="images/image-1730208833141-16.png" alt="image.png" style="zoom:50%;" />
 
 
 
@@ -139,7 +139,7 @@ runc list
 
 ## Namespace
 
-Namespace 对内核资源进行隔离，使得容器中的进程都可以在单独的命名空间中运行，并且只可以访问当前容器命名空间的资源
+Namespace 对内核资源进行隔离，使得容器中的进程都可以在**单独的命名空间**中运行，并且只可以访问当前容器命名空间的资源
 
 Namespace 可以隔离**进程 ID、主机名、用户ID、文件名、网络访问和进程间通信**等相关资源
 
@@ -147,7 +147,7 @@ Namespace 可以隔离**进程 ID、主机名、用户ID、文件名、网络访
 
 ![image.png](images/image-1730208926238-34.png)
 
-![image.png](images/image-1730208926238-35.png)
+<img src="images/image-1730208926238-35.png" alt="image.png" style="zoom:50%;" />
 
 ![image.png](images/image-1730208926238-36.png)
 
@@ -157,9 +157,9 @@ Namespace 可以隔离**进程 ID、主机名、用户ID、文件名、网络访
 
 ### Mount Namespace
 
-![image.png](images/image-1730208926238-37.png)
+<img src="images/image-1730208926238-37.png" alt="image.png" style="zoom:50%;" />
 
-![image.png](images/image-1730208926238-38.png)
+<img src="images/image-1730208926238-38.png" alt="image.png" style="zoom:50%;" />
 
 ```Shell
 readlink /proc/$$/ns/mnt
@@ -175,7 +175,7 @@ df -h
 ls -l /proc/self/ns/
 ```
 
-![image.png](images/image-1730208926238-39.png)
+<img src="images/image-1730208926238-39.png" alt="image.png" style="zoom:50%;" />
 
 ### PID NameSpace
 
@@ -207,10 +207,10 @@ hostname
 
 ### IPC NameSpace
 
-![image.png](images/image-1730208926238-42.png)
+<img src="images/image-1730208926238-42.png" alt="image.png" style="zoom:50%;" />
 
 ```Shell
-# 使用 unshare 命令创建一个IPCNamespace
+# 使用 unshare 命令创建一个 IPCNamespace
 sudo unshare --ipc --fork /bin/bash
 
 ipcs -q
@@ -218,7 +218,7 @@ ipcs -q
 ipcmk -Q
 ```
 
-![image.png](images/image-1730208926238-43.png)
+<img src="images/image-1730208926238-43.png" alt="image.png" style="zoom:50%;" />
 
 ### User NameSpace
 
@@ -256,7 +256,7 @@ ip a
 
 cgroups 是 control groups 的缩写，linux的分组有很多，比如进程的分组，用户的分组，而 cgroups 用来统一将进程进行分组，并在分组的基础上对进程进行监控和资源控制管理等，它是 linux 内核提供的一个物理资源隔离机制。
 
-可以实现限制进程或者进程组的资源(如 CPU、内存、磁盘 IO等)
+可以实现限制进程或者进程组的资源(如 CPU、内存、磁盘IO 等)
 
 > **资源限制**
 > 限制资源的使用量
@@ -561,7 +561,7 @@ Overlay2 将**镜像层和容器层都放在单独的目录**，并且有唯一I
 
 第一次修改文件：Overlay2 会触发**写时复制操作**，首先从镜像层复制文件到容器层，然后在容器层执行对应的文件修改操作
 
-删除文件或目录：Overlay2 会创建一个特殊的文件或目录，这种特殊的文件或目录会阻止容器的访问
+删除文件或目录：Overlay2 会创建一个**特殊的文件或目录**，这种特殊的文件或目录会阻止容器的访问
 
 
 
@@ -569,7 +569,9 @@ Overlay2 将**镜像层和容器层都放在单独的目录**，并且有唯一I
 
 ## Gocker
 
+Gocker是一个用 Go 语言从头实现 Docker 核心功能的项目。
 
+Gocker 允许你创建容器，管理容器镜像，执行现有容器中的进程等等。gocker 提供了gocker run，gocker ps，gocker exec，gocker images，gocker rmi等类似于docker的常用命令。
 
 ```bash
 cd /tmp && wget https://studygolang.com/dl/golang/go1.15.2.linux-amd64.tar.gz && sudo tar -C /usr/local -xzf go1.15.2.linux-amd64 tar.gz

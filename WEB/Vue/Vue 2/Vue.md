@@ -80,8 +80,6 @@
 </html>
 ```
 
-![image-20210105125634270](E:\Typora\image\image-20210105125634270.png)
-
 
 
 ### 2.2. 列表展示
@@ -122,8 +120,6 @@
 
 </html>
 ```
-
-![image-20210105130933849](E:\Typora\image\image-20210105130933849.png)
 
 
 
@@ -186,13 +182,9 @@
 </html>
 ```
 
-<img src="E:\Typora\image\image-20210105133037743.png" alt="image-20210105133037743" style="zoom:150%;" />
 
 
-
-## 3. vue生命周期
-
-<img src="E:\Typora\image\image-20210105185012057.png" alt="image-20210105185012057" style="zoom:150%;" />
+## 3. vue 生命周期
 
 ```html
 <!DOCTYPE html>
@@ -248,8 +240,6 @@
 
 </html>
 ```
-
-![image-20210105190342046](E:\Typora\image\image-20210105190342046.png)
 
 
 

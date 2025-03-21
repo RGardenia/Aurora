@@ -12,7 +12,7 @@
 
 ​	Pod 和 Controller 之间是通过 `label` 标签来建立关系，同时 Controller 又被称为控制器工作负载。Kubernetes 控制器会监听资源的 `创建/更新/删除` 事件，并触发 `Reconcile` 函数作为响应。整个调整过程被称作 `“Reconcile Loop”（调谐循环）` 或者 `“Sync Loop”（同步循环）`。
 
-![image-20201116092431237](images/image-20201116092431237.png)
+<img src="images/image-20201116092431237.png" alt="image-20201116092431237" style="zoom:67%;" />
 
 ​	Reconcile 是一个使用资源对象的命名空间和资源对象名称来调用的函数，使得资源对象的实际状态与 资源清单中定义的状态保持一致。调用完成后，Reconcile 会将资源对象的状态更新为当前实际状态。用下面的一段伪代码来表示这个过程：
 

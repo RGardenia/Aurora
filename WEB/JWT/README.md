@@ -12,9 +12,13 @@
 > - `http` 请求会附带 `cookie`
 >   这种登录方式称为 **有状态登录** 
 
+**JWT 结构**
 
+**Header**：声明类型JWT和签名算法（如HS256）
 
+**Payload**：包含用户信息（比如userId、角色、过期时间）
 
+**Signature**：Header和Payload的Base64编码 + 密钥加签
 
 
 

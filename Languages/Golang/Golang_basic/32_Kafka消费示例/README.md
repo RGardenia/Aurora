@@ -120,7 +120,7 @@ func main() {
 
 ## LogTransfer 实现
 
-LogTransfer的主要功能，就是将kafka中的日志信息取出来，然后发送到 ElasticSearch 中，下面就需要编码实现以下过程
+LogTransfer 的主要功能，就是将kafka中的日志信息取出来，然后发送到 ElasticSearch 中，下面就需要编码实现以下过程
 
 ### 文件结构
 

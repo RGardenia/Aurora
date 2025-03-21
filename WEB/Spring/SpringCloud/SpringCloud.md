@@ -30,7 +30,7 @@
 
 ##  
 
-## **2. SpringCloud**和**Dubbo**对比
+## **2. SpringCloud** 和 **Dubbo** 对比
 
 - 核心：
 

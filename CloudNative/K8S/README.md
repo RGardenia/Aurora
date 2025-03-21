@@ -33,6 +33,55 @@
 
 
 
+**K8S 的资源限制 QoS 是什么？**
+
+QoS（Quality of Service，服务质量）是 Kubernetes 用来区分不同 Pod 的资源分配方式，主要分为三类：
+
+1. **BestEffort**：Pod 中不设置任何 CPU 或内存的请求或限制。这种模式是最佛系的，只要有资源用就行，不强求。
+2. **Burstable**：Pod 中至少有一个容器设置了 CPU 或内存的请求。只要你稍微给点资源要求，Pod 就会尽力分配多余的资源。
+3. **Guaranteed**：Pod 中所有的容器都必须明确设置 CPU 和内存的请求和限制，而且两者必须相等。这是最高优先级的资源分配模式，保证你分到的资源一定够用。
+
+**K8S 的数据持久化方式有哪些？**
+
+Kubernetes 提供了几种常见的数据持久化方式：
+
+1. **EmptyDir（空目录）**：这是一种临时存储方式。当 Pod 启动时，K8S 会给它分配一个空目录，Pod 里所有容器都能共享使用。数据的生命周期与 Pod 一致，Pod 被删除时，数据也就没了，主要用于临时存储或容器间的共享数据。
+2. **HostPath**：这种方式允许将宿主机上的某个文件或目录挂载到 Pod 内部。相当于将宿主机的某些资源直接暴露给容器使用。
+3. **PersistentVolume（简称 PV）**：这是 Kubernetes 的一种持久化存储机制。通过 NFS、GFS 等存储后端，提供了长期存储解决方案。用户通过 PersistentVolumeClaim（简称 PVC）来向集群申请存储资源。PVC 和 PV 之间需要定义相同的访问模式和存储类，以便正确关联。
+
+<hr>
+
+**kube-proxy的iptables模式是怎么工作的？**
+
+kube-proxy在Kubernetes 1.2版本后默认启用了iptables模式。简单来说，在这种模式下，kube-proxy不再是个真正的代理，而是通过监听Kubernetes API Server来捕捉Service和Endpoint的变化，并动态更新iptables的规则。这样，客户端请求就可以直接通过iptables的NAT机制被路由到目标Pod，而不再需要经过kube-proxy本身。
+
+**kube-proxy的IPVS模式是如何运作的？**
+
+从Kubernetes 1.11版本开始，IPVS模式被稳定下来。IPVS是专为高性能负载均衡设计的，使用哈希表等更高效的数据结构来管理规则，比iptables模式能支持更大规模的集群。IPVS使用的是ipset，而不是iptables的线性规则链，这让它在处理大量规则时性能表现更出色。
+
+**kube-proxy的IPVS和iptables模式有什么区别和相似之处？**
+
+虽然IPVS和iptables都基于Netfilter，但它们用途不同。iptables更像是个防火墙工具，而IPVS则专门为高性能负载均衡设计。在大规模集群中，IPVS表现更好，支持多种负载均衡算法，比如最少连接和加权等。此外，IPVS还自带健康检查和连接重试功能。
+
+
+
+**Kubernetes支持几种常见的调度方式**
+
+- **Deployment/ReplicationController**：自动管理Pod的多副本，保持指定数量的副本运行。
+
+- **NodeSelector**：通过标签将Pod固定调度到特定节点上。
+
+- **NodeAffinity**：定义Pod和节点的亲和性规则，分为硬性必须满足的规则和可优先选择的软规则。
+
+- **Taints和Tolerations**：Taints可以让**节点**拒绝某些Pod，而Toleration允许 **Pod** 在标记了Taint的节点上运行。
+  kubectl taint nodes node1 key=value:NoSchedule
+
+  > | Effect               | 作用                                                   |
+  > | -------------------- | ------------------------------------------------------ |
+  > | **NoSchedule**       | 不允许没有 Toleration 的 Pod 调度到这个节点            |
+  > | **PreferNoSchedule** | 尽量避免调度到这个节点，但不是强制的                   |
+  > | **NoExecute**        | 不允许调度，同时会驱逐已经存在且没有 Toleration 的 Pod |
+
 
 
 

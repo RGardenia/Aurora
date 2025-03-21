@@ -118,9 +118,9 @@ User(username=lisi, password=123)
 
 
 
-## 2. IoC容器
+## 2. IoC 容器
 
-### 2.1. IoC实现
+### 2.1. IoC 实现
 
 **Spring 提供 IoC 容器两种实现方式**：
 
@@ -131,9 +131,9 @@ User(username=lisi, password=123)
 
 
 
-### 2.2. XML管理bean
+### 2.2. XML 管理 bean
 
-**（1）基于无参构造器创建对象**。
+**（1）基于无参构造器创建对象**
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -150,7 +150,7 @@ User(username=lisi, password=123)
 
 
 
-**（2）注入属性：依赖注入**。
+**（2）注入属性：依赖注入**
 
 ```xml
 <bean id="user" class="com.ymy.spring5.User">
@@ -184,13 +184,9 @@ User(username=lisi, password=123)
 
 
 
-
-
-
-
 # 6. AOP
 
-​	面向切面的编程（Aspect-Oriented Programming，AOP） 是一种编程范式，旨在通过允许横切关注点的分离，提高模块化。AOP要实现的是在我们写的代码的基础上进行一定的包装，如在方法执行前、或执行后、或是在执行中出现异常后这些地方进行拦截处理或叫做增强处理。 AOP允许开发者将横切关注点（跨越多个模块的共同逻辑）与主要业务逻辑分离，以便更有效地管理和重用切面逻辑
+​	面向切面的编程（Aspect-Oriented Programming，AOP） 是一种编程范式，旨在通过允许横切关注点的分离，提高模块化。AOP要实现的是在写的代码的基础上进行一定的包装，如在方法执行前、或执行后、或是在执行中出现异常后这些地方进行拦截处理或叫做增强处理。 AOP允许开发者将横切关注点（跨越多个模块的共同逻辑）与主要业务逻辑分离，以便更有效地管理和重用切面逻辑
 
 ​	AOP最早是AOP联盟的组织提出的，指定的一套规范。在AOP中，两个主要的实现框架是 AspectJ 和 Spring AOP
 
