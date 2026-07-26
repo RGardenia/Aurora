@@ -1,4 +1,4 @@
-# Compiled class file
+﻿# Compiled class file
 *.class
 /target
 /dist
@@ -19,10 +19,10 @@ target
 .obsidian
 *.exe
 
-## 相关 软件 ##
+## 鐩稿叧 杞欢 ##
 Software
 
-## 资料 文件 ##
+## 璧勬枡 鏂囦欢 ##
 Datum
 *.doc
 *.docx
@@ -30,14 +30,13 @@ Datum
 *.txt
 doc
 *.pdf
-!MachineLearning/Tricks/images/*.pdf
 *.ttf
 *.mp4
 *.xmind
 output
 
 ### git rm --cached -r fold/
-## 提交 ##
+## 鎻愪氦 ##
 static/
 Vue_Code/
 vue_basic/
