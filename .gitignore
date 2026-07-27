@@ -1,4 +1,4 @@
-﻿# Compiled class file
+# Compiled class file
 *.class
 /target
 /dist
@@ -66,3 +66,39 @@ WEB/CSS/Shopping
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Large local-only assets removed from Git history
+/BigData/Hive/images/image48.emf
+/BigData/Hive/images/image39.emf
+/BigData/Hive/images/image40.emf
+/BigData/Hive/images/image47.emf
+/BigData/Hive/images/image56.emf
+/BigData/Hive/images/image41.emf
+/BigData/Hive/images/image55.emf
+/BigData/Hive/images/image84.emf
+/BigData/Hive/images/image38.emf
+/BigData/Hive/images/image18.emf
+/BigData/Hive/images/image19.emf
+/BigData/Hive/images/image37.emf
+/BigData/Hive/images/image72.emf
+/BigData/Hive/images/image71.emf
+/BigData/Spark/Spark Core.bmpr
+/Algorithm/DataStructure/images/ff8c469bf99d4e28be6f6719caaaf721.gif
+/WEB/Vue/Vue 3/images/1683166212929-6cc8b8b6-2c4a-4927-8226-65d1f1f4f337.gif
+/WEB/Vue/Vue 3/images/f84e4.image
+/Languages/Java/Interview/谈谈你对AQS的理解/images/image-20200717161505347.png
+/Languages/Python/Django/images/image-20211124103947169.png
+/WEB/Vue/Vue 3/images/1696662197101-55d2b251-f6e5-47f4-b3f1-d8531bbf9279.gif
+/CloudNative/Git/image/wps4.png
+/WEB/Vue/Vue 3/images/e5ac7e.image
+/CloudNative/Git/image/wps26.png
+/WEB/Vue/Vue 3/images/6cc5516.image
+/WEB/Vue/VueCraft/Vue制作一个评论模块/images/111-1578139983946.gif
+/WEB/Vue/Vue 3/images/1696662200734-1bad8249-d7a2-423e-a3c3-ab4c110628be.gif
+/WEB/Vue/Vue 3/images/1696662256560-7239b9f9-a770-43c1-9386-6cc12ef1e9c0.gif
+/Computer/Linux/images/Base01.png
+/Languages/Python/Django/images/image-20211124101708419.png
+/Languages/Python/Django/images/image-20211124091443354.png
+/Interview/JUC/12_JVM/JVM面试题汇总/5_垃圾回收器/images/image-20200325215401981.png
+/BigData/Flink/media/image-20240904171613359.png
+/SuperComputing/images/image-20230417131019991.png
