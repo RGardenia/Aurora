@@ -2,6 +2,13 @@
 *.class
 /target
 /dist
+/service/dist
+/service/node_modules
+/service/public/content
+/service/*.tsbuildinfo
+/service/vite.config.js
+/service/vite.config.d.ts
+/service/src/**/*.js
 
 # Log file
 *.log

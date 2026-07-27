@@ -1,0 +1,28 @@
+{
+  "name": "aurora-service",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/build-content.mjs",
+    "dev": "vite --host 0.0.0.0",
+    "prebuild": "node scripts/build-content.mjs",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "content": "node scripts/build-content.mjs"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.27.0",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "markdown-it": "^14.1.0",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^26.1.1",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.5",
+    "vue-tsc": "^3.3.8"
+  }
+}
