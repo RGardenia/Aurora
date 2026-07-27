@@ -26,6 +26,11 @@ Software
 Datum
 *.doc
 *.docx
+*.chm
+*.emf
+*.bmpr
+*.image
+*.ppt
 *.pptx
 *.txt
 doc
