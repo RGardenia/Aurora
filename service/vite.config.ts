@@ -1,20 +1,14 @@
-import { fileURLToPath, URL } from "node:url";
-import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import path from "path";
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [react()],
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url))
-    }
+    alias: { "@": path.resolve(__dirname, "src") },
   },
-  server: {
-    port: 5173,
-    strictPort: false
+  build: {
+    outDir: "dist",
+    chunkSizeWarningLimit: 600,
   },
-  preview: {
-    port: 4173,
-    strictPort: false
-  }
 });

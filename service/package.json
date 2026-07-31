@@ -1,28 +1,24 @@
 {
-  "name": "aurora-service",
+  "name": "aurora-knowledge",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/build-content.mjs",
-    "dev": "vite --host 0.0.0.0",
-    "prebuild": "node scripts/build-content.mjs",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview --host 0.0.0.0",
-    "content": "node scripts/build-content.mjs"
+    "dev": "vite --host 0.0.0.0 --port 9022",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0 --port 9022"
   },
   "dependencies": {
-    "@lucide/vue": "^1.27.0",
-    "@vitejs/plugin-vue": "^5.2.4",
+    "lucide-react": "^0.456.0",
     "markdown-it": "^14.1.0",
-    "pinia": "^2.3.1",
-    "vue": "^3.5.13"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/markdown-it": "^14.1.2",
-    "@types/node": "^26.1.1",
-    "typescript": "^5.7.2",
-    "vite": "^6.0.5",
-    "vue-tsc": "^3.3.8"
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.5"
   }
 }
